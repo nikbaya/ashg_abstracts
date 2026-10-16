@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ASHG abstracts: who and what gets a talk</title>
+<style>
+.viz-root {
+  color-scheme: light;
+  --surface-1: #fcfcfb; --surface-2: #f0efec; --rule: #e4e3df;
+  --text-primary: #0b0b0b; --text-secondary: #52514e;
+  --talk: #2a78d6; --poster: #e34948;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .viz-root {
+    color-scheme: dark;
+    --surface-1: #1a1a19; --surface-2: #383835; --rule: #383835;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7;
+    --talk: #3987e5; --poster: #e66767;
+  }
+}
+body { margin: 0; }
+.viz-root { background: var(--surface-1); color: var(--text-primary); min-height: 100vh;
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 980px; margin: 0 auto; padding: 32px 20px 64px; }
+h1 { font-size: 28px; margin: 0 0 8px; }
+h2 { font-size: 21px; margin: 40px 0 8px; padding-top: 16px; border-top: 1px solid var(--rule); }
+h3 { font-size: 16px; margin: 24px 0 6px; }
+p, li { color: var(--text-secondary); }
+.caveat { background: var(--surface-2); border-radius: 6px; padding: 12px 16px; }
+nav a { margin-right: 14px; color: var(--text-primary); }
+img.figure { width: 100%; max-width: 760px; border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: 14px; }
+th, td { padding: 5px 8px; border-bottom: 1px solid var(--rule); text-align: right; }
+td:not(.text) { white-space: nowrap; }
+th:first-child, td:first-child, th.text, td.text { text-align: left; }
+th { cursor: pointer; user-select: none; color: var(--text-secondary); font-weight: 600; white-space: nowrap; }
+th[aria-sort="ascending"]::after { content: " ▲"; }
+th[aria-sort="descending"]::after { content: " ▼"; }
+.key { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+.scroll { overflow-x: auto; }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 760px) { .cols { grid-template-columns: 1fr; } }
+footer { margin-top: 48px; font-size: 13px; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="viz-root"><main>
+<h1>ASHG abstracts: who and what gets a talk</h1>
+<p>Parsed from the ASHG annual meeting abstract booklets. Talks = platform + plenary presentations.</p>
+<p class="caveat"><strong>Read this first.</strong> The booklets list only <em>accepted</em> abstracts, and authors
+can ask for a poster. "Talk share" is the share of accepted abstracts presented as a talk, not an acceptance
+rate or a quality score. All numbers are associations.</p>
+<nav>{% for y in years %}<a href="#y{{ y.year }}">{{ y.year }}</a>{% endfor %}<a href="#methods">Methods</a></nav>
+
+{% for y in years %}
+<h2 id="y{{ y.year }}">ASHG {{ y.year }}</h2>
+<p>{{ "{:,}".format(y.summary.abstracts) }} abstracts analysed, {{ "{:,}".format(y.summary.talks) }} talks.
+Baseline talk share <strong>{{ "%.1f"|format(100 * y.summary.talk_share) }}%</strong>.
+{% if y.n_truncated %}{{ y.n_truncated }} abstracts are cut off mid-text in the booklet itself and are excluded.{% endif %}</p>
+
+<h3>Phrases that predict a talk</h3>
+<img class="figure" src="img/{{ y.year }}_headline.png" alt="Dot plot of the phrases most over-represented in ASHG {{ y.year }} talks versus posters, with odds ratios and 95% confidence intervals.">
+<div class="cols">
+{% for dir, label in [("talk", "More common in talks"), ("poster", "More common in posters")] %}
+<div class="scroll"><p><span class="key" style="background: var(--{{ dir }})"></span><strong>{{ label }}</strong></p>
+{{ y.premium[dir] }}</div>
+{% endfor %}
+</div>
+
+<h3>Institutions (top 50 by volume)</h3>
+<p>Credit goes to every institution of the senior (last) author; a second table credits the first author.
+An abstract can count for several institutions, so the rows don't sum to the total.
+First- and senior-author institutions agree for most abstracts.</p>
+<div class="cols">
+<div class="scroll"><p><strong>By senior author</strong></p>{{ y.institutions.senior }}</div>
+<div class="scroll"><p><strong>By first author</strong></p>{{ y.institutions.first }}</div>
+</div>
+
+<h3>Senior authors with the highest talk share</h3>
+<p>Among senior authors with at least {{ y.min_abstracts }} abstracts this year, ranked by the lower end of the
+95% Wilson interval, so a 5-of-6 record outranks 2-of-2.</p>
+<div class="scroll">{{ y.senior_authors }}</div>
+
+<h3>Sample sizes</h3>
+<p>Largest human-subject N stated in the abstract text (e.g. "12,000 individuals", "N = 500 patients").</p>
+<div class="scroll">{{ y.sample_size }}</div>
+{% endfor %}
+
+<h2 id="methods">Methods</h2>
+<ul>
+<li>Text extracted with PyMuPDF and split into abstracts using each booklet's layout (titles, "Authors:", "Abstract:"). Every parsed abstract is checked against the booklet's table of contents, and a hand-checked sample of 55 abstracts is used as a test set.</li>
+<li>Institutions: a hand-curated list of ~150 institutions and their spelling variants. Schools fold into their university (except Harvard Medical School); NIH institutes fold into NIH; hospitals and independent institutes stay separate.</li>
+<li>Senior author = last listed person (consortium names skipped). The same person = same first + last name, and for common surnames also a shared institution.</li>
+<li>Phrases: 1–3-word n-grams; per phrase, a talk-vs-poster odds ratio with +0.5 smoothing and a 95% CI, ranked by z-score. A phrase is dropped from the lists when a longer phrase containing it covers ≥90% of the same abstracts.</li>
+</ul>
+<footer>Code: <a href="{{ repo_url }}">{{ repo_url }}</a>. Booklets © ASHG; only aggregate results are published here.</footer>
+</main></div>
+<script>
+document.querySelectorAll("table.sortable").forEach(table => {
+  table.querySelectorAll("th").forEach((th, col) => th.addEventListener("click", () => {
+    const asc = th.getAttribute("aria-sort") !== "ascending";
+    table.querySelectorAll("th").forEach(h => h.removeAttribute("aria-sort"));
+    th.setAttribute("aria-sort", asc ? "ascending" : "descending");
+    const body = table.tBodies[0];
+    const key = r => { const t = r.cells[col].dataset.v ?? r.cells[col].textContent; const n = parseFloat(t); return isNaN(n) ? t : n; };
+    [...body.rows].sort((a, b) => { const x = key(a), y = key(b); return (x > y ? 1 : x < y ? -1 : 0) * (asc ? 1 : -1); })
+      .forEach(r => body.appendChild(r));
+  }));
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+rank,name,institute,abstracts,talks,talk_share,ci_lo,ci_hi,baseline,min_abstracts,year
+1,Michael E. Talkowski,Broad Institute,11,5,0.4545,0.2127,0.7199,0.07871,5,2025
+2,Evan E. Eichler,University of Washington,6,3,0.5,0.1876,0.8124,0.07871,5,2025
+3,Feixiong Cheng,Case Western Reserve University,6,3,0.5,0.1876,0.8124,0.07871,5,2025
+4,Mark Gerstein,Yale University,5,2,0.4,0.1176,0.7693,0.07871,5,2025
+5,Manolis Kellis,Broad Institute,6,2,0.3333,0.09677,0.7,0.07871,5,2025
+6,Wendy K. Chung,Boston Children's Hospital,6,2,0.3333,0.09677,0.7,0.07871,5,2025
+7,Stephen B. Montgomery,Stanford University,7,2,0.2857,0.08222,0.6411,0.07871,5,2025
+8,Yukinori Okada,RIKEN,7,2,0.2857,0.08222,0.6411,0.07871,5,2025
+9,Sarah A. Tishkoff,University of Pennsylvania,9,2,0.2222,0.06322,0.5474,0.07871,5,2025
+10,Anurag Verma,University of Pennsylvania,5,1,0.2,0.03622,0.6245,0.07871,5,2025

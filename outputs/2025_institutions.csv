@@ -1,0 +1,101 @@
+basis,rank,institute,abstracts,talks,talk_share,ci_lo,ci_hi,baseline,year
+first,1,Broad Institute,159,19,0.1195,0.07785,0.1791,0.07871,2025
+first,2,Harvard Medical School,123,16,0.1301,0.08168,0.2009,0.07871,2025
+first,3,NIH,108,11,0.1019,0.05783,0.1732,0.07871,2025
+first,4,Massachusetts General Hospital,93,17,0.1828,0.1174,0.2734,0.07871,2025
+first,5,University of Pennsylvania,78,12,0.1538,0.09025,0.2499,0.07871,2025
+first,6,Baylor College of Medicine,69,6,0.08696,0.04046,0.177,0.07871,2025
+first,7,Boston Children's Hospital,64,7,0.1094,0.054,0.209,0.07871,2025
+first,8,Stanford University,52,4,0.07692,0.03032,0.1817,0.07871,2025
+first,9,Harvard University,51,3,0.05882,0.02021,0.1592,0.07871,2025
+first,10,Yale University,50,6,0.12,0.05618,0.2381,0.07871,2025
+first,11,University of Chicago,49,5,0.102,0.04438,0.2176,0.07871,2025
+first,12,University of North Carolina at Chapel Hill,46,3,0.06522,0.02243,0.175,0.07871,2025
+first,13,Brigham and Women's Hospital,43,1,0.02326,0.004117,0.1206,0.07871,2025
+first,14,University of Michigan,41,2,0.04878,0.01348,0.1614,0.07871,2025
+first,15,Icahn School of Medicine at Mount Sinai,38,6,0.1579,0.07444,0.3042,0.07871,2025
+first,16,Vanderbilt University Medical Center,36,5,0.1389,0.06082,0.2866,0.07871,2025
+first,17,Johns Hopkins University,36,2,0.05556,0.01537,0.1814,0.07871,2025
+first,18,Children's Hospital of Philadelphia,36,1,0.02778,0.00492,0.1417,0.07871,2025
+first,19,University of Washington,32,5,0.1562,0.06864,0.3175,0.07871,2025
+first,20,Boston University,28,2,0.07143,0.01981,0.2265,0.07871,2025
+first,21,Columbia University,25,5,0.2,0.0886,0.3913,0.07871,2025
+first,22,Vanderbilt University,24,6,0.25,0.12,0.449,0.07871,2025
+first,23,UCLA,24,4,0.1667,0.06679,0.3585,0.07871,2025
+first,24,University of Helsinki,24,3,0.125,0.04344,0.31,0.07871,2025
+first,25,University of Colorado,24,1,0.04167,0.007393,0.2024,0.07871,2025
+first,26,University of Miami,24,1,0.04167,0.007393,0.2024,0.07871,2025
+first,27,Emory University,23,3,0.1304,0.04538,0.3213,0.07871,2025
+first,28,Case Western Reserve University,21,0,0,0,0.1546,0.07871,2025
+first,29,University of Southern California,21,0,0,0,0.1546,0.07871,2025
+first,30,MIT,20,4,0.2,0.08066,0.416,0.07871,2025
+first,31,University of Toronto,20,3,0.15,0.05237,0.3604,0.07871,2025
+first,32,UC San Diego,20,1,0.05,0.008881,0.2361,0.07871,2025
+first,33,Penn State University,19,2,0.1053,0.02936,0.3139,0.07871,2025
+first,34,UTHealth Houston,18,2,0.1111,0.03102,0.328,0.07871,2025
+first,35,University of Oxford,18,2,0.1111,0.03102,0.328,0.07871,2025
+first,36,UC San Francisco,18,0,0,0,0.1759,0.07871,2025
+first,37,University of Utah,17,1,0.05882,0.01046,0.2698,0.07871,2025
+first,38,Washington University in St. Louis,17,1,0.05882,0.01046,0.2698,0.07871,2025
+first,39,McGill University,17,0,0,0,0.1843,0.07871,2025
+first,40,Mayo Clinic,16,1,0.0625,0.01112,0.2833,0.07871,2025
+first,41,University of Minnesota,16,1,0.0625,0.01112,0.2833,0.07871,2025
+first,42,National Taiwan University,16,0,0,0,0.1936,0.07871,2025
+first,43,The Hospital for Sick Children,16,0,0,0,0.1936,0.07871,2025
+first,44,RIKEN,15,2,0.1333,0.03736,0.3788,0.07871,2025
+first,45,Seoul National University,15,0,0,-2.21e-17,0.2039,0.07871,2025
+first,46,UMass Chan Medical School,14,2,0.1429,0.04009,0.3994,0.07871,2025
+first,47,University of Alabama at Birmingham,13,2,0.1538,0.04326,0.4224,0.07871,2025
+first,48,Medical College of Wisconsin,13,0,0,0,0.2281,0.07871,2025
+first,49,NYU Langone Health,13,0,0,0,0.2281,0.07871,2025
+first,50,University of Cambridge,13,0,0,0,0.2281,0.07871,2025
+senior,1,Broad Institute,178,22,0.1236,0.08305,0.18,0.07871,2025
+senior,2,Harvard Medical School,164,16,0.09756,0.06095,0.1526,0.07871,2025
+senior,3,NIH,104,10,0.09615,0.05307,0.168,0.07871,2025
+senior,4,Massachusetts General Hospital,101,14,0.1386,0.0844,0.2193,0.07871,2025
+senior,5,University of Pennsylvania,95,13,0.1368,0.08175,0.2202,0.07871,2025
+senior,6,Baylor College of Medicine,65,7,0.1077,0.05315,0.206,0.07871,2025
+senior,7,Boston Children's Hospital,60,8,0.1333,0.06914,0.2417,0.07871,2025
+senior,8,Stanford University,56,6,0.1071,0.05004,0.2147,0.07871,2025
+senior,9,University of North Carolina at Chapel Hill,51,3,0.05882,0.02021,0.1592,0.07871,2025
+senior,10,University of Chicago,50,5,0.1,0.04348,0.2136,0.07871,2025
+senior,11,Harvard University,49,4,0.08163,0.0322,0.1919,0.07871,2025
+senior,12,Yale University,48,6,0.125,0.05857,0.247,0.07871,2025
+senior,13,Icahn School of Medicine at Mount Sinai,45,7,0.1556,0.07745,0.2878,0.07871,2025
+senior,14,Brigham and Women's Hospital,44,1,0.02273,0.004023,0.1181,0.07871,2025
+senior,15,Vanderbilt University Medical Center,43,7,0.1628,0.08117,0.2997,0.07871,2025
+senior,16,University of Michigan,42,2,0.04762,0.01316,0.1579,0.07871,2025
+senior,17,Children's Hospital of Philadelphia,41,2,0.04878,0.01348,0.1614,0.07871,2025
+senior,18,Johns Hopkins University,37,1,0.02703,0.004787,0.1382,0.07871,2025
+senior,19,University of Washington,33,6,0.1818,0.08611,0.3439,0.07871,2025
+senior,20,Columbia University,33,4,0.1212,0.04816,0.2733,0.07871,2025
+senior,21,University of Helsinki,26,3,0.1154,0.04003,0.2898,0.07871,2025
+senior,22,University of Miami,26,1,0.03846,0.006822,0.1889,0.07871,2025
+senior,23,Boston University,25,3,0.12,0.04167,0.2996,0.07871,2025
+senior,24,Emory University,24,2,0.08333,0.02316,0.2585,0.07871,2025
+senior,25,Case Western Reserve University,24,1,0.04167,0.007393,0.2024,0.07871,2025
+senior,26,McGill University,23,1,0.04348,0.007716,0.2099,0.07871,2025
+senior,27,Penn State University,22,3,0.1364,0.04749,0.3334,0.07871,2025
+senior,28,UCLA,21,4,0.1905,0.07667,0.4,0.07871,2025
+senior,29,Mayo Clinic,21,1,0.04762,0.008456,0.2267,0.07871,2025
+senior,30,UC San Diego,21,1,0.04762,0.008456,0.2267,0.07871,2025
+senior,31,University of Colorado,21,1,0.04762,0.008456,0.2267,0.07871,2025
+senior,32,University of Toronto,21,1,0.04762,0.008456,0.2267,0.07871,2025
+senior,33,University of Southern California,21,0,0,0,0.1546,0.07871,2025
+senior,34,MIT,20,4,0.2,0.08066,0.416,0.07871,2025
+senior,35,RIKEN,19,2,0.1053,0.02936,0.3139,0.07871,2025
+senior,36,Washington University in St. Louis,19,1,0.05263,0.009352,0.2464,0.07871,2025
+senior,37,UC San Francisco,19,0,0,0,0.1682,0.07871,2025
+senior,38,University of Utah,18,2,0.1111,0.03102,0.328,0.07871,2025
+senior,39,UTHealth Houston,16,2,0.125,0.03498,0.3602,0.07871,2025
+senior,40,The Hospital for Sick Children,16,1,0.0625,0.01112,0.2833,0.07871,2025
+senior,41,University of Oxford,16,1,0.0625,0.01112,0.2833,0.07871,2025
+senior,42,University of Minnesota,16,0,0,0,0.1936,0.07871,2025
+senior,43,Cornell University,15,2,0.1333,0.03736,0.3788,0.07871,2025
+senior,44,UMass Chan Medical School,15,2,0.1333,0.03736,0.3788,0.07871,2025
+senior,45,University of Cambridge,15,2,0.1333,0.03736,0.3788,0.07871,2025
+senior,46,NYU Langone Health,15,0,0,-2.21e-17,0.2039,0.07871,2025
+senior,47,Seoul National University,15,0,0,-2.21e-17,0.2039,0.07871,2025
+senior,48,National Taiwan University,14,0,0,0,0.2153,0.07871,2025
+senior,49,Howard Hughes Medical Institute,13,4,0.3077,0.1268,0.5763,0.07871,2025
+senior,50,Cincinnati Children's Hospital Medical Center,13,1,0.07692,0.01371,0.3331,0.07871,2025
