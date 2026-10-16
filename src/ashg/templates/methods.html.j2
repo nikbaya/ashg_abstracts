@@ -30,7 +30,12 @@ affiliations (“Seoul, Korea, Republic of”; “Boston, MA”), which nearly e
 there is none (most of 2025), it comes from the resolved institution, else from country, demonym or city names in the
 affiliation (“Seoul National University”), else from a hand-checked list of the remaining affiliation strings
 (mostly companies and smaller institutes; LLM-labeled, then spot-checked). Countries are grouped into UN M49 regions, with the Americas split into
-Northern America and Latin America and the Caribbean.</li>
+Northern America and Latin America and the Caribbean. An author with affiliations in several countries counts in full
+for each, so an abstract can count for several countries (once per region), and rows can add up to more than the total.
+Because the first source that finds a country is used, an affiliation without its own location can be missed when
+another one has it; nearly every 2022–2024 affiliation gives a location, so this is rare there. Every 2025 first- and
+senior-author affiliation was reviewed (LLM pass, each correction checked by hand), and those hand-checked countries
+take precedence. “Hong Kong, China” counts as Hong Kong only.</li>
 <li><strong>Metro areas.</strong> Each institution is mapped by hand to a metro (US Census metropolitan areas, with
 San Francisco + San Jose combined as the SF Bay Area and Durham–Chapel Hill + Raleigh as the Research Triangle).
 Institutions with sites in several metros are left out.</li>

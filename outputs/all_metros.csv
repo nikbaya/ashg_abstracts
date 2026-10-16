@@ -1,7 +1,7 @@
 basis,rank,metro,abstracts,talks,talk_rate,ci_lo,ci_hi,baseline,institutes,year
 first,1,Boston,977,160,0.1638,0.1419,0.1883,0.1045,Broad Institute; Harvard Medical School; Massachusetts General Hospital,all
 first,2,"Washington, DC",519,52,0.1002,0.07723,0.129,0.1045,NIH; Vanda Pharmaceuticals; GeneDx,all
-first,3,New York,502,84,0.1673,0.1372,0.2025,0.1045,Icahn School of Medicine at Mount Sinai; Columbia University; Regeneron,all
+first,3,New York,501,84,0.1677,0.1375,0.2029,0.1045,Icahn School of Medicine at Mount Sinai; Columbia University; Regeneron,all
 first,4,SF Bay Area,393,67,0.1705,0.1365,0.2108,0.1045,Stanford University; UC San Francisco; UC Berkeley,all
 first,5,Houston,390,53,0.1359,0.1054,0.1735,0.1045,Baylor College of Medicine; UTHealth Houston; MD Anderson Cancer Center,all
 first,6,Philadelphia,389,49,0.126,0.09661,0.1626,0.1045,University of Pennsylvania; Children's Hospital of Philadelphia,all
@@ -30,7 +30,7 @@ first,28,St. Louis,73,8,0.1096,0.05659,0.2016,0.1045,Washington University in St
 first,29,Pittsburgh,72,5,0.06944,0.03002,0.1525,0.1045,University of Pittsburgh,all
 first,30,"Cambridge, UK",70,11,0.1571,0.09008,0.2599,0.1045,University of Cambridge; Wellcome Sanger Institute,all
 senior,1,Boston,978,166,0.1697,0.1475,0.1945,0.1045,Broad Institute; Harvard Medical School; Massachusetts General Hospital,all
-senior,2,New York,511,80,0.1566,0.1276,0.1906,0.1045,Icahn School of Medicine at Mount Sinai; Columbia University; Regeneron,all
+senior,2,New York,510,80,0.1569,0.1279,0.191,0.1045,Icahn School of Medicine at Mount Sinai; Columbia University; Regeneron,all
 senior,3,"Washington, DC",506,49,0.09684,0.07403,0.1257,0.1045,NIH; Vanda Pharmaceuticals; GeneDx,all
 senior,4,SF Bay Area,416,73,0.1755,0.1419,0.215,0.1045,Stanford University; UC San Francisco; UC Berkeley,all
 senior,5,Philadelphia,398,49,0.1231,0.09439,0.159,0.1045,University of Pennsylvania; Children's Hospital of Philadelphia,all
@@ -49,8 +49,8 @@ senior,17,New Haven,138,14,0.1014,0.0614,0.1631,0.1045,Yale University,all
 senior,18,Cleveland,128,9,0.07031,0.03743,0.1282,0.1045,Case Western Reserve University; Cleveland Clinic,all
 senior,19,Miami,119,10,0.08403,0.04628,0.1478,0.1045,University of Miami,all
 senior,20,Atlanta,117,21,0.1795,0.1205,0.2589,0.1045,Emory University; Georgia Institute of Technology,all
-senior,21,London,111,11,0.0991,0.05624,0.1688,0.1045,University College London; Imperial College London; Queen Mary University of London,all
-senior,22,Seoul,111,5,0.04505,0.01939,0.1011,0.1045,Seoul National University; Asan Medical Center; University of Ulsan,all
+senior,21,Seoul,111,5,0.04505,0.01939,0.1011,0.1045,Seoul National University; Asan Medical Center; University of Ulsan,all
+senior,22,London,110,11,0.1,0.05676,0.1702,0.1045,University College London; Imperial College London; Queen Mary University of London,all
 senior,23,Denver,108,3,0.02778,0.009491,0.0785,0.1045,University of Colorado,all
 senior,24,Tokyo,98,10,0.102,0.05638,0.1777,0.1045,RIKEN; University of Tokyo; Kanagawa Children's Medical Center,all
 senior,25,Helsinki,86,17,0.1977,0.1272,0.294,0.1045,University of Helsinki,all

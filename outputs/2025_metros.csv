@@ -1,7 +1,7 @@
 basis,rank,metro,abstracts,talks,talk_rate,ci_lo,ci_hi,baseline,institutes,year
 first,1,Boston,398,39,0.09799,0.07251,0.1312,0.08339,Broad Institute; Harvard Medical School; Massachusetts General Hospital,2025
 first,2,"Washington, DC",118,11,0.09322,0.05285,0.1592,0.08339,NIH; GeneDx; Vanda Pharmaceuticals,2025
-first,3,New York,114,15,0.1316,0.08139,0.2058,0.08339,Icahn School of Medicine at Mount Sinai; Columbia University; NYU Langone Health,2025
+first,3,New York,113,15,0.1327,0.08212,0.2075,0.08339,Icahn School of Medicine at Mount Sinai; Columbia University; NYU Langone Health,2025
 first,4,Philadelphia,102,14,0.1373,0.08355,0.2173,0.08339,University of Pennsylvania; Children's Hospital of Philadelphia,2025
 first,5,Houston,101,11,0.1089,0.06191,0.1846,0.08339,Baylor College of Medicine; UTHealth Houston; MD Anderson Cancer Center,2025
 first,6,SF Bay Area,100,8,0.08,0.04109,0.15,0.08339,Stanford University; UC San Francisco; Helix,2025
@@ -30,7 +30,7 @@ first,28,London,19,4,0.2105,0.08508,0.4333,0.08339,University College London; Im
 first,29,Oxford,18,2,0.1111,0.03102,0.328,0.08339,University of Oxford,2025
 first,30,Cincinnati,17,2,0.1176,0.03288,0.3434,0.08339,Cincinnati Children's Hospital Medical Center; University of Cincinnati,2025
 senior,1,Boston,390,41,0.1051,0.07844,0.1395,0.08339,Broad Institute; Harvard Medical School; Massachusetts General Hospital,2025
-senior,2,New York,128,13,0.1016,0.06032,0.166,0.08339,Icahn School of Medicine at Mount Sinai; Columbia University; NYU Langone Health,2025
+senior,2,New York,127,13,0.1024,0.0608,0.1673,0.08339,Icahn School of Medicine at Mount Sinai; Columbia University; NYU Langone Health,2025
 senior,3,"Washington, DC",114,10,0.08772,0.04834,0.154,0.08339,NIH; GeneDx; Vanda Pharmaceuticals,2025
 senior,4,Philadelphia,106,13,0.1226,0.07309,0.1986,0.08339,University of Pennsylvania; Children's Hospital of Philadelphia,2025
 senior,5,SF Bay Area,106,10,0.09434,0.05205,0.165,0.08339,Stanford University; UC San Francisco; Helix,2025
@@ -52,8 +52,8 @@ senior,20,Helsinki,26,3,0.1154,0.04003,0.2898,0.08339,University of Helsinki,202
 senior,21,Tokyo,26,2,0.07692,0.02135,0.2414,0.08339,RIKEN; University of Tokyo; Kanagawa Children's Medical Center,2025
 senior,22,Miami,26,1,0.03846,0.006822,0.1889,0.08339,University of Miami,2025
 senior,23,Seoul,25,0,0,0,0.1332,0.08339,Seoul National University; Asan Medical Center; The Catholic University of Korea,2025
-senior,24,London,24,1,0.04167,0.007393,0.2024,0.08339,University College London; Imperial College London; Queen Mary University of London,2025
-senior,25,"Cambridge, UK",23,3,0.1304,0.04538,0.3213,0.08339,University of Cambridge; Wellcome Sanger Institute,2025
+senior,24,"Cambridge, UK",23,3,0.1304,0.04538,0.3213,0.08339,University of Cambridge; Wellcome Sanger Institute,2025
+senior,25,London,23,1,0.04348,0.007716,0.2099,0.08339,University College London; Imperial College London; Queen Mary University of London,2025
 senior,26,Hong Kong,22,2,0.09091,0.02529,0.2782,0.08339,The University of Hong Kong; The Chinese University of Hong Kong,2025
 senior,27,Denver,22,1,0.04545,0.008069,0.218,0.08339,University of Colorado,2025
 senior,28,St. Louis,19,1,0.05263,0.009352,0.2464,0.08339,Washington University in St. Louis,2025

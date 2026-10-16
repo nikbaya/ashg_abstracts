@@ -105,7 +105,8 @@ footer p { margin: 4px 0; }
 .bars { gap: 32px; }
 .bars h4 { margin: 8px 0 6px; font-size: 14px; }
 .explorer { margin: 8px 0 48px; }
-.bar-row { display: grid; grid-template-columns: minmax(0, 15em) 1fr auto; gap: 8px; align-items: center;
+/* fixed value column: an auto one sizes per row, so equal totals got different bar widths */
+.bar-row { display: grid; grid-template-columns: minmax(0, 15em) 1fr 9em; gap: 8px; align-items: center;
   padding: 3px 4px; border-radius: 4px; font-size: 13px; cursor: default; }
 .bar-row:hover, .bar-row:focus-visible { background: var(--surface-2); outline: none; }
 .bar-row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-primary); }

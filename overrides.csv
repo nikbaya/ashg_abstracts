@@ -2,3 +2,10 @@ abstract_id,role,name,affils
 # Hand fixes for author lists the parser can't handle. role = first | senior; affils separated by ";".
 # Shared affiliation listed once after all names, no parentheses (golden review 2025):
 2025-plenary-0009,senior,D Liu,"Penn State Coll. of Med., Hershey, PA"
+# Authors separated by ";" or "." instead of "," (whole list parsed as one person; 2025 country review):
+2025-poster-2007T,first,Ricardo Amorim,"i3S – Instituto de Investigação e Inovação em Saúde; Universidade do Porto; Portugal"
+2025-poster-2007T,senior,Carla Oliveira,"i3S – Instituto de Investigação e Inovação em Saúde; Universidade do Porto; Portugal"
+2025-poster-5028F,first,George Powell,Imperial College London
+2025-poster-5028F,senior,Jodie Ingles,Garvan Institute of Medical Research
+2025-poster-7010T,first,Afif Ben-Mahmoud,"Neurological Disorders Research Centre; Qatar Biomedical Research Institute; Hamad Bin Khalifa University; Doha; Qatar"
+2025-poster-7010T,senior,Jouke-Jan Hottenga,"Neurological Disorders Research Centre; Qatar Biomedical Research Institute; Hamad Bin Khalifa University; Doha; Qatar"

@@ -10,6 +10,10 @@ Per author, the first rule that finds anything wins:
      "New Mexico" is not also Mexico.
   4. manual: affiliation_countries.csv, hand-checked countries for whole affiliation strings that
      rules 1-3 leave unplaced (mostly companies and smaller institutes in 2025).
+A manual entry is checked first, so it also corrects strings that rules 1-3 place incompletely: the
+first rule to find anything wins, so an affiliation without its own location is missed when another
+has one ("Univ. of Lausanne, Lausanne, Switzerland and Estonian Genome Centre"). Every 2025 first-
+and senior-author affiliation was reviewed this way.
 
 Usage: python src/ashg/geography.py COUNTRIES.csv INSTITUTIONS.parquet OUT.parquet ABSTRACTS.parquet [...]
 """
@@ -51,7 +55,8 @@ SEGMENT_NAMES = {"USA": "United States", "U.S.A": "United States", "US": "United
                  "Korea": "South Korea", "Republic of Korea": "South Korea", "Russian Federation": "Russia",
                  "PR": "Puerto Rico", "Palestinian Territory": "Palestine", "Viet Nam": "Vietnam",
                  "England": "United Kingdom", "Scotland": "United Kingdom", "Wales": "United Kingdom",
-                 "Northern Ireland": "United Kingdom", "Turkiye": "Turkey", "Türkiye": "Turkey"}
+                 "Northern Ireland": "United Kingdom", "Turkiye": "Turkey", "Türkiye": "Turkey",
+                 "Hong Kong SAR": "Hong Kong"}
 # second halves of split names: "Iran, Islamic Republic of" -> the segment before names the country
 SPLIT_TAILS = {"Republic of", "Islamic Republic of", "Democratic Republic of the", "United Republic of"}
 SPLIT_HEADS = {"Iran": "Iran", "Congo": "DR Congo", "Tanzania": "Tanzania", "Korea": "South Korea"}
@@ -139,6 +144,8 @@ def segment_countries(affils):
     for i, s in enumerate(segs):
         if s in SPLIT_TAILS and i and segs[i - 1] in SPLIT_HEADS:
             c = SPLIT_HEADS[segs[i - 1]]
+        elif s == "China" and i and segs[i - 1] in ("Hong Kong", "Hong Kong SAR"):
+            c = "Hong Kong"  # "Hong Kong, China" is Hong Kong, not also mainland China
         elif s in US_STATES:
             c = "United States"
         elif s in CA_PROVINCES:
@@ -166,14 +173,14 @@ def author_countries(author, insts, inst_country, manual=None):
     affils = author["affils"] if author else []
     if not affils:
         return [], None
+    if found := (manual or {}).get(", ".join(affils)):
+        return found, "manual"
     if found := segment_countries(affils):
         return found, "location"
     if found := list(dict.fromkeys(inst_country[i] for i in insts if inst_country.get(i))):
         return found, "institute"
     if found := text_countries(affils):
         return found, "text"
-    if found := (manual or {}).get(", ".join(affils)):
-        return found, "manual"
     return [], None
 
 

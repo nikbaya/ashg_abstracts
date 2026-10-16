@@ -3,7 +3,7 @@ first,1,United States,Northern America,2072,256,0.1236,0.1101,0.1384,0.1149,2024
 first,2,United Kingdom,Europe,124,22,0.1774,0.1202,0.254,0.1149,2024
 first,3,Canada,Northern America,116,10,0.08621,0.0475,0.1514,0.1149,2024
 first,4,Japan,Asia,79,5,0.06329,0.02733,0.1398,0.1149,2024
-first,5,China,Asia,76,4,0.05263,0.02066,0.1277,0.1149,2024
+first,5,China,Asia,69,4,0.05797,0.02277,0.1398,0.1149,2024
 first,6,South Korea,Asia,64,4,0.0625,0.02457,0.15,0.1149,2024
 first,7,India,Asia,41,0,0,0,0.08567,0.1149,2024
 first,8,Taiwan,Asia,33,2,0.06061,0.01678,0.1961,0.1149,2024
@@ -28,7 +28,7 @@ senior,1,United States,Northern America,2078,256,0.1232,0.1098,0.138,0.1149,2024
 senior,2,United Kingdom,Europe,138,24,0.1739,0.1197,0.2457,0.1149,2024
 senior,3,Canada,Northern America,115,9,0.07826,0.04172,0.1421,0.1149,2024
 senior,4,Japan,Asia,78,6,0.07692,0.03573,0.1578,0.1149,2024
-senior,5,China,Asia,66,2,0.0303,0.00835,0.1039,0.1149,2024
+senior,5,China,Asia,64,2,0.03125,0.008612,0.107,0.1149,2024
 senior,6,South Korea,Asia,62,4,0.06452,0.02537,0.1545,0.1149,2024
 senior,7,India,Asia,38,0,0,0,0.09181,0.1149,2024
 senior,8,Germany,Europe,35,5,0.1429,0.0626,0.2938,0.1149,2024

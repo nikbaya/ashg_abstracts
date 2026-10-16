@@ -1,13 +1,13 @@
 basis,rank,region,abstracts,talks,talk_rate,ci_lo,ci_hi,baseline,countries,year
-first,1,Northern America,2171,201,0.09258,0.0811,0.1055,0.08339,United States; Canada,2025
-first,2,Asia,372,25,0.0672,0.04593,0.09732,0.08339,Japan; South Korea; China,2025
-first,3,Europe,313,26,0.08307,0.05732,0.1189,0.08339,United Kingdom; Germany; Finland,2025
-first,4,Latin America and the Caribbean,33,1,0.0303,0.005369,0.1532,0.08339,Brazil; Mexico; Colombia,2025
-first,5,Africa,31,0,0,0,0.1103,0.08339,Nigeria; Kenya; Ghana,2025
-first,6,Oceania,24,3,0.125,0.04344,0.31,0.08339,Australia; New Zealand,2025
-senior,1,Northern America,2171,191,0.08798,0.07678,0.1006,0.08339,United States; Canada,2025
-senior,2,Asia,356,23,0.06461,0.04343,0.09508,0.08339,Japan; South Korea; China,2025
-senior,3,Europe,311,20,0.06431,0.04201,0.09724,0.08339,United Kingdom; Germany; Finland,2025
-senior,4,Latin America and the Caribbean,31,1,0.03226,0.005717,0.1619,0.08339,Brazil; Mexico; Colombia,2025
-senior,5,Oceania,27,3,0.1111,0.03852,0.2806,0.08339,Australia; New Zealand,2025
-senior,6,Africa,22,2,0.09091,0.02529,0.2782,0.08339,Nigeria; Mali; Kenya,2025
+first,1,Northern America,2197,202,0.09194,0.08056,0.1047,0.08339,United States; Canada,2025
+first,2,Asia,384,27,0.07031,0.04877,0.1004,0.08339,Japan; South Korea; China,2025
+first,3,Europe,314,27,0.08599,0.05977,0.1222,0.08339,United Kingdom; Germany; Finland,2025
+first,4,Latin America and the Caribbean,36,1,0.02778,0.00492,0.1417,0.08339,Brazil; Mexico; Colombia,2025
+first,5,Africa,35,0,0,0,0.0989,0.08339,Nigeria; Kenya; Ghana,2025
+first,6,Oceania,23,3,0.1304,0.04538,0.3213,0.08339,Australia; New Zealand,2025
+senior,1,Northern America,2195,192,0.08747,0.07636,0.1,0.08339,United States; Canada,2025
+senior,2,Asia,365,25,0.06849,0.04682,0.09915,0.08339,Japan; South Korea; China,2025
+senior,3,Europe,319,21,0.06583,0.04346,0.09854,0.08339,United Kingdom; Germany; Finland,2025
+senior,4,Latin America and the Caribbean,33,1,0.0303,0.005369,0.1532,0.08339,Brazil; Mexico; Colombia,2025
+senior,5,Oceania,29,3,0.1034,0.03581,0.2639,0.08339,Australia; New Zealand,2025
+senior,6,Africa,26,3,0.1154,0.04003,0.2898,0.08339,Nigeria; South Africa; Kenya,2025

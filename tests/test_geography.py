@@ -1,6 +1,6 @@
 """Author countries from affiliation text."""
 
-from geography import REGION_OF, segment_countries, text_countries
+from geography import REGION_OF, author_countries, segment_countries, text_countries
 
 
 def test_location_segments():
@@ -12,6 +12,16 @@ def test_location_segments():
     assert segment_countries(["IRCCS San Raffaele", "Milan", "Italy; Univ. of Oxford", "Oxford", "United Kingdom"]) \
         == ["Italy", "United Kingdom"]
     assert segment_countries(["Stanford University", "Department of Genetics"]) == []
+    assert segment_countries(["The Univ. of Hong Kong", "Hong Kong", "China"]) == ["Hong Kong"]
+    assert segment_countries(["The Chinese Univ. of Hong Kong", "Shenzhen", "China"]) == ["China"]
+
+
+def test_manual_entry_overrides_partial_location():
+    author = {"affils": ["University of Lausanne", "Lausanne", "Switzerland and Estonian Genome Centre",
+                         "University of Tartu", "Estonia"]}
+    assert author_countries(author, [], {}) == (["Estonia"], "location")  # Switzerland is not its own segment
+    manual = {", ".join(author["affils"]): ["Switzerland", "Estonia"]}
+    assert author_countries(author, [], {}, manual) == (["Switzerland", "Estonia"], "manual")
 
 
 def test_text_names_most_specific_first():

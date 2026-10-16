@@ -425,3 +425,120 @@ enGenome srl,Italy,hq
 insitro,United States,hq
 "n-Lorem Foundation, Carlsbad CA",United States,named
 seqWell,United States,hq
+# 2025 review: every first- and senior-author affiliation string was checked (LLM pass, each change hand-checked);
+# these correct strings that rules 1-3 place incompletely or wrongly. Manual entries are checked first.,,
+"1-Faculté de Médecine et d’Odontostomatologie, Université des Sciences, des Techniques, et des Technologies de Bamako (USTTB), Bamako, Mali, 3-Neurogenetics Branch, NINDS, NIH, Bethesda, MD, United States, 4-Service de Neurologie, CHU Point ""G"", Bamako, Mali )Saquib A. Lakhani (2-Yale University School of Medicine, Pediatric Genomics Discovery Program, Department of Pediatrics, New Haven, CT, United States, 6- Current affiliation: Cedars Sinai Guerin Children’s, Department of Pediatrics, Los Angeles, CA, United States",United States,named
+"1. Center for Human Genetics & Genomics, New York University Grossman School of Medicine, NY. 2.Department of Neurology and Department of Genomic Medicine, National Cheng Kung University Hospital, Taiwan.",United States; Taiwan,named
+"2- Texas Children’s Hospital, Houston, TX, 3- Department of Molecular and Human Genetics, Baylor College of Medicine, Houston, TX, 5-BCM-CUHK Center of Medical Genetics, Prince of Wales Hospital, Hong Kong SAR, China",United States; Hong Kong,named
+5 Prime Sciences,Canada,hq
+AiBST,Zimbabwe,known
+AtlasXomics,United States,hq
+"Auto-Brewery Syndrome Information and Research, Inc.",United States,hq
+BMS,United States,hq
+"BTC Khalifa University, VIB KU Leuven",United Arab Emirates; Belgium,known
+"Barnafi Krause Laboratory, Department of Molecular Biology an Genetics",Chile,known
+"Baylor College of Medicine, Kyoto Prefectural University of Medicine",United States; Japan,known
+Bencos Healthcare Solutions Pvt. Ltd.,India,hq
+"Berlin Institute of Health at Charité - Universitätsmedizin Berlin, Precision Healthcare University Research Institute - Queen Mary University of London",Germany; United Kingdom,known
+"Berlin Institute of Health at Charité, Queen Mary University of London",Germany; United Kingdom,known
+BioAro Inc.,Canada,hq
+"Boston Children's Hospital, KK Women's and Children's Hospital Singapore",United States; Singapore,known; named
+Breakthrough Genomics,United States,hq
+Breakthrough Genomics Inc.,United States,hq
+"Broad Institute of MIT and Harvard, Center for Genomic Medicine, Massachusetts General Hospital, Harvard Medical School, The Novo Nordisk Foundation Center for Genomic Mechanism of Disease at Broad Institute",United States,known
+"Broad Institute of MIT and Harvard, The Novo Nordisk Foundation Center for Genomic Mechanism of Disease at Broad Institute",United States,known
+"Brown University, Department of Ecology, Evolution, and Organismal Biology, Center for Computational Molecular Biology, Trinity College Dublin, Smurfit Institute of Genetics",United States; Ireland,known
+"CAG/CHOP, Department of Pediatrics, University of Pennsylvania; Division of Human Genetics, CHOP; Division of Pulmonary Medicine, CHOP; Faculty of Medicine, University of Iceland",United States; Iceland,known
+CCRM Genetics,United States,hq
+CUHK-SZ,China,known
+"Cardio-CARE Medizincampus Davos, Department of Cardiology University Heart and Vascular Center Hamburg University Medical Center Hamburg-Eppendorf, DZHK partner site Hamburg/Kiel/Lübeck, University of KwaZulu-Natal Pietermaritzburg",Switzerland; Germany; South Africa,known
+Cardiology Clinic of San Antonio,United States,named
+"Centre for Genomics Research, AstraZeneca) and Slavé Petrovski (Centre for Genomics Research, AstraZeneca; Department of Medicine, University of Melbourne",United Kingdom; Australia,known
+Centro Nacional de Analisis Genomico,Spain,known
+Circulogene,United States,hq
+Civil Service Hospital,Nepal,known
+Claret Bioscience,United States,hq
+"Columbia University, Lund University",United States; Sweden,known
+"Computational Medicine Berlin Institute of Health at Charité- Universitätsmedizin Berlin, Friede Springer Cardiovascular Prevention Center at Charité Charité University Medicine Berlin, Precision Healthcare University Research Institute (PHURI) Queen Mary University of London, MRC Epidemiology Unit Institute of Metabolic Science University of Cambridge",Germany; United Kingdom,known
+Countable Labs,United States,hq
+"DCGen Co., Ltd.",South Korea,hq
+"DDC Clinic, Center for Special Needs Children",United States,known
+"Department of Biostatistics and Center for Statistical Genetics University of Michigan, Institute for Biomedicine Eurac Research, Institute of Genetic Epidemiology Medical University of Innsbruck",United States; Italy; Austria,known
+"Department of Computational Biology, University of Lausanne, Lausanne, Switzerland and Estonian Genome Centre, Institute of Genomics, University of Tartu, Estonia",Switzerland; Estonia,named
+"Department of Epidemiology and Public Health, University of Maryland School of Medicine, Baltimore, Maryland, Center for Bioethics and Research, Ibadan, Nigeria, Department of Bioethics and Medical Humanities, University of Ibadan, Ibadan, Nigeria, Greenebaum Comprehensive Cancer, University of Maryland School of Medicine, Baltimore, Maryland",United States; Nigeria,named
+"Department of Epidemiology and Public Health, University of Maryland School of Medicine, Baltimore, Maryland, Center for Bioethics and Research, Ibadan, Nigeria, Greenebaum Comprehensive Cancer, University of Maryland School of Medicine, Baltimore, Maryland",United States; Nigeria,known; named
+"Department of Genome Sciences, School of Medicine, University of Virginia, Charlottesville, VA, USA) and John P Kemp (Mater Research Institute, The University of Queensland, Woolloongabba, Australia",Australia,named
+"Department of Hematology, NIBD",Pakistan,known
+"Department of Integrative Biology, University of Wisconsin-Madison, WI, USA, School of Sciences and Humanities, Nazarbayev University, Astana, Kazakstan",United States; Kazakhstan,named
+"Department of Neonatology 2 – Metabolism & Genetics, Children’s Hospital 1",Vietnam,known
+"Department of Obstetrics & Gynaecology, The Chinese University of Hong Kong, Hong Kong SAR, China",Hong Kong,named
+"Department of Obstetrics and Gynaecology, The Chinese University of Hong Kong, Hong Kong SAR, China, Shenzhen Research Institute, The Chinese University of Hong Kong, Shenzhen, China",Hong Kong; China,named
+"Department of Pathology and Laboratory Medicine David Geffen School of Medicine University of California Los Angeles Los Angeles California USA, Department of Human Genetics David Geffen School of Medicine University of California Los Angeles Los Angeles California USA, Department of Computational Medicine University of California Los Angeles Los Angeles California USA, Biological Models Laboratory Department of Biochemistry and Molecular Biology College of Medicine University of the Philippines Manila Philippines",United States; Philippines,named
+"Department of Pediatrics, Division of Gastroenterology and Nutrition, Mattel Children's Hospital and the David Geffen School of Medicine, University of California Los Angeles, Eli and Edythe Broad Stem Cell Research Center, UCLA, Los Angeles, CA, USA) and Maja Tarailo-Graovac(Departments of Biochemistry, Molecular Biology and Medical Genetics, Cumming School of Medicine, University of Calgary, Alberta Children's Hospital Research Institute, University of Calgary, Calgary, AB, Canada",Canada,named
+"Department of Science, University of Basilicata) and Francesca Fusco(Institute of Genetics and Biophysics “Adriano Buzzati- Traverso”, IGB-CNR",Italy,known
+"Department of Tuberculosis Prevention, Autonomous University of Baja California",Mexico,known
+"Departments of Medicine, Genetics, and Biomedical Data Science, Stanford University, Department of Cardiology, Pneumonology and Angiology, Heidelberg University Hospital",United States; Germany,known
+Enhanced Genomics,United Kingdom,hq
+Erasmus MC & Stanford University,Netherlands; United States,known
+Foundation for Angelman Syndrome Therapeutics,United States,hq
+"Friedman Brain Institute and Department of Psychiatry, Icahn School of Medicine at Mount Sinai, New York, NY, 10029, US; Research & Development and VISN2 MIREC, James J, Peters VA Medical Center, Bronx, NY, 10468, US) and Chunyu Liu (Department of Psychiatry, SUNY Upstate Medical University, Syracuse, NY 13210, USA; Center for Medical Genetics & Hunan Key Laboratory of Medical Genetics, School of Life Sciences, Central South University, Changsha, Hunan 410008, China",United States; China,named
+"Fudan University, Karolinska Institutet and University of Edinburg",China; Sweden; United Kingdom,known
+"GENNET, GNTlabs by GENNET",Czech Republic,known
+Galatea Bio,United States,hq
+"Galatea Bio, Inc.",United States,hq
+GenQA,United Kingdom,known
+HMH-CDI,United States,known
+"Hamad Bin Khalifa University Qatar, University of Liverpool",Qatar; United Kingdom,named; known
+"Hospital Israelita Albert Einstein, Universidade Federal de São Paulo",Brazil,known
+"Icahn School of Medicine at Mount Sinai, School of Medicine at University of Crete",United States; Greece,known
+"Immunophysiopathology and Infectious Diseases Department, Institut Pasteur de Dakar",Senegal,named
+"Imperial College of London Diabetes Centre, Abu Dhabi",United Arab Emirates,named
+Inocras Inc.,United States,hq
+"Inserm, Institut Imagine at Université Paris Cité, Rockefeller University",France; United States,known
+"Inserm, Institut Imagine at Université Paris Cité, Rockefeller University, University of Lorraine",France; United States,known
+"Institute for Molecular Medicine Finland (FIMM), HiLIFE, University of Helsinki, University of Turin",Finland; Italy,known
+"Institute of Molecular and Clinical Ophthalmology Basel, University of Basel, University of Leicester",Switzerland; United Kingdom,named; known
+"Johns Hopkins University, Tel Aviv University",United States; Israel,known
+"KCMC University, Radboud UMC",Tanzania; Netherlands,known
+"KU Leuven, Murdoch Children's Research Institute",Belgium; Australia,known
+Korea National Institute of Health,South Korea,known
+"LGBMO, IPT",Tunisia,known
+"Max Planck Institute for Psycholinguistics, Donders Institute for Brain, Cognition and Behaviour, Radboud University Medial Center",Netherlands,known
+"McGill University, INSERM",Canada; France,known
+"New York Genome Center, Department of Gene Technology, SciLifeLab, KTH Royal Institute of Technology",United States; Sweden,known
+"Novo Nordisk Foundation Center for Genomic Mechanisms of Disease Broad Institute of MIT and Harvard, Stanley Center for Psychiatric Research Broad Institute of MIT and Harvard",United States,known
+"Novo Nordisk Foundation Center for Genomic Mechanisms of Disease, Broad Institute of MIT and Harvard",United States,known
+"Novo Nordisk Foundation Center for Genomic Mechanisms of Disease, Broad Institute of MIT and Harvard, Center for Genomic Medicine, Massachusetts General Hospital, Harvard Medical School",United States,known
+"Novo Nordisk Foundation Center for Genomic Mechanisms of Disease, Broad Institute of MIT and Harvard; Diabetes Unit and Center for Genomic Medicine, Massachusetts General Hospital; Department of Medicine, Harvard Medical School",United States,known
+Nucleome Therapeutics,United Kingdom,hq
+"Oxford Nanopore Technologies, LTD., Galatea Bio, Inc.",United Kingdom; United States,hq
+Pak-Austria fachhochschule - IAST,Pakistan,known
+"Program in Medical and Population Genetics, Broad Institute, Stanley Center, Broad Institute, Analytic and Translational Genetics Unit, MGH, The Novo Nordisk Foundation Center for Genomic Mechanisms of Disease",United States,known
+"Queen Mary University of London, UK and Medical Research Council, Uganda Virus Research Institute and London School of Hygiene and Tropical Medicine",United Kingdom; Uganda,named; known
+"Research Laboratory, KK Hospital",Singapore,known
+Sequence Bio,Canada,hq
+"Sheffield Institute for Translational Neuroscience, University of Sheffield, Faculty of Nursing, Taif University",United Kingdom; Saudi Arabia,known
+"Sidra Medicine, Department of Biomedical Science, College of Health Sciences, Qatar University, Department of Genetic Medicine, Weill Cornell Medicine-Qatar",Qatar,known
+Stanley Center for Psychiatric Research and Novo Nordisk Foundation Center for Genomic Mechanisms of Disease at Broad Institute of MIT and Harvard,United States,known
+Tahoe Therapeutics,United States,hq
+"The Novo Nordisk Foundation Center for Genomic Mechanism of Disease, Broad Institute of MIT and Harvard",United States,known
+"The Novo Nordisk Foundation Center for Genomic Mechanism of Disease, Broad Institute of MIT and Harvard, Center for Genomic Medicine and Endocrine Division, Massachusetts General Hospital, Department of Medicine, Harvard Medical School",United States,known
+"The Novo Nordisk Foundation Center for Genomic Mechanism of Disease, Broad Institute of MIT and Harvard, Massachusetts General Hospital, Harvard Medical School",United States,known
+"The Rockefeller University, Imagine Institute, INSERM",United States; France,known
+Trinity University,United States,known
+Triveni Bio,United States,hq
+"UCL Queen Square Institute of Neurology, London, UK; Aligning Science Across Parkinson’s (ASAP) Collaborative Research Network, MD, USA",United Kingdom,named
+"UCL, Amsterdam University Medical Centres",United Kingdom; Netherlands,known
+UIC,United States,known
+"Universidade Federal de São Paulo, Icahn School of Medicine at Mount Sinai",Brazil; United States,known
+"University of Miami Miller School of Medicine - John P. Hussman Institute for Human Genomics, Addis Ababa University",United States; Ethiopia,known
+"University of Oxford, Aarhus University",United Kingdom; Denmark,known
+"University of Tartu, Aarhus University",Estonia; Denmark,known
+"Université de Lille, EGID, Institut Pasteur de Lille, France & Imperial College London, UK",France; United Kingdom,named
+"Uppsala University, University of Johannesburg, SciLifeLab",Sweden; South Africa,known
+"VIB Center for Molecular Neurology Belgium, University of Antwerp Belgium, Medical University-Sofia Bulgaria",Belgium; Bulgaria,named
+"Vanderbilt University, Vanderbilt University Medical Center, Max Planck Institute for Psycholinguistics",United States; Netherlands,known
+Wave Life Science,United States,hq
+"Wellcome Sanger Institute, Mahidol Oxford Tropical Medicine Research Unit",United Kingdom; Thailand,known
+Wolfram Institute,United States,hq
+miRcore,United States,hq
