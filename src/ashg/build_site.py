@@ -39,9 +39,10 @@ def ci(r):
     return f"{pct(r.ci_lo)}–{pct(r.ci_hi)}"
 
 
-def year_context(out, year, data):
+def year_context(out, year):
     summary = pd.read_csv(out / f"{year}_summary.csv").iloc[0].to_dict()
-    summary["abstracts"], summary["talks"] = int(summary["abstracts"]), int(summary["talks"])
+    for col in ("abstracts", "talks", "truncated", "truncated_talks"):
+        summary[col] = int(summary[col])
     inst = pd.read_csv(out / f"{year}_institutions.csv")
     inst["ci"] = inst.apply(ci, axis=1)
     inst_cols = [("#", "rank", None, False), ("Institution", "institute", None, True),
@@ -55,15 +56,9 @@ def year_context(out, year, data):
     prem_cols = [("Phrase", "ngram", None, True), ("Talks", "talk_docs", None, False),
                  ("Posters", "poster_docs", None, False), ("Odds ratio", "or", "{:.2f}".format, False),
                  ("95% CI", "or_ci", None, False)]
-    ss = pd.read_csv(out / f"{year}_sample_size.csv")
-    n_truncated = 0
-    abstracts = sorted((data / "abstracts").glob(f"{year}_*.parquet"))
-    if abstracts:
-        n_truncated = int(sum(pd.read_parquet(p, columns=["truncated"]).truncated.sum() for p in abstracts))
     return {
         "year": year,
         "summary": summary,
-        "n_truncated": n_truncated,
         "premium": {d: table(premium[premium.direction == d], prem_cols) for d in ("talk", "poster")},
         "institutions": {b: table(inst[inst.basis == b], inst_cols) for b in ("senior", "first")},
         "senior_authors": table(authors, [("#", "rank", None, False), ("Senior author", "name", None, True),
@@ -71,9 +66,6 @@ def year_context(out, year, data):
                                           ("Abstracts", "abstracts", None, False), ("Talks", "talks", None, False),
                                           ("Talk share", "talk_share", pct, False), ("95% CI", "ci", None, False)]),
         "min_abstracts": int(authors.min_abstracts.iloc[0]) if len(authors) else 5,
-        "sample_size": table(ss, [("Type", "type", None, True), ("Abstracts", "abstracts", "{:,}".format, False),
-                                  ("With an N", "coverage", pct, False), ("Median N", "median_max_n", "{:,.0f}".format, False),
-                                  ("25th pct", "q25", "{:,.0f}".format, False), ("75th pct", "q75", "{:,.0f}".format, False)]),
     }
 
 
@@ -81,7 +73,6 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--outputs", default="outputs")
     ap.add_argument("--docs", default="docs")
-    ap.add_argument("--data", default="data")
     ap.add_argument("--repo-url", default="https://github.com/nikbaya/ashg_abstracts")
     args = ap.parse_args()
     out, docs = pathlib.Path(args.outputs), pathlib.Path(args.docs)
@@ -89,10 +80,11 @@ def main():
 
     years = sorted((int(p.name.split("_")[0]) for p in out.glob("*_summary.csv")), reverse=True)
     for y in years:
-        shutil.copy(out / f"{y}_headline.png", docs / "img" / f"{y}_headline.png")
+        for fig in ("headline", "institutions", "senior_authors"):
+            shutil.copy(out / f"{y}_{fig}.png", docs / "img" / f"{y}_{fig}.png")
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATES), autoescape=False)
     page = env.get_template("index.html.j2").render(
-        years=[year_context(out, y, pathlib.Path(args.data)) for y in years], repo_url=args.repo_url)
+        years=[year_context(out, y) for y in years], repo_url=args.repo_url)
     (docs / "index.html").write_text(page)
     (docs / ".nojekyll").touch()
     print(f"wrote {docs / 'index.html'} ({', '.join(map(str, years))})")

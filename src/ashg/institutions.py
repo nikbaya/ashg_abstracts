@@ -46,11 +46,17 @@ def match_institutes(author, aliases):
 
 
 def resolve(df, aliases, overrides):
+    """One row per abstract. Abstracts cut off in the booklet keep their first
+    author (the list is cut at the end) but have no known senior author."""
     rows = []
-    for r in df[~df.truncated].itertuples(index=False):
+    for r in df.itertuples(index=False):
         first, senior = key_authors(r.abstract_id, parse_authors(r.authors_raw), overrides)
+        if r.truncated:
+            senior = None
+            if first and "(" in first["name"]:  # cut inside the first author's affiliations
+                first = None
         rows.append({
-            "abstract_id": r.abstract_id, "year": r.year, "pres_type": r.pres_type,
+            "abstract_id": r.abstract_id, "year": r.year, "pres_type": r.pres_type, "truncated": r.truncated,
             "first_author": first["name"] if first else None,
             "senior_author": senior["name"] if senior else None,
             "first_insts": match_institutes(first, aliases),

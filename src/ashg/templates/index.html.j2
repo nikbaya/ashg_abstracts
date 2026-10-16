@@ -55,11 +55,15 @@ rate or a quality score. All numbers are associations.</p>
 
 {% for y in years %}
 <h2 id="y{{ y.year }}">ASHG {{ y.year }}</h2>
-<p>{{ "{:,}".format(y.summary.abstracts) }} abstracts analysed, {{ "{:,}".format(y.summary.talks) }} talks.
+<p>{{ "{:,}".format(y.summary.abstracts) }} abstracts, {{ "{:,}".format(y.summary.talks) }} of them talks.
 Baseline talk share <strong>{{ "%.1f"|format(100 * y.summary.talk_share) }}%</strong>.
-{% if y.n_truncated %}{{ y.n_truncated }} abstracts are cut off mid-text in the booklet itself and are excluded.{% endif %}</p>
+{% if y.summary.truncated %}{{ y.summary.truncated }} abstracts ({{ y.summary.truncated_talks }} talks) are cut off
+mid-text in the booklet itself. They count toward totals, the baseline and first-author credit, but not toward
+senior-author credit (the author list is cut off) or the text analyses.{% endif %}</p>
 
 <h3>Phrases that predict a talk</h3>
+<p>The small panel at the bottom compares the largest sample size stated in each abstract
+(e.g. "12,000 individuals", "N = 500 patients").</p>
 <img class="figure" src="img/{{ y.year }}_headline.png" alt="Dot plot of the phrases most over-represented in ASHG {{ y.year }} talks versus posters, with odds ratios and 95% confidence intervals.">
 <div class="cols">
 {% for dir, label in [("talk", "More common in talks"), ("poster", "More common in posters")] %}
@@ -68,7 +72,9 @@ Baseline talk share <strong>{{ "%.1f"|format(100 * y.summary.talk_share) }}%</st
 {% endfor %}
 </div>
 
-<h3>Institutions (top 50 by volume)</h3>
+<h3>Institutions</h3>
+<img class="figure" src="img/{{ y.year }}_institutions.png" alt="Talk share with 95% intervals for the 20 institutions with the most ASHG {{ y.year }} abstracts by senior author.">
+<p>Full top 50 by volume:</p>
 <p>Credit goes to every institution of the senior (last) author; a second table credits the first author.
 An abstract can count for several institutions, so the rows don't sum to the total.
 First- and senior-author institutions agree for most abstracts.</p>
@@ -80,11 +86,8 @@ First- and senior-author institutions agree for most abstracts.</p>
 <h3>Senior authors with the highest talk share</h3>
 <p>Among senior authors with at least {{ y.min_abstracts }} abstracts this year, ranked by the lower end of the
 95% Wilson interval, so a 5-of-6 record outranks 2-of-2.</p>
+<img class="figure" src="img/{{ y.year }}_senior_authors.png" alt="Talk share with 95% intervals for the top 10 senior authors at ASHG {{ y.year }}.">
 <div class="scroll">{{ y.senior_authors }}</div>
-
-<h3>Sample sizes</h3>
-<p>Largest human-subject N stated in the abstract text (e.g. "12,000 individuals", "N = 500 patients").</p>
-<div class="scroll">{{ y.sample_size }}</div>
 {% endfor %}
 
 <h2 id="methods">Methods</h2>

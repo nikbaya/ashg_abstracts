@@ -79,9 +79,14 @@ def main():
     con.execute(setup)
     results = {name: con.execute(q).df().assign(year=y) for name, q in queries.items()}
 
+    # totals and baseline count every abstract, including those cut off in the booklet;
+    # text analyses (phrases, sample sizes) use only the complete ones
     summary = con.execute("""
         SELECT count(*) AS abstracts, sum(talk::int) AS talks, avg(talk::int) AS talk_share,
-               avg((len(senior_insts) > 0)::int) AS senior_inst_coverage
+               sum(truncated::int) AS truncated, sum((truncated AND talk)::int) AS truncated_talks,
+               count(*) FILTER (WHERE NOT truncated) AS text_abstracts,
+               count(*) FILTER (WHERE NOT truncated AND talk) AS text_talks,
+               avg((len(senior_insts) > 0)::int) FILTER (WHERE NOT truncated) AS senior_inst_coverage
         FROM insts""").df().assign(year=y)
     results["summary"] = summary
     results["premium"] = premium_table(data, y, args.top).assign(year=y)
