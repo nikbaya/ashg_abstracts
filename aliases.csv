@@ -23,10 +23,10 @@ University of Pennsylvania,University of Pennsylvania|Perelman School of Medicin
 Penn State University,Penn(sylvania)? State
 University of Pittsburgh,University of Pittsburgh
 Baylor Genetics,Baylor Genetics
-Baylor College of Medicine,Baylor College of Medicine|(?-i:\bBCM\b)|Human Genome Sequencing Center
+Baylor College of Medicine,Baylor College (of )?Medicine|(?-i:\bBCM\b)|Human Genome Sequencing Center
 Baylor University,Baylor University
 Texas Children's Hospital,Texas Children'?s Hospital
-UTHealth Houston,University of Texas Health Science Center at Houston|UTHealth
+UTHealth Houston,University (of )?Texas (Health Science Center|HSC) (at )?Houston|UTHealth
 MD Anderson Cancer Center,MD Anderson
 UT Southwestern Medical Center,UT Southwestern|University of Texas Southwestern
 Texas A&M University,Texas A&M
@@ -38,10 +38,10 @@ Stanford University,\bStanford\b
 George Washington University,George Washington University
 Washington University in St. Louis,Washington University|\bWashU\b
 University of Washington,University of Washington
-University of Michigan,University of Michigan|Michigan Medicine
+University of Michigan,University (of )?Michigan|Michigan Medicine
 Yale University,\bYale\b
 NIH,"National Institutes? of Health|(?-i:\bNIH\b)|National Human Genome Research Institute|(?-i:\bNHGRI\b)|National Cancer Institute|(?-i:\bNCI\b)|National Heart,? Lung,? and Blood Institute|(?-i:\bNHLBI\b)|National Institute of Environmental Health Sciences|(?-i:\bNIEHS\b)|National Institute of Diabetes|(?-i:\bNIDDK\b)|National Institute of Mental Health|(?-i:\bNIMH\b)|National Institute of Neurological|(?-i:\bNINDS\b)|National Institute on Aging|(?-i:\bNIA\b)|National Institute of Child Health|(?-i:\bNICHD\b)|National Institute of Allergy|(?-i:\bNIAID\b)|National Library of Medicine|(?-i:\bNLM\b)|(?-i:\bNCBI\b)"
-University of North Carolina at Chapel Hill,University of North Carolina|(?-i:\bUNC\b)
+University of North Carolina at Chapel Hill,University (of )?North Carolina(?! State)|(?-i:\bUNC\b)
 UC San Diego,"University of California,? San Diego|UC San Diego|(?-i:\bUCSD\b)"
 UC San Francisco,"University of California,? San Francisco|UC San Francisco|(?-i:\bUCSF\b)"
 UCLA,"University of California,? Los Angeles|David Geffen School of Medicine|(?-i:\bUCLA\b)"
@@ -63,6 +63,7 @@ University of Helsinki,University of Helsinki|Institute for Molecular Medicine F
 Case Western Reserve University,Case Western
 Cleveland Clinic,Cleveland Clinic|Lerner Research Institute
 Mayo Clinic,\bMayo Clinic
+University of Texas Medical Branch,University of Texas Medical Branch|(?-i:\bUTMB\b)
 Columbia University,Columbia University|(?-i:\bCUIMC\b)
 University of Utah,University of Utah
 University of Miami,University of Miami|Hussman Institute
@@ -160,3 +161,59 @@ Oxford Nanopore Technologies,Oxford Nanopore
 Parse Biosciences,Parse Biosciences
 Nabsys,\bNabsys\b
 Geneial,\bGeneial\b
+# Added for 2024 (institutions with >= 7 first/senior-author abstracts that year):
+Brigham Young University,Brigham Young University|(?-i:\bBYU\b)
+University of Exeter,University of Exeter
+King's College London,King'?s College London
+Sichuan University,Sichuan University|West China Hospital
+Nanchang University,Nanchang University|Jiangxi Medical College
+Zhejiang University,Zhejiang University
+Central South University,Central South University
+Peking Union Medical College,Peking Union Medical College
+SUNY Upstate Medical University,SUNY Upstate|Upstate Medical University
+University of Arizona,University of Arizona
+Arizona State University,Arizona State University
+Michigan State University,Michigan State University
+University of Oklahoma,University of Oklahoma
+University of British Columbia,University of British Columbia|(?-i:\bUBC\b)
+Université du Québec à Chicoutimi,Universit. du Qu.bec . Chicoutimi|(?-i:\bUQAC\b)
+Radboud University Medical Center,\bRadboud
+Uppsala University,Uppsala University
+Nanyang Technological University,Nanyang Technological University
+Hamad Bin Khalifa University,Hamad Bin Khalifa University|(?-i:\bHBKU\b)
+Sungkyunkwan University,Sungkyunkwan University
+Kanagawa Children's Medical Center,Kanagawa Children'?s Medical Center
+Myriad Genetics,Myriad Genetics
+Novo Nordisk,Novo Nordisk
+Empirico,\bEmpirico\b
+# Added for 2023 (institutions with >= 8 first/senior-author abstracts that year):
+QIMR Berghofer Medical Research Institute,QIMR Berghofer|(?-i:\bQIMR\b)
+University College London,University College London|(?-i:\bUCL\b)
+Vanda Pharmaceuticals,Vanda Pharmaceuticals
+University of the Witwatersrand,Witwatersrand|Sydney Brenner Institute
+Institut Pasteur,Institut(e)? Pasteur
+Sidra Medicine,Sidra Medicine|Sidra Medical
+National Institute of Biomedical Genomics,National Institute of Bio ?Med(ical|\.)? Genomics|(?-i:\bNIBMG\b)
+Rady Children's Institute for Genomic Medicine,Rady Children'?s
+University of Texas at Austin,University of Texas at Austin|UT Austin
+Georgia Institute of Technology,Georgia Institute of Technology|Georgia Tech
+Osaka University,Osaka University
+Leiden University Medical Center,Leiden University Medical Cent(er|re)|(?-i:\bLUMC\b)
+Pacific Northwest Research Institute,Pacific Northwest Research Institute
+G42 Healthcare,G42 Health ?care
+# Added for 2022 (institutions with >= 7 first/senior-author abstracts that year):
+RTI International,\bRTI Int(ernational|l\b)|Research Triangle Institute
+University of Maryland,"University of Maryland(?!,? (College Park|Baltimore County))"
+University of São Paulo,(University ?e|Universidade) de S.o Paulo|(?<!Federal )University of S.o Paulo
+University of Calgary,University of Calgary
+Mohammed Bin Rashid University of Medicine and Health Sciences,Mohammed Bin Rashid University
+Bionano Genomics,\bBionano\b
+Alnylam Pharmaceuticals,\bAlnylam\b
+Ponce Health Sciences University,Ponce Health Sciences? University
+San Jorge Children's Hospital,San Jorge Children'?s
+BioSkryb Genomics,\bBioSkryb\b
+GenomeArc,\bGenomeArc\b
+St. Michael's Hospital,St\.? Michael'?s Hospital|Unity Health Toronto
+Rutgers University,\bRutgers\b
+# Added on review:
+Children's Mercy Kansas City,Children'?s Mercy

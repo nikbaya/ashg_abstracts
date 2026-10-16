@@ -1,0 +1,12 @@
+pdf: ASHG2023-PlatformAbstracts.pdf
+year: 2023
+pres_type: platform
+start_page: 6             # pages 1-5 are instructions + table of contents
+header_y_max: 45          # running header
+footer_y_min: 728         # award legend + page number
+session_header: [{size: 9, bold: false}, {size: 9, bold: true}]  # only the first is bold
+title: null               # titles are plain 7pt text after a "Title:" label
+open_regex: '^Title:'
+toc_first_per_session: true  # the TOC lists only each session's first talk
+# The booklet has no header for the session after Session 097 (p225, "Driver project for advancing
+# long-read..." and the 4 talks after it), so those 5 talks inherit Session 097.

@@ -1,0 +1,11 @@
+rank,name,institute,abstracts,talks,talk_rate,ci_lo,ci_hi,baseline,min_abstracts,year
+1,A. Price,Harvard University,5,3,0.6,0.2307,0.8824,0.1024,5,2023
+2,B. Neale,Massachusetts General Hospital,5,3,0.6,0.2307,0.8824,0.1024,5,2023
+3,C. Cruchaga,Washington University in St. Louis,5,2,0.4,0.1176,0.7693,0.1024,5,2023
+4,P. Liu,Baylor College of Medicine,5,2,0.4,0.1176,0.7693,0.1024,5,2023
+5,S. Gazal,University of Southern California,5,2,0.4,0.1176,0.7693,0.1024,5,2023
+6,P. Roussos,Icahn School of Medicine at Mount Sinai,6,2,0.3333,0.09677,0.7,0.1024,5,2023
+7,R. Gibbs,Baylor College of Medicine,6,2,0.3333,0.09677,0.7,0.1024,5,2023
+8,T. Pastinen,Children's Mercy Kansas City,6,2,0.3333,0.09677,0.7,0.1024,5,2023
+9,B. Lee,Baylor College of Medicine,7,2,0.2857,0.08222,0.6411,0.1024,5,2023
+10,Y. Okada,RIKEN,7,2,0.2857,0.08222,0.6411,0.1024,5,2023

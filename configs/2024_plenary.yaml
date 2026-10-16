@@ -1,0 +1,8 @@
+pdf: ASHG2024-PlenaryAbstracts.pdf
+year: 2024
+pres_type: plenary
+start_page: 3             # pages 1-2 are instructions + table of contents
+header_y_max: 50
+footer_y_min: 725         # footer sits higher than in the platform booklet
+session_header: {size: 20, bold: false}
+title: {size: 14, bold: true}

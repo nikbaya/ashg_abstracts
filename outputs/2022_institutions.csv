@@ -1,0 +1,101 @@
+basis,rank,institute,abstracts,talks,talk_rate,ci_lo,ci_hi,baseline,year
+first,1,NIH,89,7,0.07865,0.03862,0.1536,0.1192,2022
+first,2,University of Michigan,71,11,0.1549,0.08877,0.2565,0.1192,2022
+first,3,UCLA,69,16,0.2319,0.1481,0.344,0.1192,2022
+first,4,Broad Institute,65,16,0.2462,0.1576,0.3631,0.1192,2022
+first,5,Baylor College of Medicine,63,13,0.2063,0.1248,0.3217,0.1192,2022
+first,6,Harvard Medical School,53,15,0.283,0.1797,0.4157,0.1192,2022
+first,7,University of Pennsylvania,51,9,0.1765,0.09572,0.3025,0.1192,2022
+first,8,University of Southern California,44,5,0.1136,0.04953,0.2398,0.1192,2022
+first,9,Massachusetts General Hospital,41,11,0.2683,0.1569,0.4193,0.1192,2022
+first,10,Children's Hospital of Philadelphia,41,5,0.122,0.05323,0.2554,0.1192,2022
+first,11,Stanford University,39,8,0.2051,0.1078,0.3553,0.1192,2022
+first,12,Johns Hopkins University,37,3,0.08108,0.02796,0.213,0.1192,2022
+first,13,Vanderbilt University,36,5,0.1389,0.06082,0.2866,0.1192,2022
+first,14,UC San Diego,35,7,0.2,0.1004,0.3589,0.1192,2022
+first,15,Columbia University,34,3,0.08824,0.03047,0.2296,0.1192,2022
+first,16,University of Chicago,33,6,0.1818,0.08611,0.3439,0.1192,2022
+first,17,University of Miami,33,3,0.09091,0.0314,0.2357,0.1192,2022
+first,18,Icahn School of Medicine at Mount Sinai,32,6,0.1875,0.08889,0.3531,0.1192,2022
+first,19,McGill University,32,4,0.125,0.0497,0.2807,0.1192,2022
+first,20,Vanderbilt University Medical Center,31,4,0.129,0.05134,0.2885,0.1192,2022
+first,21,Harvard University,30,8,0.2667,0.1418,0.4445,0.1192,2022
+first,22,University of Washington,30,5,0.1667,0.07336,0.3356,0.1192,2022
+first,23,University of Helsinki,28,7,0.25,0.1268,0.4336,0.1192,2022
+first,24,Case Western Reserve University,27,2,0.07407,0.02055,0.2337,0.1192,2022
+first,25,University of Toronto,26,3,0.1154,0.04003,0.2898,0.1192,2022
+first,26,Emory University,25,5,0.2,0.0886,0.3913,0.1192,2022
+first,27,Regeneron,23,7,0.3043,0.156,0.5087,0.1192,2022
+first,28,UC Irvine,23,2,0.08696,0.02418,0.268,0.1192,2022
+first,29,Brigham and Women's Hospital,22,7,0.3182,0.1636,0.5268,0.1192,2022
+first,30,Duke University,22,3,0.1364,0.04749,0.3334,0.1192,2022
+first,31,University of Oxford,21,5,0.2381,0.1063,0.4509,0.1192,2022
+first,32,Seoul National University,21,2,0.09524,0.02652,0.2891,0.1192,2022
+first,33,University of Pittsburgh,20,1,0.05,0.008881,0.2361,0.1192,2022
+first,34,Mayo Clinic,18,2,0.1111,0.03102,0.328,0.1192,2022
+first,35,University of North Carolina at Chapel Hill,18,2,0.1111,0.03102,0.328,0.1192,2022
+first,36,The Hospital for Sick Children,18,1,0.05556,0.009875,0.2576,0.1192,2022
+first,37,Yale University,18,1,0.05556,0.009875,0.2576,0.1192,2022
+first,38,UC San Francisco,17,6,0.3529,0.1731,0.587,0.1192,2022
+first,39,University of Utah,17,0,0,0,0.1843,0.1192,2022
+first,40,Northwestern University,16,3,0.1875,0.06591,0.4301,0.1192,2022
+first,41,University of Colorado,16,0,0,0,0.1936,0.1192,2022
+first,42,Boston Children's Hospital,15,1,0.06667,0.01187,0.2982,0.1192,2022
+first,43,Illumina,15,1,0.06667,0.01187,0.2982,0.1192,2022
+first,44,Sidra Medicine,15,1,0.06667,0.01187,0.2982,0.1192,2022
+first,45,RTI International,15,0,0,0,0.2039,0.1192,2022
+first,46,MIT,14,4,0.2857,0.1172,0.5465,0.1192,2022
+first,47,Washington University in St. Louis,14,2,0.1429,0.04009,0.3994,0.1192,2022
+first,48,Université de Montréal,14,0,0,0,0.2153,0.1192,2022
+first,49,Boston University,13,1,0.07692,0.01371,0.3331,0.1192,2022
+first,50,Penn State University,12,3,0.25,0.08894,0.5323,0.1192,2022
+senior,1,NIH,87,8,0.09195,0.04733,0.1711,0.1192,2022
+senior,2,University of Michigan,77,11,0.1429,0.08168,0.238,0.1192,2022
+senior,3,Broad Institute,63,14,0.2222,0.1372,0.3391,0.1192,2022
+senior,4,Baylor College of Medicine,63,10,0.1587,0.08857,0.2681,0.1192,2022
+senior,5,UCLA,57,14,0.2456,0.1523,0.371,0.1192,2022
+senior,6,Harvard Medical School,54,12,0.2222,0.132,0.3494,0.1192,2022
+senior,7,University of Pennsylvania,50,12,0.24,0.143,0.3741,0.1192,2022
+senior,8,Massachusetts General Hospital,47,12,0.2553,0.1525,0.3951,0.1192,2022
+senior,9,Stanford University,43,8,0.186,0.09742,0.3262,0.1192,2022
+senior,10,Vanderbilt University Medical Center,41,5,0.122,0.05323,0.2554,0.1192,2022
+senior,11,University of Southern California,41,3,0.07317,0.0252,0.1943,0.1192,2022
+senior,12,Children's Hospital of Philadelphia,40,5,0.125,0.05459,0.2611,0.1192,2022
+senior,13,University of Toronto,38,3,0.07895,0.02721,0.208,0.1192,2022
+senior,14,University of Miami,34,3,0.08824,0.03047,0.2296,0.1192,2022
+senior,15,UC San Diego,33,7,0.2121,0.1068,0.3775,0.1192,2022
+senior,16,Johns Hopkins University,33,2,0.06061,0.01678,0.1961,0.1192,2022
+senior,17,University of Chicago,32,6,0.1875,0.08889,0.3531,0.1192,2022
+senior,18,Columbia University,32,4,0.125,0.0497,0.2807,0.1192,2022
+senior,19,Icahn School of Medicine at Mount Sinai,31,6,0.1935,0.09187,0.3628,0.1192,2022
+senior,20,Brigham and Women's Hospital,30,10,0.3333,0.1923,0.5122,0.1192,2022
+senior,21,University of Washington,29,7,0.2414,0.1222,0.4211,0.1192,2022
+senior,22,Vanderbilt University,29,3,0.1034,0.03581,0.2639,0.1192,2022
+senior,23,Harvard University,28,6,0.2143,0.1021,0.3954,0.1192,2022
+senior,24,McGill University,28,2,0.07143,0.01981,0.2265,0.1192,2022
+senior,25,University of Helsinki,27,8,0.2963,0.1585,0.4848,0.1192,2022
+senior,26,Emory University,24,5,0.2083,0.09245,0.4047,0.1192,2022
+senior,27,Duke University,23,3,0.1304,0.04538,0.3213,0.1192,2022
+senior,28,Regeneron,22,7,0.3182,0.1636,0.5268,0.1192,2022
+senior,29,Case Western Reserve University,22,2,0.09091,0.02529,0.2782,0.1192,2022
+senior,30,Seoul National University,22,1,0.04545,0.008069,0.218,0.1192,2022
+senior,31,UC Irvine,21,2,0.09524,0.02652,0.2891,0.1192,2022
+senior,32,UC San Francisco,20,7,0.35,0.1812,0.5671,0.1192,2022
+senior,33,Mayo Clinic,20,2,0.1,0.02787,0.301,0.1192,2022
+senior,34,University of Pittsburgh,20,1,0.05,0.008881,0.2361,0.1192,2022
+senior,35,The Hospital for Sick Children,19,2,0.1053,0.02936,0.3139,0.1192,2022
+senior,36,University of North Carolina at Chapel Hill,19,2,0.1053,0.02936,0.3139,0.1192,2022
+senior,37,University of Oxford,18,4,0.2222,0.09001,0.4522,0.1192,2022
+senior,38,University of Utah,18,0,0,0,0.1759,0.1192,2022
+senior,39,Boston Children's Hospital,17,1,0.05882,0.01046,0.2698,0.1192,2022
+senior,40,University of Colorado,17,0,0,0,0.1843,0.1192,2022
+senior,41,University of Cambridge,16,3,0.1875,0.06591,0.4301,0.1192,2022
+senior,42,RTI International,16,0,0,0,0.1936,0.1192,2022
+senior,43,Northwestern University,15,3,0.2,0.07047,0.4519,0.1192,2022
+senior,44,Washington University in St. Louis,15,2,0.1333,0.03736,0.3788,0.1192,2022
+senior,45,Yale University,15,1,0.06667,0.01187,0.2982,0.1192,2022
+senior,46,Université de Montréal,15,0,0,0,0.2039,0.1192,2022
+senior,47,Illumina,14,1,0.07143,0.01272,0.3147,0.1192,2022
+senior,48,Sidra Medicine,14,1,0.07143,0.01272,0.3147,0.1192,2022
+senior,49,UTHealth Houston,14,0,0,0,0.2153,0.1192,2022
+senior,50,University of São Paulo,14,0,0,0,0.2153,0.1192,2022

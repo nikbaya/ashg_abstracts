@@ -1,0 +1,13 @@
+basis,rank,region,abstracts,talks,talk_rate,ci_lo,ci_hi,baseline,countries,year
+first,1,Northern America,2087,274,0.1313,0.1175,0.1465,0.1192,United States; Canada,2022
+first,2,Europe,400,57,0.1425,0.1116,0.1802,0.1192,United Kingdom; France; Finland,2022
+first,3,Asia,316,14,0.0443,0.02657,0.07298,0.1192,South Korea; Japan; India,2022
+first,4,Latin America and the Caribbean,74,1,0.01351,0.002389,0.07266,0.1192,Brazil; Mexico; Colombia,2022
+first,5,Africa,55,1,0.01818,0.003217,0.09606,0.1192,Mali; Nigeria; Egypt,2022
+first,6,Oceania,35,5,0.1429,0.0626,0.2938,0.1192,Australia; New Zealand,2022
+senior,1,Northern America,2085,268,0.1285,0.1149,0.1436,0.1192,United States; Canada,2022
+senior,2,Europe,422,63,0.1493,0.1185,0.1864,0.1192,United Kingdom; France; Germany,2022
+senior,3,Asia,294,11,0.03741,0.02102,0.06574,0.1192,South Korea; Japan; India,2022
+senior,4,Latin America and the Caribbean,71,3,0.04225,0.01447,0.117,0.1192,Brazil; Mexico; Colombia,2022
+senior,5,Africa,46,0,0,0,0.07708,0.1192,Mali; Nigeria; South Africa,2022
+senior,6,Oceania,36,6,0.1667,0.0787,0.3189,0.1192,Australia; New Zealand,2022

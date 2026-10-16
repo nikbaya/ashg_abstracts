@@ -1,0 +1,11 @@
+rank,name,institute,abstracts,talks,talk_rate,ci_lo,ci_hi,baseline,min_abstracts,year
+1,P. Awadalla,University of Toronto,5,4,0.8,0.3755,0.9638,0.1192,5,2022
+2,J. Denny,NIH,5,3,0.6,0.2307,0.8824,0.1192,5,2022
+3,R. Do,Icahn School of Medicine at Mount Sinai,5,3,0.6,0.2307,0.8824,0.1192,5,2022
+4,S. Raychaudhuri,Broad Institute,5,3,0.6,0.2307,0.8824,0.1192,5,2022
+5,M. Kellis,MIT,8,4,0.5,0.2152,0.7848,0.1192,5,2022
+6,B. Pasaniuc,UCLA,9,4,0.4444,0.1888,0.7334,0.1192,5,2022
+7,P. Jin,Emory University,6,3,0.5,0.1876,0.8124,0.1192,5,2022
+8,A. Gusev,Dana-Farber Cancer Institute,7,3,0.4286,0.1582,0.7495,0.1192,5,2022
+9,S. Parker,University of Michigan,8,3,0.375,0.1368,0.6943,0.1192,5,2022
+10,M. Gymrek,UC San Diego,9,3,0.3333,0.1206,0.6458,0.1192,5,2022

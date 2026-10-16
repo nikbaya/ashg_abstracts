@@ -3,6 +3,8 @@
 2025 format: "Full Name (Affil, Affil), Name Two (Affil)." — affiliations are
 inline parentheticals whose commas separate both affiliations and the parts of
 one affiliation (dept, city), so they are kept as a flat list of segments.
+2023-2024 format: numbered superscripts with an affiliation list after ";"
+(see parse_numbered); its affiliations are split into the same flat segments.
 """
 
 import csv
@@ -77,10 +79,66 @@ def repair_raw(raw):
     return re.sub(r"(?<=[a-z])\d+(?:\s*,\s*\d+)*(?=\s*\()", "", raw)  # "Polimanti1,3,18 (Affil)"
 
 
+NUMBERED_RE = re.compile(r"^\s*[^\W\d_]{1,2}(?:-\s?[^\W\d_]{1,2})?\.[^,;(]*")  # "M. ", "K-H. ", "Á. "
+
+
+def is_numbered(raw):
+    """2023-2024 format: "A. Name1,2, B. Name2; 1Univ. of X, City, ST, 2Inst. Y, City, Country"."""
+    first = raw.split(";")[0].split(",")[0]
+    # a "(" in the first author is a 2025-style affiliation, unless it is "(Maiden name)1"
+    return ";" in raw and bool(NUMBERED_RE.match(first)) and not re.search(r"\((?![^)]*\)\s*\d)", first)
+
+
+def split_numbered_affils(text):
+    """{number: affiliation}, or {0: text} for one shared, unnumbered affiliation.
+
+    Markers are found in sequence (1, then 2, ...) so digits inside an
+    affiliation ("2nd Floor") are not mistaken for the next marker. A marker may
+    be followed by more digits if a word follows ("123andMe" = 1 + "23andMe"),
+    but not by a bare number (", 200032, China").
+    """
+    text = text.strip()
+    if not re.match(r"1\d*\s?[^\d\s,]", text):
+        return {0: text}
+    marks, pos, k = [], 0, 1
+    while m := re.compile(rf"(?:^|,)\s*{k}(?=\d*\s?[^\d\s,])(?!(?:st|nd|rd|th)\b)").search(text, pos):
+        marks.append((k, m.start(), m.end()))
+        pos, k = m.end(), k + 1
+    ends = [s for _, s, _ in marks[1:]] + [len(text)]
+    return {k: text[e:end].strip(" ,") for (k, _, e), end in zip(marks, ends)}
+
+
+def parse_numbered(raw):
+    names, _, affil_text = raw.strip().rstrip(".").partition(";")
+    affils = split_numbered_affils(affil_text)
+    authors = []
+    for tok in re.split(r",\s*", names):
+        tok = tok.strip()
+        if (stray := re.fullmatch(r"[A-Z]?\s*(\d+)", tok)) and authors:  # "Name1, 2" or "C. Brown, E2"
+            authors[-1]["nums"].append(int(stray.group(1)))
+            continue
+        if (sfx := re.fullmatch(r"(Jr|Sr|II|III|IV|3rd)\.?(\d*)", tok)) and authors:
+            authors[-1]["name"] += ", " + sfx.group(1)
+            authors[-1]["nums"] += [int(sfx.group(2))] if sfx.group(2) else []
+            continue
+        m = re.match(r"^(.*?)\s*(\d+)?$", tok)
+        name = clean_name(re.sub(r"\s*\([^)]*\)", "", m.group(1)))  # "M. AlThgafi (Abedalthagafi)1"
+        if name:
+            # people are always "Initial(s). Surname" here, so anything else is a group
+            group = not NUMBERED_RE.match(name) or bool(re.search(r"\bon behalf of\b", name, re.I))
+            authors.append({"name": name, "nums": [int(m.group(2))] if m.group(2) else [], "group": group})
+    for a in authors:
+        nums = a.pop("nums") or ([0] if 0 in affils else [])
+        a["affils"] = [seg for n in nums if n in affils for seg in split_top_level(affils[n])]
+    return authors
+
+
 def parse_authors(raw):
     """Return [{'name': str, 'affils': [segment, ...]}, ...] in listed order."""
     if not raw:
         return []
+    if is_numbered(raw):
+        return parse_numbered(raw)
     raw = repair_raw(raw)
     authors = []
     # "... Last Author (Affil) for the X Consortium" / "... (Affil) the Y Program"

@@ -1,0 +1,11 @@
+pdf: ASHG2023-PosterAbstracts.pdf
+year: 2023
+pres_type: poster
+start_page: 141           # pages 1-140 are instructions + table of contents
+header_y_max: 45
+footer_y_min: 740
+session_header: null      # each poster repeats its own "Session Title:" line
+title: null               # "PB1845<title>": bold id, plain title; no title style
+open_regex: '^Session Title:'
+id_regex: '^PB(\d{4})\s*' # ids are always 4 digits; titles can start with digits ("PB10013D ...")
+authors_end_gap: 18       # no "Abstract:" label: the body starts after a ~25pt paragraph gap (lines are ~11.5pt)

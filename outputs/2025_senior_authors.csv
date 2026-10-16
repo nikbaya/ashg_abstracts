@@ -1,4 +1,4 @@
-rank,name,institute,abstracts,talks,talk_share,ci_lo,ci_hi,baseline,min_abstracts,year
+rank,name,institute,abstracts,talks,talk_rate,ci_lo,ci_hi,baseline,min_abstracts,year
 1,Michael E. Talkowski,Broad Institute,11,5,0.4545,0.2127,0.7199,0.08339,5,2025
 2,Evan E. Eichler,University of Washington,6,3,0.5,0.1876,0.8124,0.08339,5,2025
 3,Feixiong Cheng,Case Western Reserve University,6,3,0.5,0.1876,0.8124,0.08339,5,2025

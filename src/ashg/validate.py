@@ -32,7 +32,8 @@ def check_completeness(df, spans, cfg):
 
     Poster TOCs list Board IDs, so counts are compared directly. Talk TOC entries
     wrap unpredictably (dot leaders on their own line, bold session lines), so
-    instead every parsed title must appear in the TOC text.
+    instead every parsed title must appear in the TOC text (only the first talk
+    of each session with toc_first_per_session, as in the 2023 platform TOC).
     """
     problems = []
     lines = list(iter_lines(spans, cfg))
@@ -47,7 +48,8 @@ def check_completeness(df, spans, cfg):
             problems.append(f"count: parsed {len(df)} abstracts but TOC lists {n_toc}")
     else:
         toc = norm(" ".join(toc_lines))
-        missing = [r.abstract_id for r in df.itertuples() if norm(r.title)[:40] not in toc]
+        listed = df[~df.session.duplicated()] if cfg.get("toc_first_per_session") else df
+        missing = [r.abstract_id for r in listed.itertuples() if norm(r.title)[:40] not in toc]
         if missing:
             problems.append(f"{len(missing)} parsed title(s) not in TOC: {missing[:5]}")
     return problems

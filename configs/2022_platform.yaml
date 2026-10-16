@@ -1,0 +1,11 @@
+pdf: ASHG2022-PlatformAbstracts.pdf
+year: 2022
+pres_type: platform
+start_page: 18            # pages 1-17 are instructions + table of contents
+header_y_max: 50          # running header "ASHG 2022 Annual Meeting Platform Abstracts"
+footer_y_min: 720         # copyright line + "Page N of 352" at y~728
+session_header: [{size: 9, bold: true}, {size: 10, bold: true}]  # 10pt from p312 on
+session_regex: '^S\d+\.'  # labels and presenting authors share the bold 9pt style
+title: null               # titles are plain 9pt "ProgNbr 064. <title>" lines
+open_regex: '^ProgNbr \d+[.:]'
+id_regex: '^ProgNbr (\d+)[.:]\s*'

@@ -1,0 +1,427 @@
+affiliation,country,basis
+# Rule 4 of geography.py: whole affiliation strings (as parsed, joined with ", ") that no other rule places, mostly 2025.,,
+# Labeled with an LLM pass and spot-checked (39/40 correct in a random sample; the miss fixed). basis: named = place in the text, known = institution's location, hq = company headquarters.,,
+"1 Institute for Biomedical Informatics, Penn Neurodegeneration Genomics Center, Department of Pathology and Laboratory Medicine, Institute on Aging",United States,known
+10x Genomics,United States,hq
+"3 billion, Inc.",South Korea,known
+3billion,South Korea,known
+"3billion, Inc",South Korea,hq
+"A*STAR, KCL",Singapore; United Kingdom,known
+ARUP Laboratories,United States,hq
+ASHG,United States,known
+"ASHG, Norton Children's Research Institute affiliated with the University of Louisville",United States,known
+"AbbVie, Cambridge Research Center",United States,known
+"Adult Congenital Heart Disease, Fundación Cardioinfantil-laCardio",Colombia,known
+Agilent Technologies,United States,hq
+Aichi Developmental Disability Center Hospital,Japan,named
+"Aichi Developmental Disability Center, Institute for Developmental Research",Japan,named
+Ajou University School of Medicine,South Korea,known
+"Ajou University School of Medicine, Ajou University Graduate School",South Korea,known
+Alliance to Cure Cavernous Malformations,United States,known
+Alltrna,United States,known
+Alzheon Inc.,United States,hq
+Ambry,United States,hq
+Argonne National Laboratory,United States,known
+"Associate Professor, Department of Medical Genetics, Kasturba Medical College, Manipal",India,known
+AstraZeneca,United Kingdom,hq
+Atrandi Biosciences,Lithuania,hq
+Augusta University,United States,known
+Autism Science Foundation,United States,known
+BASIS San Antonio - Shavano Campus,United States,named
+BD Biosciences,United States,hq
+BGI Research,China,known
+BPGbio,United States,hq
+"BTC, Khalifa University",United Arab Emirates,known
+Bar-Ilan University,Israel,known
+Bio-Rad,United States,hq
+Bio-Rad Laboratories,United States,hq
+BioMarin,United States,hq
+BioMarin Phamaceutical,United States,hq
+BioMarin Pharmaceutical,United States,hq
+BioMarin Pharmaceuticals,United States,hq
+"Biomedical Engineering, John Hopkins University",United States,known
+"Booz Allen Hamilton, VA Center for Data and Computational Sciences",United States,known
+Boğaziçi University,Turkey,known
+Brandeis University,United States,known
+BridgeBio Pharma,United States,hq
+"BridgeBio Pharma, GondolaBio",United States,hq
+Bristol Myers Squibb,United States,hq
+Brookfield Central High School,United States,known
+Bruker Spatial Genomics,United States,hq
+Bryn Mawr College,United States,known
+Bunker Hill Community College,United States,known
+"Bursa Uludag University, Department of Medical Genetics",Turkey,named
+"Bursa Uludag University, Department of Ophthalmology",Turkey,named
+"Bursa Uludag University, Translational Medicine",Turkey,named
+"CDAC, Pune",India,named
+CENTOGENE GmbH,Germany,hq
+CHU Sainte-Justine Azrieli Research Center,Canada,known
+CINVESTAV,Mexico,known
+"CISLD at UMC Ljubljana, Faculty of Medicine at University of Ljubljana",Slovenia,named
+"CSG Lab, MCW",United States,known
+CSHL,United States,known
+CU Anschutz,United States,known
+CareDx,United States,hq
+"Carle Health, University of Illinios",United States,known
+Carnegie Mellon University,United States,known
+"Carnegie Mellon University, Mohamed bin Zayed University of Artificial Intelligence",United States; United Arab Emirates,known
+Cedar Sinai Medical Center,United States,known
+"Center for Data and Computational Sciences, Booz Allen Hamilton",United States,hq
+"Center for Discovery and Innovation, Hackensack Meridian Health",United States,known
+"Center for Education Healthcare and Investigation - CADI-UMAG, School of Medicine - Universidad de Magallanes, Chilean Hereditary Cancer Group - GCCH",Chile,named
+"Center for Education Healthcare and Investigation - CADI-UMAG, School of Medicine - Universidad de Magallanes, Chilean Hereditary Cancer Group - GCCH, Interuniversitary Center for Healthy Aging- CIES",Chile,known
+"Center for Molecular Medicine and Genetics, Wayne State University",United States,known
+"Center for Molecular Medicine and Genetics, Wayne state university",United States,known
+"Center for Population Neuroscience and Genetics -- Laureate Institute for Brain Research, Laureate Institute for Brain Research",United States,known
+"Center for Translational Research, Scottish Rite for Children",United States,known
+Center of Neurology and Hertie-Institute for Clinical Brain Research,Germany,known
+"Central Lab of Yan'an Hospital Affiliated To KMU, Precision Medicine Center of Yan'an Hospital Affiliated To KMU",China,known
+"Centre for Genetic Disorders, Institute of Science, Banaras Hindu University",India,named
+"Centre for Genomics Research, AstraZeneca",United Kingdom,known
+Centro Cardiologico Monzino,Italy,known
+"Charles University and University Hospital Motol, Neurogenetic laboratory",Czech Republic,known
+Cheikh Anta Diop University,Senegal,known
+"Chosun Universty, Well-aging Medicare Institute",South Korea,known
+Chungnam National University,South Korea,known
+City of Hope National Medical Center,United States,known
+"Civelek Lab, UVA",United States,known
+Clinical Hospital of Magallanes,Chile,named
+Cold Spring Harbor Laboratory,United States,known
+"Cold Spring Harbor Laboratory, Cold Spring Harbor NY",United States,named
+Color Health,United States,hq
+Colossal Biosciences,United States,hq
+Community Action Agency of New Haven,United States,named
+Complete Genomics,United States,hq
+Covaris,United States,hq
+"Creighton University, BMS department",United States,known
+"Creighton University, Core Facilities",United States,known
+"Creighton University, School of Medicine",United States,known
+"Cytogenetics, KK Women's and Children's Hospital",Singapore,known
+"Cytogenetics, MRC Holland",Netherlands,hq
+DFCI,United States,known
+DNA Genotek Inc,Canada,hq
+DNASTAR,United States,hq
+DNASense/CmBio,Denmark,known
+"DSI, MCW",United States,known
+"Dartmouth Health, Dartmouth College",United States,known
+"Dartmouth Health, Lebanon NH",United States,named
+Dasa,Brazil,known
+"Dasa, USP",Brazil,known
+Deep Genomics Inc.,Canada,hq
+Denali Therapeutics,United States,hq
+"Department of Biology, Johns Hopkin University",United States,known
+"Department of Biology, University of Puerto Rico at Rio Piedras",Puerto Rico,known
+"Department of Biomedical Data Science at Dartmouth College, Dartmouth Cancer Center",United States,known
+"Department of Biomedical Data Science, Geisel School of Medicine, Dartmouth Cancer Center",United States,known
+"Department of Cell Biology, Van Andel Research Institute",United States,known
+"Department of Chemistry and Life Science, Kogakuin University",Japan,known
+"Department of Clinical Genetics, Kitasato University Hospital",Japan,known
+"Department of Clinical Psychopharmacology and Neurotoxicology, NIMHANS",India,known
+"Department of Computer and Information Sciences at Temple University, Institute for Genomics and Evolutionary Medicine at Temple University",United States,known
+"Department of Genomics, NIBD, Molecular Diagnostic lab, Al Qassimi Hospital",United Arab Emirates,known
+"Department of Human Genetics, NIMHANS",India,known
+"Department of Laboratory Medicine, St. Marianna University School of Medicine",Japan,known
+"Department of Maternal-Fetal Biology, National Research Institute for Child Health and Development",Japan,known
+"Department of Medical Genetics, Ege University",Turkey,known
+"Department of Medical Sciences, Frank H. Netter School of Medicine, Quinnipiac University",United States,known
+"Department of Molecular and Systems Biology, Department of Biomedical Data Science, Dartmouth Cancer Center",United States,known
+"Department of Neurology, National Center Hospital, National Center of Neurology and Psychiatry",Japan,known
+"Department of Obstetrics and Gynecology, Jikei University School of Medicine",Japan,known
+"Department of Pediatrics and Medical genetics, Aichi Developmental Disability Center Central Hospital",Japan,named
+"Department of Pediatrics, Pusan National University Children’s Hospital, Pusan National University School of Medicine",South Korea,known
+"Department of Pediatrics, Toyohashi Municipal Hospital",Japan,named
+"Department of Psychiatry, Henry Ford Health",United States,known
+"Department of Tumor Microenvironment and Metastasis, Moffitt Cancer Center",United States,known
+"Dept Genome Med, NCCHD, CRIFM Prenatal Medical Clinic",Japan,known
+"Dept of Anatomy, Midwestern University, Downers Grove, IL). Erin Leslie (Dept of Anatomy, Midwestern University, Downers Grove, IL",United States,named
+"Dept of Genetics, Genomics and Informatics, UTHSC",United States,known
+"Dept of Genetics, Genomics and Informatics, UTHSC and Dept of Pediatrics, Genetics Division, UTHSC",United States,known
+"Dept of Medical Genetics, Shinshu University School of Medicine, Center for Medical Genetics, Shinshu University Hospital",Japan,known
+"Dept of Pathology and Lab Medicine, KKH) and KTE Chang (Dept of Pathology and Lab Medicine, KKH",Singapore,known
+"Dept. Obstetrics and Gynecology, Kurume University, Dept. Obstetrics and Gynecology, National Hospital Organization Kokura Medical Center",Japan,named
+"Dept. Pediatrics, Kurume University",Japan,known
+"Dept. of Medical Sciences, Frank H. Netter SOM, Quinnipiac University",United States,known
+Discovery Life Science,United States,hq
+"Division of Clinical Immunology, Department of Pathology, Queen Mary Hospital",Hong Kong,known
+"Division of Genetics, Kitasato University Hospital",Japan,known
+"Division of Genetics, Kitasato University Hospital. Department of Medical Genetics and Genomics, Kitasato University Graduate School of Medical Sciences",Japan,known
+"Division of Human Genetics and Center for Autoimmune Genomics and Etiology, CCHMC",United States,known
+"Division of Human Genetics and Center for Autoimmune Genomics and Etiology, Department of Pediatrics, UC, CCHMC",United States,known
+"Division of Medical Genetics, National Center for Child Health and Development",Japan,known
+Dongguk University,South Korea,known
+"Dongguk University, Institute of Environmental Medicine for Green Chemistry",South Korea,known
+Dovetail Genomics,United States,hq
+Duke Univeristy,United States,known
+Dulles high school,United States,known
+Duquesne University Department of Mathematics and Computer Science,United States,known
+EMBL-EBI,United Kingdom,known
+"Ege University, Department of Medical Genetics",Turkey,known
+"Ege University, Faculty of Medicine, Department of Medical Biology, Ege University Respiratory Research Center (EgeSAM), Selma Ferda Dalar (Ege University, Faculty of Medicine, Department of Medical Biology, EgeSAM), Miray Sozeri (Ege University, Faculty of Medicine, Department of Medical Biology, EgeSAM), Aycan Asık (Mugla University, Faculty of Medicine, Department of Medical Biology), Korcan Korba (Ege University, Department of Chemical Technologies, Faculty of Engineering, EgeSAM), Haydar Soydaner Karakus (Ege University, Faculty of Medicine, Department of Chest Disease, EGESAM), Su Ozgur EgeSAM",Turkey,known
+"Ege University, Faculty of Medicine, Department of Medical Biology, EgeSAM",Turkey,known
+Element Biosciences,United States,hq
+Elon University,United States,known
+Endeavor Health,United States,known
+"EpiCypher, Inc",United States,hq
+"Eurac Research, Institute for Biomedicine",Italy,known
+Exact Sciences,United States,hq
+FACULDADE DE MEDICINA DE SAO JOSE DO RIO PRETO - FAMERP,Brazil,named
+Faculty of Medicine Vilnius University,Lithuania,known
+"Faculty of Medicine Vilnius University, Faculty of Informatics Vytautas Magnus University",Lithuania,named
+"Federal University of Minas Gerais, Medical School",Brazil,known
+"Feinstein Institutes for Medical Research, Donald and Barbara Zucker School of Medicine at Hofstra/Northwell",United States,known
+Flinders University,Australia,known
+Francis Crick Institute,United Kingdom,known
+Fujita Health University School of Medical Sciences,Japan,known
+Fulgent Genetics,United States,hq
+GC Genome,South Korea,hq
+"GC Genome, GC Labs",South Korea,known
+GENEWIZ,United States,hq
+GENEWIZ from Azenta Life Sciences,United States,hq
+"GIMOS, TMU",Taiwan,known
+GSK,United Kingdom,hq
+Genetic Alliance,United States,known
+"Genetics Department, Fundación Cardioinfantil-laCardio",Colombia,known
+"Genetics Diagnostic Group, The San Jorge Hospital; Public Health Ponce Science University; Department of Pediatrics, Universidad Central del Caribe, School of Medicine",Puerto Rico,named
+"Genetics Lab, University of La Laguna",Spain,known
+"Genome Medicine, NCCHD",Japan,known
+Genomenon,United States,hq
+Google DeepMind,United Kingdom,hq
+Google Inc,United States,hq
+"Graduate School of Humanities and Sciences, Ochanomizu University",Japan,known
+Grand Valley State University,United States,known
+HGNC,United Kingdom,known
+HKUST,Hong Kong,known
+Hacettepe University Medical Faculty Department of Medical Genetics,Turkey,known
+"Hacettepe University Medical Faculty Department of Medical Genetics, Hacettepe University Institute of Health Sciences Department of Bioinformatics, Hacettepe University Center for Genomics and Rare Diseases - HÜGEN",Turkey,known
+Hackensack Meridian Health Center for Discovery & Innovation: HMH-CDI,United States,known
+Hadassah-Hebrew University Medical Center,Israel,known
+Harbinger Health,United States,hq
+Health Sciences Faculty at Anahuac University,Mexico,known
+Henry Ford Health + Michican State University Health Sciences,United States,known
+"Hitachi High-Tech America, Inc.",United States,hq
+Hospital Universitário Walter Cantídeo,Brazil,known
+Howard University,United States,known
+"Hualien Tzu Chi Hospital, Tzu Chi University",Taiwan,named
+Huazhong University of Science and Technology,China,known
+HudsonAlpha Institute for Biotechnology,United States,known
+"Human cytogenetics department, National Research Centre",Egypt,known
+"Humanitas University, Department of Biomedical Sciences",Italy,known
+"Hypertrophic Cardiomyopathy Center, Lahey Hospital & Medical Center",United States,known
+IDIBAPS,Spain,known
+IDT) and Bosun Min (IDT,United States,known
+IUCPQ-Ulaval,Canada,known
+Imagine Institute,France,known
+"Indian Institute of Science (IISc), Centre for Brain Research (CBR)",India,known
+"Inje University, Departmet of Pharmacy",South Korea,known
+Inova Schar Cancer Institute,United States,known
+Inserm 1283,France,known
+"Institut National de Recherche Biomédicale, Université de Kisangani, Université de l'Uélé, Biamba Marie Mutombo Hospital, Programme National de Santé de l'Adolescent",DR Congo,named
+Institute Krems Bioanalytics,Austria,named
+"Institute for Biomedical Informatics, Penn Neurodegeneration Genomics Center, Department of Pathology and Laboratory Medicine",United States,known
+"Institute for Neuro Immune Medicine, Nova Southeastern University",United States,known
+Institute of Cancer Research,United Kingdom,known
+"Institute of Genetics and Biophysics “Adriano Buzzati- Traverso”, IGB- CNR",Italy,known
+"Integrated DNA Technologies, Inc. (IDT)",United States,hq
+International Livestock Research Institute,Kenya,known
+Iwate Medical University,Japan,known
+J&J Innovative Medicine,United States,hq
+JHACH,United States,known
+Jamia Millia Islamia,India,known
+Johns Hopkin University,United States,known
+Jordan University of Science and Technoloy,Jordan,known
+KAIMRC,Saudi Arabia,known
+KEMRI/CDC,Kenya,known
+Kahn-Sagol-Maccabi Research and Innovation Institute,Israel,known
+Kangwon National University College of Medicine,South Korea,known
+"Kangwon National University, College of Pharmacy",South Korea,known
+Kawasaki University of Medical Welfare,Japan,known
+Kennedy Krieger Institute,United States,known
+Konkuk University,South Korea,known
+Kumasi Center for Collaborative Research In Tropical Medicine,Ghana,named
+Kyung Hee University,South Korea,known
+"Kyung Hee University, Bioinformatics Laboratory, PhD student",South Korea,known
+"LKC Medicine, Feinstein Institutes for Medical Research",Singapore; United States,known
+"Laboratory for Genotyping Development, Riken Center for Integrative Medical Sciences",Japan,known
+Latvian Biomedical Research and Study centre,Latvia,known
+Latvian Institute of Organic Synthesis,Latvia,named
+Laureate Institute for Brain Research,United States,known
+Lawrence Technological University,United States,known
+Le Bonheur Children’s Hospital,United States,known
+Lieber Institute for Brain Development,United States,known
+"M42, Emirati Genome Program",United Arab Emirates,known
+"MCG, Augusta University",United States,named
+MGZ Muenchen,Germany,named
+"MICROLAB Genomics, Tegucigalpa, Honduras",Honduras,named
+"MMGR, University of Health Sciences, Algiers",Algeria,named
+MUSC Department of Public Health Sciences,United States,known
+Marian University,United States,known
+"Material Measurement Laboratory, National Institute of Standards and Technology",United States,named
+Mayo Clinc,United States,known
+Maze Therapeutics,United States,hq
+"Medical College of WI, Department of Pediatrics - Genetics",United States,known
+"Medical Genome Center, National Center for Geriatrics and Gerontology",Japan,known
+"Medical Precision Laboratory at Instituto Nacional de Cancerología, Member ABC Medical Center",Mexico,known
+MeiraGTx,United States,hq
+Metabolon,United States,hq
+Mindich Child Health and Development Institute and Department of Pediatrics,United States,known
+"Mitoyo General Hospital, Kawasaki Medical School Hospital",Japan,known
+Moffitt Cancer Center,United States,known
+"Molecular Genomics and Precision Medicine Department, EXPRESSMED Diagnostics and Research, Zinj, Bahrain",Bahrain,named
+Montefiore Einstein,United States,known
+NCGG,Japan,known
+NCGG: National Center for Geriatrics and Gerontology,Japan,known
+NCVC,Japan,known
+"NIC translational IPS, BMS",United States,hq
+NSW Health Pathology,Australia,named
+"NSW Health Pathology, NeuRA",Australia,known
+NTU LKC School of Medicine,Singapore,known
+NUS,Singapore,known
+NVIDIA,United States,hq
+"Natera, Inc.",United States,hq
+National Center for Child Health and Development,Japan,known
+National Center for Geriatrics and Gerontology (NCGG),Japan,known
+National Center of Neurology and Psychiatry,Japan,known
+National Cerebral and Cardiovascular Center; NCVC,Japan,known
+National Cheng Kung University College of Medicine,Taiwan,known
+National Disease Research Interchange,United States,known
+"National Health Research Institutes, Institute of Population Health Sciences",Taiwan,known
+National Institute of Anthropology and History (INAH),Mexico,known
+National Institute of Genetics,Japan,known
+"Necmettin Erbakan University, Faculty of Medicine",Turkey,known
+"Neurogenetics Research Center, Instituto Nacional de Ciencias Neurológicas; Neurogenetics Working Group, Universidad Científica del Sur",Peru,known
+"Neurogenetics Working Group Universidad Cientifica del Sur, Neurogenetics Research Center Instituto Nacional de Ciencias Neurologicas",Peru,known
+"Neurology Service, KK Hospital",Singapore,known
+"Neuroscience Institute, Morehouse School of Medicine; Institute of Translational Genomic Medicine, Morehouse School of Medicine",United States,known
+Nightingale Health,Finland,hq
+Norgen Biotek,Canada,hq
+Norton Children's Research Institute affiliated with University of Louisville,United States,known
+Novartis Biomedical Research,Switzerland,hq
+ORAU,United States,known
+"Open Targets, European Molecular Biology Laboratory, European Bioinformatics Institute (EMBL-EBI)",United Kingdom,known
+"Orchid Health, Inc.",United States,hq
+Ozgene,Australia,hq
+"P D Patel Institute of Applied Sciences, Charotar University of Science and Technology",India,known
+PMAS Arid Agricultutre University Rawalpindi,Pakistan,named
+Panimalar Medical College Hospital & Research Institute,India,known
+Panome Bio,United States,known
+Pfizer Research and Development,United States,hq
+"Ph.D. Scholar, Department of Medical Genetics, Kasturba Medical College, Manipal",India,named
+"Psychiatry Research Laboratory, Prof. Dr. Alex. Obregia Clinical Hospital of Psychiatry, Bucharest; Department of Medical Genetics, Faculty of Medicine, University of Medicine and Pharmacy Carol Davila, Bucharest",Romania,named
+"Pusan National University Yansan Hospital, Division of Medical Genetics",South Korea,named
+"QM&G, Abbvie",United States,hq
+Quantum-Si,United States,hq
+RNAConnect,Norway,hq
+RTI,United States,hq
+Rajiv Gandhi Centre for Biotechnology,India,known
+Referans Clinical Laboratory and Polyclinic Center,Turkey,known
+Regional Hospital Limbe,Cameroon,named
+Research Center of CHU Sainte Justine,Canada,known
+Riken Center for Brain Science,Japan,known
+"Riverside Community Hospital, Department of OBGYN",United States,known
+Roswell Park Comprehensive Cancer Center,United States,known
+Rush University Medical Center,United States,known
+SPT Labtech,United Kingdom,hq
+"SSLA, SIU",United States,known
+STJUDE,United States,known
+SUNY DOWNSATE,United States,known
+SUNY Downstate Health Sciences University,United States,known
+Sage Bionetworks,United States,known
+Scale Biosciences,United States,hq
+ScaleBio,United States,hq
+Scarab Genomics) and Tim Durfee (DNASTAR,United States,known
+"School of Medicine, The University of Jordan",Jordan,known
+"School of Medicine, Westlake University",China,known
+"School of Medicine, Westlake University)，Houfeng Zheng(Center for Health and Data Science (CHDS), the Second Affiliated Hospital of Soochow University",China,known
+Sentieon Inc.,United States,hq
+"Sheikh Khalifa Medical City, Radiology Department",United Arab Emirates,known
+Shriners Genomics Institute,United States,known
+"Simons Center for Quantitative Biology, Cold Spring Harbor Laboratory",United States,known
+Soongsil University,South Korea,known
+St. Joseph's University Medical Center,United States,known
+St.Michael’s Hospital,Canada,known
+"State Key Laboratory of Bioactive Molecules and Druggability Assessment, Jinan University",China,known
+"State Key Laboratory of Cardiovascular Disease, Fuwai Hospital",China,known
+"Stead Family Department of Pediatrics, Division of Medical Genetics & Genomics",United States,known
+Strand Life Sciences,India,known
+Strand Life Sciences Private Limited,India,known
+TAMU,United States,known
+TCVGH,Taiwan,known
+"Target, Disease & Systems Biology, Sanofi",France,hq
+The Cyprus Institute of Neurology & Genetics,Cyprus,known
+The Cyprus Institute of Neurology and Genetics,Cyprus,known
+The Francis Crick Institute,United Kingdom,known
+The Wistar Institute,United States,known
+Themofisher Scientific,United States,hq
+Thermofisher Sci,United States,hq
+Thermofisher Sci.,United States,hq
+"Tiwi Genetics Advisory Group, Tiwi Islands",Australia,named
+Tongji University,China,known
+"Tourmaline Bio, Inc.",United States,hq
+"Translational Research Lab, Jamia Millia Islamia",India,known
+"Translational health research Institute, Faculty of Medicine, Vilnius University",Lithuania,named
+"Tufts Medical Center Institute for Clinical Research and Health Policy Studies, Tufts University School of Medicine Department of Medicine",United States,known
+Twist Bioscience,United States,hq
+Tzu Chi University,Taiwan,known
+UCF College of Medicine,United States,known
+UConn Health,United States,known
+"UConn Health, Center for Molecular Oncology, Dept. of Medicine",United States,known
+"UConn Health, JAX-GM",United States,known
+"UST, KISTI",South Korea,known
+UT Health San Antonio,United States,named
+UTHSC,United States,known
+UTHSCSA,United States,known
+Ultragenyx Pharmaceutical Inc,United States,hq
+Universidad de La Laguna,Spain,known
+Universidad de Puerto Rico,Puerto Rico,named
+Universidad del Sinú. Biomedical Sciences Lab,Colombia,known
+University of Calabar,Nigeria,known
+"University of Campania ""Luigi Vanvitelli"", Telethon Institute of Genetics and Medicine",Italy,known
+University of Kinshasa,DR Congo,known
+"University of Lethbridge, BioAro Inc.",Canada,known
+"University of Liège, GIGA-Research Institute",Belgium,known
+University of Malaya,Malaysia,known
+"University of Maribor Faculty of Medicine) and Uroš Potočnik (University of Maribor Faculty of Medicine, Department for Science and Research University Medical Centre Maribor",Slovenia,named
+"University of Maribor Faculty of Medicine, University of Maribor Faculty of Chemistry and Chemical Engineering",Slovenia,named
+University of Notre Dame,United States,known
+University of Puerto Rico – Medical Sciences Campus,Puerto Rico,named
+"University of Puerto Rico – Rio Piedras Campus, Corresponding author",Puerto Rico,known
+"University of Puerto Rico, Medical Sciences Campus, Puerto Rico Genetics Laboratory",Puerto Rico,named
+"University of Puerto Rico, Rio Piedras campus",Puerto Rico,known
+University of Puerto Rico-Río Piedras,Puerto Rico,known
+"University of Pécs, Medical School, Department of Medical Genetics",Hungary,named
+University of Surrey,United Kingdom,known
+University of Tampa,United States,known
+"University of Tulsa, Laureate Institute for Brain Research",United States,known
+"University of WI - Madison, Center for Precision Medicine",United States,named
+"University of Zimbabwe, AiBST",Zimbabwe,named
+Université Côte d'Azur,France,named
+"Université Laval, Centre de recherche CERVO",Canada,known
+Unversity of Notre Dame,United States,known
+"UoUT, SLCVAHCS",United States,known
+VA CSPEC-Durham,United States,known
+VA Center for Data and Computational Sciences,United States,known
+VA National Oncology Program Office,United States,known
+VCU,United States,known
+Valo Health,United States,hq
+VectorBuilder Inc.,United States,hq
+"Vilnius University, Faculty of Medicine",Lithuania,known
+WMG,United Kingdom,known
+Wasatch BioLabs,United States,hq
+Wayne State University,United States,known
+Wayne State University School of Medicine,United States,known
+Westchester Medical Center,United States,known
+Westlake University,China,known
+Wilfrid Laurier University,Canada,known
+William Harvey Research Institute- QMUL,United Kingdom,known
+William Harvey Research Institute-QMUL,United Kingdom,known
+"Yong Loo Lin school of medicine, NUS",Singapore,known
+Zymo Research,United States,hq
+artemkim@usc.edu) or S.G. (gazal@usc.edu,United States,known
+biomodal,United Kingdom,known
+biomodal Limited,United Kingdom,hq
+enGenome S.r.l,Italy,hq
+enGenome Srl,Italy,hq
+enGenome srl,Italy,hq
+insitro,United States,hq
+"n-Lorem Foundation, Carlsbad CA",United States,named
+seqWell,United States,hq

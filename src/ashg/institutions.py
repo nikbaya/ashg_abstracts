@@ -28,8 +28,25 @@ def load_aliases(path):
     return [(r["institute"], re.compile(r["pattern"], re.I)) for r in rows]
 
 
+# The 2023-2024 booklets abbreviate affiliation words ("Harvard Med. Sch.",
+# "Natl. Inst.s of Hlth."); expand them so aliases.csv needs only full names.
+ABBREVIATIONS = [
+    (r"\bMed\.\s*(?=(Ctr|Coll|Sch|Campus|Inst|Res|Univ|Genet|Sci|Branch|Biol))", "Medical "),
+    (r"\b(Women|Children|Men) s\b", r"\1's"),  # apostrophe lost in the PDF text
+    (r"\bGen\.\s*(?=Hosp\b)", "General "),
+    (r"\bMed\.", "Medicine"), (r"\bUniv\b\.?", "University"), (r"\bInst\.s\b", "Institutes"), (r"\bCtr\.s\b", "Centers"),
+    (r"\bInst\.", "Institute"), (r"\bCtr\.", "Center"), (r"\bRes\.", "Research"), (r"\bHosp\.", "Hospital"),
+    (r"\bColl\.", "College"), (r"\bSch\.", "School"), (r"\bNatl\.", "National"), (r"\bHlth\.", "Health"),
+    (r"\bBioSci\.s?", "Biosciences"),  # 2022 "Parse BioSci.s", "Pacific BioSci.s of California"
+    (r"\bSci\.", "Science"), (r"\bTechnol\.", "Technology"), (r"\bLab\.", "Laboratory"),
+]
+
+
 def normalize(text):
-    return re.sub(r"\s+", " ", text.replace("’", "'").replace("‘", "'"))
+    text = text.replace("’", "'").replace("‘", "'")
+    for pat, full in ABBREVIATIONS:
+        text = re.sub(pat, full + " ", text)
+    return re.sub(r"\s+", " ", re.sub(r" +(?=[,.;)])", "", text)).strip()
 
 
 def match_institutes(author, aliases):

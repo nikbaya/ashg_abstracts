@@ -1,0 +1,11 @@
+pdf: ASHG2022-PlenaryAbstracts.pdf
+year: 2022
+pres_type: plenary
+start_page: 3             # pages 1-2 are instructions + table of contents
+header_y_max: 50
+footer_y_min: 725         # copyright + page number at y~733
+session_header: {size: 9, bold: true}
+session_regex: '^S\d+\.'
+title: null
+open_regex: '^ProgNbr \d+[.:]'
+id_regex: '^ProgNbr (\d+)[.:]\s*'

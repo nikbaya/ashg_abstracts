@@ -63,3 +63,6 @@ $$ \text{Odds Ratio} = \frac{\text{Platform Rate}}{\text{Poster Rate}} $$
 *Where $C$ is the count of the specific n-gram, and $N$ is the total word count in that category's corpus.*
 
 Sort descending by the resulting Odds Ratio to find the year's top "buzzwords."
+## Open questions (later)
+*   Are typo rates (`writing.py`) higher for senior authors from non-English-speaking countries? Join `data/geography` senior countries to the per-abstract typo counts; control for abstract length.
+*   Is talk rate higher for abstracts written in US spelling than in UK spelling (color/colour, -ize/-ise, analyze/analyse, tumor/tumour)? Classify abstracts by spelling variant and compare talk rate, within country group, since spelling tracks author origin.

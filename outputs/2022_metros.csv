@@ -1,0 +1,61 @@
+basis,rank,metro,abstracts,talks,talk_rate,ci_lo,ci_hi,baseline,institutes,year
+first,1,Boston,195,44,0.2256,0.1726,0.2893,0.1192,Broad Institute; Harvard Medical School; Massachusetts General Hospital,2022
+first,2,Los Angeles,144,23,0.1597,0.1089,0.2283,0.1192,UCLA; University of Southern California; UC Irvine,2022
+first,3,New York,114,18,0.1579,0.1023,0.2358,0.1192,Columbia University; Icahn School of Medicine at Mount Sinai; Regeneron,2022
+first,4,"Washington, DC",98,8,0.08163,0.04194,0.1529,0.1192,NIH; Vanda Pharmaceuticals; George Washington University,2022
+first,5,SF Bay Area,92,17,0.1848,0.1187,0.2761,0.1192,Stanford University; UC San Francisco; UC Berkeley,2022
+first,6,Houston,87,15,0.1724,0.1074,0.2652,0.1192,Baylor College of Medicine; UTHealth Houston; MD Anderson Cancer Center,2022
+first,7,Philadelphia,83,13,0.1566,0.09388,0.2498,0.1192,University of Pennsylvania; Children's Hospital of Philadelphia,2022
+first,8,Ann Arbor,71,11,0.1549,0.08877,0.2565,0.1192,University of Michigan,2022
+first,9,Research Triangle,62,5,0.08065,0.03494,0.1753,0.1192,Duke University; University of North Carolina at Chapel Hill; RTI International,2022
+first,10,San Diego,61,8,0.1311,0.06798,0.238,0.1192,UC San Diego; Illumina; Bionano Genomics,2022
+first,11,Nashville,58,8,0.1379,0.07158,0.2493,0.1192,Vanderbilt University; Vanderbilt University Medical Center,2022
+first,12,Chicago,49,9,0.1837,0.09976,0.3136,0.1192,University of Chicago; Northwestern University,2022
+first,13,Toronto,48,5,0.1042,0.04532,0.2217,0.1192,University of Toronto; The Hospital for Sick Children; St. Michael's Hospital,2022
+first,14,Montreal,47,4,0.08511,0.03359,0.1993,0.1192,McGill University; Université de Montréal; Montreal Heart Institute,2022
+first,15,Baltimore,46,3,0.06522,0.02243,0.175,0.1192,Johns Hopkins University; University of Maryland,2022
+first,16,Seattle,39,6,0.1538,0.07247,0.2973,0.1192,University of Washington; Fred Hutchinson Cancer Center; Parse Biosciences,2022
+first,17,Miami,33,3,0.09091,0.0314,0.2357,0.1192,University of Miami,2022
+first,18,Seoul,30,3,0.1,0.0346,0.2562,0.1192,Seoul National University; Asan Medical Center; University of Ulsan,2022
+first,19,Cleveland,30,2,0.06667,0.01848,0.2132,0.1192,Case Western Reserve University; Cleveland Clinic,2022
+first,20,Atlanta,29,7,0.2414,0.1222,0.4211,0.1192,Emory University; Georgia Institute of Technology,2022
+first,21,Helsinki,28,7,0.25,0.1268,0.4336,0.1192,University of Helsinki,2022
+first,22,London,25,2,0.08,0.02222,0.2497,0.1192,University College London; Queen Mary University of London; King's College London,2022
+first,23,Oxford,21,5,0.2381,0.1063,0.4509,0.1192,University of Oxford,2022
+first,24,Pittsburgh,20,1,0.05,0.008881,0.2361,0.1192,University of Pittsburgh,2022
+first,25,Doha,18,1,0.05556,0.009875,0.2576,0.1192,Sidra Medicine; Hamad Bin Khalifa University,2022
+first,26,Hong Kong,18,1,0.05556,0.009875,0.2576,0.1192,The Chinese University of Hong Kong; The University of Hong Kong,2022
+first,27,New Haven,18,1,0.05556,0.009875,0.2576,0.1192,Yale University,2022
+first,28,Brisbane,17,2,0.1176,0.03288,0.3434,0.1192,QIMR Berghofer Medical Research Institute; University of Queensland,2022
+first,29,Salt Lake City,17,0,0,0,0.1843,0.1192,University of Utah,2022
+first,30,"Cambridge, UK",16,1,0.0625,0.01112,0.2833,0.1192,University of Cambridge; Wellcome Sanger Institute,2022
+senior,1,Boston,199,46,0.2312,0.178,0.2945,0.1192,Broad Institute; Harvard Medical School; Massachusetts General Hospital,2022
+senior,2,Los Angeles,127,19,0.1496,0.09792,0.2219,0.1192,UCLA; University of Southern California; UC Irvine,2022
+senior,3,New York,113,19,0.1681,0.1104,0.2477,0.1192,Columbia University; Icahn School of Medicine at Mount Sinai; Regeneron,2022
+senior,4,SF Bay Area,99,18,0.1818,0.1182,0.2692,0.1192,Stanford University; UC San Francisco; 23andMe,2022
+senior,5,"Washington, DC",97,9,0.09278,0.04958,0.167,0.1192,NIH; Vanda Pharmaceuticals; GeneDx,2022
+senior,6,Houston,87,10,0.1149,0.06364,0.1988,0.1192,Baylor College of Medicine; UTHealth Houston; MD Anderson Cancer Center,2022
+senior,7,Philadelphia,78,14,0.1795,0.11,0.279,0.1192,University of Pennsylvania; Children's Hospital of Philadelphia,2022
+senior,8,Ann Arbor,77,11,0.1429,0.08168,0.238,0.1192,University of Michigan,2022
+senior,9,Research Triangle,65,5,0.07692,0.0333,0.1678,0.1192,Duke University; University of North Carolina at Chapel Hill; RTI International,2022
+senior,10,Nashville,61,7,0.1148,0.05671,0.2184,0.1192,Vanderbilt University Medical Center; Vanderbilt University,2022
+senior,11,Toronto,61,7,0.1148,0.05671,0.2184,0.1192,University of Toronto; The Hospital for Sick Children; Ontario Institute for Cancer Research,2022
+senior,12,San Diego,58,8,0.1379,0.07158,0.2493,0.1192,UC San Diego; Illumina; Bionano Genomics,2022
+senior,13,Chicago,47,9,0.1915,0.1042,0.3254,0.1192,University of Chicago; Northwestern University,2022
+senior,14,Montreal,43,2,0.04651,0.01285,0.1546,0.1192,McGill University; Université de Montréal; Montreal Heart Institute,2022
+senior,15,Baltimore,40,2,0.05,0.01382,0.165,0.1192,Johns Hopkins University; University of Maryland,2022
+senior,16,Seattle,39,7,0.1795,0.08977,0.3267,0.1192,University of Washington; Fred Hutchinson Cancer Center; Parse Biosciences,2022
+senior,17,Miami,34,3,0.08824,0.03047,0.2296,0.1192,University of Miami,2022
+senior,18,London,33,2,0.06061,0.01678,0.1961,0.1192,University College London; Imperial College London; King's College London,2022
+senior,19,Seoul,29,2,0.06897,0.01912,0.2196,0.1192,Seoul National University; University of Ulsan; Asan Medical Center,2022
+senior,20,Helsinki,27,8,0.2963,0.1585,0.4848,0.1192,University of Helsinki,2022
+senior,21,Atlanta,27,6,0.2222,0.1061,0.4076,0.1192,Emory University; Georgia Institute of Technology,2022
+senior,22,"Cambridge, UK",23,4,0.1739,0.06979,0.3714,0.1192,University of Cambridge; Wellcome Sanger Institute,2022
+senior,23,Cleveland,23,2,0.08696,0.02418,0.268,0.1192,Case Western Reserve University; Cleveland Clinic,2022
+senior,24,Pittsburgh,20,1,0.05,0.008881,0.2361,0.1192,University of Pittsburgh,2022
+senior,25,Oxford,18,4,0.2222,0.09001,0.4522,0.1192,University of Oxford,2022
+senior,26,Salt Lake City,18,0,0,0,0.1759,0.1192,University of Utah,2022
+senior,27,Brisbane,17,2,0.1176,0.03288,0.3434,0.1192,QIMR Berghofer Medical Research Institute; University of Queensland,2022
+senior,28,Denver,17,0,0,0,0.1843,0.1192,University of Colorado,2022
+senior,29,Doha,16,1,0.0625,0.01112,0.2833,0.1192,Sidra Medicine; Hamad Bin Khalifa University,2022
+senior,30,St. Louis,15,2,0.1333,0.03736,0.3788,0.1192,Washington University in St. Louis,2022

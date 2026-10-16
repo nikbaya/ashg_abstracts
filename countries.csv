@@ -1,0 +1,213 @@
+institute,country
+# One row per institute in aliases.csv; companies take their headquarters country. Blank = no single country; left out of region totals.,
+Broad Clinical Labs,United States
+Broad Institute,United States
+Mass General Brigham,United States
+Massachusetts General Hospital,United States
+Brigham and Women's Hospital,United States
+Boston Children's Hospital,United States
+Dana-Farber Cancer Institute,United States
+Massachusetts Eye and Ear,United States
+Harvard Medical School,United States
+Harvard University,United States
+Whitehead Institute,United States
+MIT,United States
+VA Boston Healthcare System,United States
+Boston University,United States
+UMass Chan Medical School,United States
+Northeastern University,United States
+Children's Hospital of Philadelphia,United States
+University of Pennsylvania,United States
+Penn State University,United States
+University of Pittsburgh,United States
+Baylor Genetics,United States
+Baylor College of Medicine,United States
+Baylor University,United States
+Texas Children's Hospital,United States
+UTHealth Houston,United States
+MD Anderson Cancer Center,United States
+UT Southwestern Medical Center,United States
+Texas A&M University,United States
+Vanderbilt University Medical Center,United States
+Vanderbilt University,United States
+University of Chicago,United States
+Icahn School of Medicine at Mount Sinai,United States
+Stanford University,United States
+George Washington University,United States
+Washington University in St. Louis,United States
+University of Washington,United States
+University of Michigan,United States
+Yale University,United States
+NIH,United States
+University of North Carolina at Chapel Hill,United States
+UC San Diego,United States
+UC San Francisco,United States
+UCLA,United States
+UC Berkeley,United States
+UC Davis,United States
+UC Irvine,United States
+UC Santa Cruz,United States
+UC Riverside,United States
+University of Southern California,United States
+Johns Hopkins University,United States
+The Hospital for Sick Children,Canada
+University of Toronto,Canada
+Emory University,United States
+University of Oxford,United Kingdom
+University of Cambridge,United Kingdom
+Wellcome Sanger Institute,United Kingdom
+McGill University,Canada
+University of Helsinki,Finland
+Case Western Reserve University,United States
+Cleveland Clinic,United States
+Mayo Clinic,United States
+University of Texas Medical Branch,United States
+Columbia University,United States
+University of Utah,United States
+University of Miami,United States
+Medical College of Wisconsin,United States
+University of Wisconsin-Madison,United States
+University of Minnesota,United States
+National Taiwan University,Taiwan
+Taichung Veterans General Hospital,Taiwan
+Academia Sinica,Taiwan
+University of Virginia,United States
+Virginia Commonwealth University,United States
+University of Lausanne,Switzerland
+Seoul National University,South Korea
+UNIST,South Korea
+Chungbuk National University,South Korea
+Fudan University,China
+University of Alabama at Birmingham,United States
+RIKEN,Japan
+University of Tokyo,Japan
+Cornell University,United States
+New York Genome Center,United States
+Memorial Sloan Kettering Cancer Center,United States
+Rockefeller University,United States
+Fred Hutchinson Cancer Center,United States
+Purdue University,United States
+Geisinger,United States
+Helix,United States
+Illumina,United States
+Regeneron,United States
+23andMe,United States
+Genentech,United States
+AstraZeneca,United Kingdom
+Biogen,United States
+PacBio,United States
+Thermo Fisher Scientific,United States
+GeneDx,United States
+Ambry Genetics,United States
+Invitae,United States
+Labcorp,United States
+University of Cincinnati,United States
+Cincinnati Children's Hospital Medical Center,United States
+Nationwide Children's Hospital,United States
+Ohio State University,United States
+University of Georgia,United States
+University of Colorado,United States
+Howard Hughes Medical Institute,United States
+University of Leicester,United Kingdom
+Imperial College London,United Kingdom
+Queen Mary University of London,United Kingdom
+University of Bristol,United Kingdom
+University of Edinburgh,United Kingdom
+The Chinese University of Hong Kong,Hong Kong
+The University of Hong Kong,Hong Kong
+Indiana University,United States
+Duke University,United States
+University of Florida,United States
+Technical University of Munich,Germany
+LMU Munich,Germany
+Helmholtz Munich,Germany
+Ontario Institute for Cancer Research,Canada
+St. Jude Children's Research Hospital,United States
+Stony Brook University,United States
+University of Copenhagen,Denmark
+Cedars-Sinai Medical Center,United States
+Aga Khan University,Pakistan
+Princeton University,United States
+Garvan Institute of Medical Research,Australia
+Translational Genomics Research Institute,United States
+Wake Forest University,United States
+Clemson University,United States
+Tulane University,United States
+Northwestern University,United States
+University of Iowa,United States
+Karolinska Institutet,Sweden
+University of Queensland,Australia
+Murdoch Children's Research Institute,Australia
+deCODE genetics,Iceland
+The Jackson Laboratory,United States
+Kaiser Permanente,United States
+Nemours Children's Health,United States
+University of Tartu,Estonia
+Max Planck Institute,Germany
+Brown University,United States
+Montreal Heart Institute,Canada
+Université de Montréal,Canada
+Albert Einstein College of Medicine,United States
+NYU Langone Health,United States
+Asan Medical Center,South Korea
+University of Ulsan,South Korea
+The Catholic University of Korea,South Korea
+Nagoya City University,Japan
+Shanghai Institute of Nutrition and Health,China
+Quest Diagnostics,United States
+Oxford Nanopore Technologies,United Kingdom
+Parse Biosciences,United States
+Nabsys,United States
+Geneial,United States
+Brigham Young University,United States
+University of Exeter,United Kingdom
+King's College London,United Kingdom
+Sichuan University,China
+Nanchang University,China
+Zhejiang University,China
+Central South University,China
+Peking Union Medical College,China
+SUNY Upstate Medical University,United States
+University of Arizona,United States
+Arizona State University,United States
+Michigan State University,United States
+University of Oklahoma,United States
+University of British Columbia,Canada
+Université du Québec à Chicoutimi,Canada
+Radboud University Medical Center,Netherlands
+Uppsala University,Sweden
+Nanyang Technological University,Singapore
+Hamad Bin Khalifa University,Qatar
+Sungkyunkwan University,South Korea
+Kanagawa Children's Medical Center,Japan
+Myriad Genetics,United States
+Novo Nordisk,Denmark
+Empirico,United States
+QIMR Berghofer Medical Research Institute,Australia
+University College London,United Kingdom
+Vanda Pharmaceuticals,United States
+University of the Witwatersrand,South Africa
+Institut Pasteur,France
+Sidra Medicine,Qatar
+National Institute of Biomedical Genomics,India
+Rady Children's Institute for Genomic Medicine,United States
+University of Texas at Austin,United States
+Georgia Institute of Technology,United States
+Osaka University,Japan
+Leiden University Medical Center,Netherlands
+Pacific Northwest Research Institute,United States
+G42 Healthcare,United Arab Emirates
+Children's Mercy Kansas City,United States
+RTI International,United States
+University of Maryland,United States
+University of São Paulo,Brazil
+University of Calgary,Canada
+Mohammed Bin Rashid University of Medicine and Health Sciences,United Arab Emirates
+Bionano Genomics,United States
+Alnylam Pharmaceuticals,United States
+Ponce Health Sciences University,Puerto Rico
+San Jorge Children's Hospital,Puerto Rico
+BioSkryb Genomics,United States
+GenomeArc,Canada
+St. Michael's Hospital,Canada
+Rutgers University,United States

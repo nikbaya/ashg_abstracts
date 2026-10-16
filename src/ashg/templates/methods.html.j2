@@ -1,0 +1,51 @@
+{% extends "base.html.j2" %}
+{% block content %}
+<h1>{{ page.title }}</h1>
+
+<h2>What the numbers mean</h2>
+<ul>
+<li><strong>Accepted abstracts only.</strong> The booklets list abstracts that were accepted, and authors can ask for
+a poster. “Talk rate” is the fraction of accepted abstracts presented as a talk (platform or plenary); it is not an
+acceptance rate or a quality score.</li>
+<li><strong>Associations, not causes.</strong> A phrase that is common in talks may simply mark a field or a large
+consortium that tends to get talks; it does not make an abstract more likely to be picked.</li>
+<li><strong>Small numbers are noisy.</strong> Every share comes with a 95% interval; wide intervals mean little can be
+said.</li>
+<li><strong>What is not shown.</strong> The site never names an institution, country, metro area or person for having
+no talks: those rows are left out of the tables and figures here. World regions are shown in full. The complete
+aggregate tables are in the <a href="{{ repo_url }}/tree/main/outputs">repository</a>.</li>
+</ul>
+
+<h2>How it's built</h2>
+<ul>
+<li><strong>Parsing.</strong> Text is extracted with PyMuPDF and split into abstracts using each booklet's layout
+(session headers, titles, author blocks, “Abstract:” labels). Every parsed abstract is checked against the booklet's
+table of contents, and a hand-checked sample is used as a test set. Abstracts cut off mid-text in a booklet count
+toward totals and first-author credit, but not senior-author credit or the text analyses.</li>
+<li><strong>Institutions.</strong> A hand-curated list of {{ n_institutes }} institutions and their spelling variants.
+Schools fold into their university (except Harvard Medical School); NIH institutes fold into NIH; hospitals and
+independent institutes stay separate.</li>
+<li><strong>Countries and regions.</strong> Each author's country comes from the location at the end of their
+affiliations (“Seoul, Korea, Republic of”; “Boston, MA”), which nearly every affiliation in {{ years[0].year }}–2024 has. When
+there is none (most of 2025), it comes from the resolved institution, else from country, demonym or city names in the
+affiliation (“Seoul National University”), else from a hand-checked list of the remaining affiliation strings
+(mostly companies and smaller institutes; LLM-labeled, then spot-checked). Countries are grouped into UN M49 regions, with the Americas split into
+Northern America and Latin America and the Caribbean.</li>
+<li><strong>Metro areas.</strong> Each institution is mapped by hand to a metro (US Census metropolitan areas, with
+San Francisco + San Jose combined as the SF Bay Area and Durham–Chapel Hill + Raleigh as the Research Triangle).
+Institutions with sites in several metros are left out.</li>
+<li><strong>Senior authors.</strong> The last listed person (consortium names skipped). Within a year, the same
+person = same first + last name, and for common surnames (seen with 5+ different first names) also a shared
+institution. Across years the 2022–2024 booklets give only initials, so the same person = same first initial + last
+name; surnames seen with 5+ different initials need a shared institution, and two different spelled-out first names
+(2025) are never merged unless one is a short form of the other (Alex, Alexander).</li>
+<li><strong>Phrases.</strong> 1–3-word n-grams from the abstract text, appearing in at least 5 talks (or the
+equivalent share of posters). Each gets a talk-vs-poster odds ratio with +0.5 smoothing and a 95% CI, ranked by
+z-score. Phrases that share a word or are an acronym of each other and appear in mostly the same abstracts (Jaccard
+≥ 0.45; exact acronyms like “QTLs” always) form one group, shown under its best-ranked member.</li>
+<li><strong>All years.</strong> Institution, place and author talk rates pool the counts from every year. Phrase
+odds ratios across years are Mantel–Haenszel estimates stratified by year (each year's 2×2 table, +0.5 in every
+cell, Robins–Breslow–Greenland variance), because the baseline talk rate differs by year.</li>
+<li><strong>Intervals.</strong> Talk rates use 95% Wilson intervals.</li>
+</ul>
+{% endblock %}

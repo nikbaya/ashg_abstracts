@@ -2,10 +2,14 @@
 
 - {year}_headline.png      phrases over-represented in talks vs posters (odds ratio, 95% CI),
                            plus a small panel of stated sample sizes (median, IQR)
-- {year}_institutions.png  talk share of the top institutions by volume (senior-author credit)
-- {year}_senior_authors.png talk share of the top-10 senior authors
+- {year}_institutions.png  the 20 highest talk rates among the 50 largest institutions (first-author credit)
+- {year}_metros.png        the same, with institutions grouped by metro area
+- {year}_regions.png       talk rate by UN world region of the first author
+  (each also as {name}_senior.png, crediting the senior author)
+- {year}_senior_authors.png talk rate of the top-10 senior authors
+YEAR "all" draws the same figures from outputs/all_*.csv (every year pooled), as all_*.png.
 
-Usage: python src/ashg/figures.py YEAR [--out outputs] [--k 15] [--n-inst 20]
+Usage: python src/ashg/figures.py YEAR|all [--out outputs] [--k 15] [--n-inst 20] [--n-metros 20]
 """
 
 import argparse
@@ -23,6 +27,8 @@ TALK, POSTER = "#2a78d6", "#e34948"
 SURFACE, INK, INK_2, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#e4e3df"
 CAVEAT = "Accepted abstracts only, and authors can opt for a poster, so this is association, not acceptance odds."
 CAVEAT_2LINE = "Accepted abstracts only, and authors can opt for a poster,\nso this is association, not acceptance odds."
+
+HOST_METRO = {2022: "Los Angeles", 2023: "Washington, DC", 2024: "Denver", 2025: "Boston"}  # where each meeting was held
 
 plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 10})
 
@@ -116,7 +122,7 @@ def sample_size_panel(ax, ss):
                   f"of posters)", color=INK_2, labelpad=6)
 
 
-def headline(premium, summary, ss, year, k, path):
+def headline(premium, summary, ss, year, k, path, pooled=False):
     fig, gs = new_figure((8, 12), nrows=2, height_ratios=[15, 1.5], hspace=0.3,
                          left=0.3, right=0.97, top=0.875, bottom=0.085)
     phrases_panel(fig.add_subplot(gs[0]), premium, k)
@@ -126,7 +132,8 @@ def headline(premium, summary, ss, year, k, path):
            f"Phrases most over-represented in talks vs posters: {int(s.text_talks):,} talks (platform + plenary) "
            f"vs {int(s.text_abstracts - s.text_talks):,}\nposters with complete text. {CAVEAT_2LINE}",
            f"Source: ASHG {year} abstract booklets. Phrases: 1–3-word n-grams in abstract text, ranked by "
-           "z-score; nested duplicates removed.")
+           + ("z-score of the\nodds ratio combined across years (Mantel–Haenszel); " if pooled else "z-score; ")
+           + "nested duplicates removed.")
     fig.savefig(path, dpi=200, facecolor=SURFACE)
     plt.close(fig)
 
@@ -134,14 +141,14 @@ def headline(premium, summary, ss, year, k, path):
 # --- leaderboards ------------------------------------------------------------
 
 def share_figure(rows, labels, counts, baseline, title, subtitle, source, path, row_h=0.36, left=0.36):
-    """Dot + Wilson CI of talk share per row (top row first), baseline line, k/n column at right."""
+    """Dot + Wilson CI of talk rate per row (top row first), baseline line, k/n column at right."""
     n = len(rows)
     h = 2.1 + row_h * n
     fig, gs = new_figure((8, h), nrows=1, left=left, right=0.85, top=1 - 1.3 / h, bottom=0.8 / h)
     ax = fig.add_subplot(gs[0])
     y = list(range(n))[::-1]
     for yi, r in zip(y, rows.itertuples()):
-        dot_ci(ax, r.talk_share, r.ci_lo, r.ci_hi, yi, TALK)
+        dot_ci(ax, r.talk_rate, r.ci_lo, r.ci_hi, yi, TALK)
         ax.annotate(counts[n - 1 - yi], (1, yi), xycoords=("axes fraction", "data"), xytext=(10, 0),
                     textcoords="offset points", va="center", color=INK_2, fontsize=9)
     ax.annotate("talks / abstracts", (1, n - 0.3), xycoords=("axes fraction", "data"), xytext=(10, 0),
@@ -154,51 +161,117 @@ def share_figure(rows, labels, counts, baseline, title, subtitle, source, path, 
     ax.xaxis.set_major_formatter(PercentFormatter(1, decimals=0))
     ax.set_yticks(y, labels)
     ax.set_ylim(-0.7, n + 0.4)
-    ax.set_xlabel("Talk share (talks / accepted abstracts) · 95% Wilson CI", color=INK_2, labelpad=8)
+    ax.set_xlabel("Talk rate (talks / accepted abstracts) · 95% Wilson CI", color=INK_2, labelpad=8)
     header(fig, title, subtitle, source, top=1 - 0.2 / fig.get_figheight())
     fig.savefig(path, dpi=200, facecolor=SURFACE)
     plt.close(fig)
 
 
-def institutions_figure(inst, summary, year, n_inst, path):
-    rows = inst[inst.basis == "senior"].head(n_inst).sort_values(["talk_share", "abstracts"], ascending=False)
+ROLE = {"senior": "senior (last) author", "first": "first author"}
+
+
+def largest_with_talks(df, n, basis):
+    """The n largest rows for one credit basis, leaving out any with no talks (the public site never
+    names an institution or metro for having none). Returns (rows sorted by talk rate, subtitle note)."""
+    top = df[df.basis == basis].head(n)
+    rows = top[top.talks > 0].sort_values(["talk_rate", "abstracts"], ascending=False)
+    return rows, " Rows without a talk are not shown." if len(rows) < len(top) else ""
+
+
+def institutions_figure(inst, summary, year, n_inst, path, basis="first"):
+    pool = inst[inst.basis == basis]  # the largest institutions by volume (analysis.py keeps 50)
+    rows = pool[pool.talks > 0].sort_values(["talk_rate", "abstracts"], ascending=False).head(n_inst)
     share_figure(
         rows, list(rows.institute), [f"{r.talks} / {r.abstracts}" for r in rows.itertuples()],
-        summary.iloc[0].talk_share,
-        f"Talk share at the {n_inst} largest institutions, ASHG {year}",
-        f"Institutions of the senior (last) author; an abstract counts for each of them. Sorted by talk share.\n"
-        f"{CAVEAT}",
+        summary.iloc[0].talk_rate,
+        f"Institutions with the highest talk rate, ASHG {year}",
+        f"Top {len(rows)} by talk rate among the {len(pool)} institutions with the most abstracts.\n"
+        f"Institutions of the {ROLE[basis]}; an abstract counts for each of them.\n{CAVEAT}",
         f"Source: ASHG {year} abstract booklets. Institutions resolved with a hand-curated alias list; "
         "schools fold into their university (except HMS).", path, left=0.44)
 
 
-def senior_authors_figure(authors, summary, year, path):
+def metros_figure(metros, summary, year, n_metros, path, basis="first", hosts=None):
+    """hosts: {year: metro} of the meetings covered (one for a single year)."""
+    rows, note = largest_with_talks(metros, n_metros, basis)
+    hosts = hosts or {}
+    host_of = {m: y for y, m in hosts.items()}
+    pooled = len(hosts) > 1
+    labels = [r.metro + (f" (host {host_of[r.metro]})" if pooled else " (host city)") if r.metro in host_of
+              else r.metro for r in rows.itertuples()]
+    held = (", ".join(f"{y} {m}" for y, m in hosts.items()) if pooled
+            else f"ASHG {year} was held in {next(iter(hosts.values()), '')}")
+    host_note = (f"Meetings: {held};\n" if pooled else f"{held}; ") + "local groups tend to bring extra posters to a home meeting.\n"
+    share_figure(
+        rows, labels, [f"{r.talks} / {r.abstracts}" for r in rows.itertuples()],
+        summary.iloc[0].talk_rate,
+        f"Talk rate in the {n_metros} largest metro areas, ASHG {year}",
+        f"The {n_metros} metro areas with the most accepted abstracts, by the {ROLE[basis]}'s institutions.\n"
+        f"An abstract counts once per metro.{note}\n"
+        + (host_note if hosts else "") + CAVEAT,
+        f"Source: ASHG {year} abstract booklets. Hand-made institution-to-metro map; multi-metro institutions "
+        f"left out ({summary.iloc[0][f'{basis}_metro_coverage']:.0%} of abstracts placed).",
+        path, left=0.3)
+
+
+def regions_figure(regions, summary, year, path, basis="first"):
+    rows = regions[regions.basis == basis].sort_values(["talk_rate", "abstracts"], ascending=False)
+    coverage = summary.iloc[0][f"{basis}_country_coverage"]
+    gap = (f"Only {coverage:.0%} of abstracts could be placed (this year's affiliations rarely give a location), and "
+           "the misses lean non-US.\n" if coverage < 0.95 else "")
+    share_figure(
+        rows, list(rows.region), [f"{r.talks} / {r.abstracts}" for r in rows.itertuples()],
+        summary.iloc[0].talk_rate,
+        f"Talk rate by world region, ASHG {year}",
+        f"Country of the {ROLE[basis]}'s affiliations, grouped into UN regions; an abstract counts once per "
+        f"region.\n{gap}{CAVEAT}",
+        f"Source: ASHG {year} abstract booklets. Countries from affiliation locations, else the resolved institution "
+        "or place names, or a hand-checked list.", path, left=0.36)
+
+
+def senior_authors_figure(authors, summary, year, path, pooled=False):
+    authors = authors[authors.talks > 0]  # never name a person for having no talks
     labels = [f"{r.name}\n{r.institute}" if isinstance(r.institute, str) else r.name for r in authors.itertuples()]
     share_figure(
         authors, labels, [f"{r.talks} / {r.abstracts}" for r in authors.itertuples()],
-        summary.iloc[0].talk_share,
-        f"Senior authors with the highest talk share, ASHG {year}",
+        summary.iloc[0].talk_rate,
+        f"Senior authors with the highest talk rate, ASHG {year}",
         f"Senior (last) authors with ≥{int(authors.min_abstracts.iloc[0])} abstracts, ranked by the lower end of "
         f"the 95% interval (so 5 of 6 beats 2 of 2).\n{CAVEAT}",
-        f"Source: ASHG {year} abstract booklets. Same person = same first + last name "
-        "(plus a shared institution for common surnames).", path, row_h=0.62)
+        f"Source: ASHG {year} abstract booklets. Same person = same "
+        + ("first initial + last name across years\n(plus a shared institution for common surnames; different "
+           "spelled-out first names kept apart)." if pooled else
+           "first + last name (plus a shared institution for common surnames)."), path, row_h=0.62)
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("year", type=int)
+    ap.add_argument("year", help="a year, or 'all' for every year pooled")
     ap.add_argument("--out", default="outputs")
     ap.add_argument("--k", type=int, default=15)
     ap.add_argument("--n-inst", type=int, default=20)
+    ap.add_argument("--n-metros", type=int, default=20)
     args = ap.parse_args()
     out, y = pathlib.Path(args.out), args.year
+    pooled = y == "all"
+    years = sorted(int(p.name[:4]) for p in out.glob("[0-9][0-9][0-9][0-9]_summary.csv"))
+    label = f"{years[0]}–{years[-1]}" if pooled else y
+    hosts = {v: HOST_METRO[v] for v in years if v in HOST_METRO} if pooled else \
+        {int(y): HOST_METRO[int(y)]} if int(y) in HOST_METRO else {}
     summary = pd.read_csv(out / f"{y}_summary.csv")
     premium = pd.read_csv(out / f"{y}_premium.csv").rename(columns={"or": "or_"})
-    headline(premium, summary, pd.read_csv(out / f"{y}_sample_size.csv"), y, args.k, out / f"{y}_headline.png")
-    institutions_figure(pd.read_csv(out / f"{y}_institutions.csv"), summary, y, args.n_inst,
-                        out / f"{y}_institutions.png")
-    senior_authors_figure(pd.read_csv(out / f"{y}_senior_authors.csv"), summary, y, out / f"{y}_senior_authors.png")
-    print(f"wrote {y}_headline.png, {y}_institutions.png, {y}_senior_authors.png to {out}/")
+    headline(premium, summary, pd.read_csv(out / f"{y}_sample_size.csv"), label, args.k, out / f"{y}_headline.png",
+             pooled)
+    inst, metros = pd.read_csv(out / f"{y}_institutions.csv"), pd.read_csv(out / f"{y}_metros.csv")
+    regions = pd.read_csv(out / f"{y}_regions.csv")
+    for basis, suffix in (("first", ""), ("senior", "_senior")):
+        institutions_figure(inst, summary, label, args.n_inst, out / f"{y}_institutions{suffix}.png", basis)
+        metros_figure(metros, summary, label, args.n_metros, out / f"{y}_metros{suffix}.png", basis, hosts)
+        regions_figure(regions, summary, label, out / f"{y}_regions{suffix}.png", basis)
+    senior_authors_figure(pd.read_csv(out / f"{y}_senior_authors.csv"), summary, label,
+                          out / f"{y}_senior_authors.png", pooled)
+    print(f"wrote {y}_headline.png, {y}_{{institutions,metros,regions}}{{,_senior}}.png, "
+          f"{y}_senior_authors.png to {out}/")
 
 
 if __name__ == "__main__":

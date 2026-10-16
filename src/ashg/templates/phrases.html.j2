@@ -1,0 +1,29 @@
+{% extends "base.html.j2" %}
+{% import "macros.html.j2" as m %}
+{% block content %}
+<h1>{{ page.title }}</h1>
+<p class="lede">Which words and phrases are over-represented in talk abstracts compared with posters? Each phrase gets
+an odds ratio: how much more likely an abstract containing it is to be a talk.</p>
+<p>Phrases are 1–3-word sequences from the abstract text. Variants of one idea that turn up in mostly the same
+abstracts (“massively parallel reporter”, “parallel reporter assay”, “MPRA”) are grouped under the
+best-scoring one, with the rest listed beneath it in small type.{% if pooled %} All years pooled, phrase trends
+and a phrase lookup are on the <a href="index.html#all-phrases">overview</a>.{% endif %}</p>
+{{ m.toolbar(years) }}
+{% for y in years %}
+<section data-show-year="{{ y.year }}">
+{{ m.year_heading(y) }}
+<p>{{ "{:,}".format(y.summary.abstracts) }} abstracts, {{ "{:,}".format(y.summary.talks) }} of them talks: a baseline
+talk rate of <strong>{{ "%.1f"|format(100 * y.summary.talk_rate) }}%</strong>.
+{% if y.summary.truncated %}{{ y.summary.truncated }} abstracts are cut off mid-text in the booklet itself; they are
+left out of the phrase counts.{% endif %}</p>
+{{ m.figure("img/%d_headline.png" % y.year, "Dot plot of the phrases most over-represented in ASHG %d talks versus posters, with odds ratios and 95%% confidence intervals." % y.year,
+            "The panel at the bottom compares the largest sample size stated in each abstract (e.g. “12,000 individuals”, “N = 500 patients”).") }}
+<div class="cols">
+{% for dir, label in [("talk", "More common in talks"), ("poster", "More common in posters")] %}
+<div class="scroll"><p class="table-title"><span class="key" style="background: var(--{{ dir }})"></span>{{ label }}</p>
+{{ y.premium[dir] }}</div>
+{% endfor %}
+</div>
+</section>
+{% endfor %}
+{% endblock %}
