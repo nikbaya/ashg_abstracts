@@ -1,0 +1,101 @@
+basis,rank,institute,abstracts,talks,talk_rate,ci_lo,ci_hi,baseline,year
+first,1,NIH,475,48,0.1011,0.07707,0.1314,0.1045,all
+first,2,Broad Institute,358,65,0.1816,0.1451,0.2248,0.1045,all
+first,3,Baylor College of Medicine,290,41,0.1414,0.106,0.1862,0.1045,all
+first,4,Harvard Medical School,271,48,0.1771,0.1363,0.227,0.1045,all
+first,5,University of Pennsylvania,269,39,0.145,0.1079,0.1921,0.1045,all
+first,6,University of Michigan,220,29,0.1318,0.09337,0.1829,0.1045,all
+first,7,Massachusetts General Hospital,200,48,0.24,0.1861,0.3037,0.1045,all
+first,8,Johns Hopkins University,184,19,0.1033,0.06711,0.1556,0.1045,all
+first,9,Icahn School of Medicine at Mount Sinai,183,36,0.1967,0.1456,0.2603,0.1045,all
+first,10,UCLA,168,33,0.1964,0.1434,0.263,0.1045,all
+first,11,Stanford University,168,29,0.1726,0.123,0.2369,0.1045,all
+first,12,University of North Carolina at Chapel Hill,162,19,0.1173,0.07638,0.1759,0.1045,all
+first,13,Children's Hospital of Philadelphia,160,15,0.09375,0.05764,0.1489,0.1045,all
+first,14,University of Chicago,155,20,0.129,0.0851,0.1909,0.1045,all
+first,15,Harvard University,142,19,0.1338,0.08736,0.1995,0.1045,all
+first,16,University of Washington,141,21,0.1489,0.09952,0.217,0.1045,all
+first,17,Yale University,141,16,0.1135,0.07107,0.1764,0.1045,all
+first,18,Vanderbilt University Medical Center,130,13,0.1,0.05937,0.1636,0.1045,all
+first,19,Columbia University,125,19,0.152,0.09952,0.2252,0.1045,all
+first,20,Vanderbilt University,124,14,0.1129,0.06846,0.1806,0.1045,all
+first,21,University of Colorado,122,6,0.04918,0.02273,0.1032,0.1045,all
+first,22,Case Western Reserve University,119,5,0.04202,0.01808,0.0946,0.1045,all
+first,23,Boston Children's Hospital,115,21,0.1826,0.1227,0.2631,0.1045,all
+first,24,University of Southern California,112,14,0.125,0.07594,0.1989,0.1045,all
+first,25,University of Miami,112,8,0.07143,0.03664,0.1346,0.1045,all
+first,26,Brigham and Women's Hospital,109,15,0.1376,0.0852,0.2147,0.1045,all
+first,27,McGill University,109,9,0.08257,0.04405,0.1495,0.1045,all
+first,28,UC San Diego,106,13,0.1226,0.07309,0.1986,0.1045,all
+first,29,Emory University,100,20,0.2,0.1334,0.2888,0.1045,all
+first,30,University of Toronto,95,10,0.1053,0.05819,0.183,0.1045,all
+first,31,University of Helsinki,89,17,0.191,0.1228,0.2848,0.1045,all
+first,32,University of Utah,84,9,0.1071,0.0574,0.1912,0.1045,all
+first,33,Mayo Clinic,82,7,0.08537,0.04197,0.1659,0.1045,all
+first,34,Duke University,80,10,0.125,0.06933,0.215,0.1045,all
+first,35,University of Oxford,78,15,0.1923,0.1202,0.2934,0.1045,all
+first,36,Penn State University,77,13,0.1688,0.1014,0.2677,0.1045,all
+first,37,The Hospital for Sick Children,75,5,0.06667,0.02881,0.1468,0.1045,all
+first,38,Washington University in St. Louis,73,8,0.1096,0.05659,0.2016,0.1045,all
+first,39,University of Pittsburgh,72,5,0.06944,0.03002,0.1525,0.1045,all
+first,40,Seoul National University,71,5,0.07042,0.03045,0.1545,0.1045,all
+first,41,UC San Francisco,68,11,0.1618,0.0928,0.2669,0.1045,all
+first,42,Boston University,64,3,0.04688,0.01607,0.129,0.1045,all
+first,43,Regeneron,59,16,0.2712,0.1744,0.396,0.1045,all
+first,44,MIT,48,13,0.2708,0.1657,0.41,0.1045,all
+first,45,UC Irvine,48,6,0.125,0.05857,0.247,0.1045,all
+first,46,RIKEN,47,6,0.1277,0.05985,0.2517,0.1045,all
+first,47,UTHealth Houston,46,6,0.1304,0.06118,0.2567,0.1045,all
+first,48,University of Minnesota,45,6,0.1333,0.06257,0.2618,0.1045,all
+first,49,University College London,45,4,0.08889,0.03511,0.2073,0.1045,all
+first,50,Northwestern University,44,9,0.2045,0.1115,0.345,0.1045,all
+senior,1,NIH,464,44,0.09483,0.0714,0.1249,0.1045,all
+senior,2,Broad Institute,368,68,0.1848,0.1485,0.2276,0.1045,all
+senior,3,Harvard Medical School,327,48,0.1468,0.1125,0.1892,0.1045,all
+senior,4,University of Pennsylvania,306,43,0.1405,0.106,0.1839,0.1045,all
+senior,5,Baylor College of Medicine,287,38,0.1324,0.09801,0.1765,0.1045,all
+senior,6,Massachusetts General Hospital,241,55,0.2282,0.1797,0.2852,0.1045,all
+senior,7,University of Michigan,227,28,0.1233,0.08673,0.1725,0.1045,all
+senior,8,Icahn School of Medicine at Mount Sinai,188,36,0.1915,0.1416,0.2537,0.1045,all
+senior,9,Stanford University,185,34,0.1838,0.1346,0.2458,0.1045,all
+senior,10,Children's Hospital of Philadelphia,173,15,0.08671,0.05325,0.1381,0.1045,all
+senior,11,Vanderbilt University Medical Center,171,15,0.08772,0.05388,0.1397,0.1045,all
+senior,12,University of North Carolina at Chapel Hill,169,19,0.1124,0.07316,0.1689,0.1045,all
+senior,13,Johns Hopkins University,168,13,0.07738,0.04578,0.1279,0.1045,all
+senior,14,University of Chicago,155,20,0.129,0.0851,0.1909,0.1045,all
+senior,15,UCLA,151,31,0.2053,0.1486,0.2767,0.1045,all
+senior,16,University of Washington,141,22,0.156,0.1054,0.2249,0.1045,all
+senior,17,Columbia University,140,19,0.1357,0.08863,0.2023,0.1045,all
+senior,18,Yale University,138,14,0.1014,0.0614,0.1631,0.1045,all
+senior,19,Harvard University,135,18,0.1333,0.08603,0.2009,0.1045,all
+senior,20,Brigham and Women's Hospital,123,17,0.1382,0.08812,0.2102,0.1045,all
+senior,21,University of Miami,119,10,0.08403,0.04628,0.1478,0.1045,all
+senior,22,Boston Children's Hospital,118,21,0.178,0.1194,0.2568,0.1045,all
+senior,23,University of Toronto,117,8,0.06838,0.03505,0.1291,0.1045,all
+senior,24,Case Western Reserve University,114,5,0.04386,0.01888,0.09858,0.1045,all
+senior,25,University of Southern California,109,11,0.1009,0.05729,0.1717,0.1045,all
+senior,26,McGill University,108,6,0.05556,0.02571,0.1159,0.1045,all
+senior,27,University of Colorado,108,3,0.02778,0.009491,0.0785,0.1045,all
+senior,28,UC San Diego,104,14,0.1346,0.08191,0.2134,0.1045,all
+senior,29,Emory University,101,19,0.1881,0.1239,0.2752,0.1045,all
+senior,30,Mayo Clinic,90,7,0.07778,0.03818,0.1519,0.1045,all
+senior,31,University of Helsinki,86,17,0.1977,0.1272,0.294,0.1045,all
+senior,32,Vanderbilt University,84,10,0.119,0.06596,0.2055,0.1045,all
+senior,33,Duke University,83,10,0.1205,0.06678,0.2078,0.1045,all
+senior,34,University of Utah,81,8,0.09877,0.0509,0.183,0.1045,all
+senior,35,The Hospital for Sick Children,76,6,0.07895,0.03668,0.1617,0.1045,all
+senior,36,Penn State University,75,13,0.1733,0.1042,0.2743,0.1045,all
+senior,37,Seoul National University,75,4,0.05333,0.02093,0.1293,0.1045,all
+senior,38,University of Pittsburgh,74,5,0.06757,0.0292,0.1486,0.1045,all
+senior,39,UC San Francisco,73,12,0.1644,0.09661,0.2657,0.1045,all
+senior,40,Washington University in St. Louis,73,9,0.1233,0.06624,0.218,0.1045,all
+senior,41,University of Oxford,70,12,0.1714,0.1009,0.2762,0.1045,all
+senior,42,RIKEN,62,9,0.1452,0.07829,0.2534,0.1045,all
+senior,43,Regeneron,58,16,0.2759,0.1775,0.402,0.1045,all
+senior,44,Boston University,53,4,0.07547,0.02974,0.1786,0.1045,all
+senior,45,UC Irvine,51,7,0.1373,0.06811,0.2572,0.1045,all
+senior,46,University of Cambridge,50,10,0.2,0.1124,0.3304,0.1045,all
+senior,47,MIT,45,13,0.2889,0.1773,0.4337,0.1045,all
+senior,48,Northwestern University,45,10,0.2222,0.1254,0.3627,0.1045,all
+senior,49,UTHealth Houston,45,4,0.08889,0.03511,0.2073,0.1045,all
+senior,50,Université de Montréal,45,4,0.08889,0.03511,0.2073,0.1045,all

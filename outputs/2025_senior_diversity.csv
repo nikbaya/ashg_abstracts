@@ -1,0 +1,4 @@
+year,type,abstracts,person_distinct,person_ratio,person_per_200,initials_distinct,initials_ratio,initials_per_200
+2025,all,3053,2055,0.6731,191.8,1945,0.6371,190.5
+2025,poster,2811,1943,0.6912,191.9,1842,0.6553,190.6
+2025,talk,242,220,0.9091,184.3,218,0.9008,183

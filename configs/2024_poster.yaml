@@ -1,0 +1,10 @@
+pdf: ASHG2024-PosterAbstracts.pdf
+year: 2024
+pres_type: poster
+start_page: 165           # pages 1-164 are instructions + table of contents
+start_y: 500              # ...which runs to y~470 on page 165; the first abstract starts at y~535
+header_y_max: 50
+footer_y_min: 720
+session_header: {size: 16, bold: true}  # date + "Session Title:" block before each category
+title: {size: 16, bold: false}
+id_regex: '^Board\s+(\w+):\s*'

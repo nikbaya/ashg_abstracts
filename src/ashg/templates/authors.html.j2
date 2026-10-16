@@ -1,0 +1,18 @@
+{% extends "base.html.j2" %}
+{% import "macros.html.j2" as m %}
+{% block content %}
+<h1>{{ page.title }}</h1>
+<p class="lede">Senior (last) authors whose abstracts most consistently became talks.</p>
+<p>Among senior authors with at least {{ years[-1].min_abstracts }} abstracts that year, ranked by the lower end of the
+95% Wilson interval, so a 5-of-6 record outranks 2-of-2. The same person is the same first + last name (plus a
+shared institution for common surnames); the 2022–2024 booklets give only initials.{% if pooled %} For all years
+pooled, see the <a href="index.html#all-authors">overview</a>.{% endif %}</p>
+{{ m.toolbar(years) }}
+{% for y in years %}
+<section data-show-year="{{ y.year }}">
+{{ m.year_heading(y) }}
+{{ m.figure("img/%d_senior_authors.png" % y.year, "Talk rate with 95%% intervals for the top senior authors at ASHG %d." % y.year) }}
+<div class="scroll">{{ y.senior_authors }}</div>
+</section>
+{% endfor %}
+{% endblock %}

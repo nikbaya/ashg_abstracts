@@ -1,0 +1,11 @@
+rank,name,institute,abstracts,talks,talk_rate,ci_lo,ci_hi,baseline,min_abstracts,year
+1,Michael E. Talkowski,Broad Institute,25,13,0.52,0.335,0.6997,0.1045,5,all
+2,Manolis Kellis,Broad Institute,20,9,0.45,0.2582,0.6579,0.1045,5,all
+3,Benjamin Neale,Broad Institute,10,5,0.5,0.2366,0.7634,0.1045,5,all
+4,Peng Jin,Emory University,13,6,0.4615,0.2321,0.7086,0.1045,5,all
+5,T. Pastinen,Children's Mercy Kansas City,13,6,0.4615,0.2321,0.7086,0.1045,5,all
+6,Anne O'Donnell-Luria,Broad Institute,5,3,0.6,0.2307,0.8824,0.1045,5,all
+7,G. Coppola,Regeneron,5,3,0.6,0.2307,0.8824,0.1045,5,all
+8,K. Musunuru,University of Pennsylvania,5,3,0.6,0.2307,0.8824,0.1045,5,all
+9,X. Xiao,UCLA,8,4,0.5,0.2152,0.7848,0.1045,5,all
+10,Philip Awadalla,Ontario Institute for Cancer Research,11,5,0.4545,0.2127,0.7199,0.1045,5,all

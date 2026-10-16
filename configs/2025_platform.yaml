@@ -1,0 +1,8 @@
+pdf: 2025-Platform-Abstracts.pdf
+year: 2025
+pres_type: platform
+start_page: 20            # pages 1-19 are instructions + table of contents
+header_y_max: 50          # running header "ASHG 2025 Annual Meeting Platform Abstracts"
+footer_y_min: 740         # award legend + page number
+session_header: {size: 18, bold: true}
+title: {size: 14, bold: true}

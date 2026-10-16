@@ -1,0 +1,8 @@
+pdf: 2025-Plenary-Abstracts.pdf
+year: 2025
+pres_type: plenary
+start_page: 3             # pages 1-2 are instructions + table of contents
+header_y_max: 50
+footer_y_min: 740
+session_header: {size: 18, bold: true}
+title: {size: 14, bold: true}

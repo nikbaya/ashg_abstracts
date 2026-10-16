@@ -1,0 +1,3 @@
+year,type,abstracts,with_n,coverage,median_max_n,q25,q75,mannwhitney_p
+2023,poster,2989,1646,0.5507,1000,101,2.568e+04,0.001409
+2023,talk,341,204,0.5982,2162,150.2,1e+05,0.001409

@@ -1,0 +1,9 @@
+pdf: ASHG2023-PlenaryAbstracts.pdf
+year: 2023
+pres_type: plenary
+start_page: 3             # pages 1-2 are instructions + table of contents
+header_y_max: 45
+footer_y_min: 728
+session_header: {size: 10, bold: true}
+title: null
+open_regex: '^Title:'

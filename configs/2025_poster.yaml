@@ -1,0 +1,11 @@
+pdf: 2025-Poster-Abstracts.pdf
+year: 2025
+pres_type: poster
+start_page: 184           # pages 1-183 are instructions + table of contents
+header_y_max: 50
+footer_y_min: 740
+session_header: null      # posters carry the session in a "Session:" field instead
+title:                    # first poster after a category header is 14pt bold
+  - {size: 12, bold: false}
+  - {size: 14, bold: true}
+id_regex: '^Board\s+(\w+):\s*'

@@ -1,0 +1,11 @@
+rank,name,institute,abstracts,talks,talk_rate,ci_lo,ci_hi,baseline,min_abstracts,year
+1,S. Montgomery,Stanford University,8,4,0.5,0.2152,0.7848,0.1149,5,2024
+2,P. Roussos,Icahn School of Medicine at Mount Sinai,15,6,0.4,0.1982,0.6425,0.1149,5,2024
+3,A. Martin,Massachusetts General Hospital,6,3,0.5,0.1876,0.8124,0.1149,5,2024
+4,A. Antonellis,University of Michigan,5,2,0.4,0.1176,0.7693,0.1149,5,2024
+5,Y. Okada,RIKEN,5,2,0.4,0.1176,0.7693,0.1149,5,2024
+6,C. Walsh,Boston Children's Hospital,6,2,0.3333,0.09677,0.7,0.1149,5,2024
+7,G. Carvill,Northwestern University,6,2,0.3333,0.09677,0.7,0.1149,5,2024
+8,I. Kullo,Mayo Clinic,6,2,0.3333,0.09677,0.7,0.1149,5,2024
+9,Y. Bombard,University of Toronto,6,2,0.3333,0.09677,0.7,0.1149,5,2024
+10,M. Talkowski,Broad Institute,7,2,0.2857,0.08222,0.6411,0.1149,5,2024

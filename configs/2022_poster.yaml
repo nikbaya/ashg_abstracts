@@ -1,0 +1,13 @@
+pdf: ASHG2022-PosterAbstracts.pdf
+year: 2022
+pres_type: poster
+start_page: 118           # pages 1-117 are instructions + table of contents
+header_y_max: 50
+footer_y_min: 712         # copyright line + "Page N of 2747" at y~720
+# Each poster page opens with its category, e.g. "Cancer Posters - Wednesday" (may wrap to 2
+# lines), in bold 11pt -- the same style as the labels and the presenting author's name.
+session_header: {size: 11, bold: true}
+session_regex: '^(Cancer|Complex Traits|Epigenetics|Evolutionary|Genetic Counseling|Genetic Therapies|Genetic, Genomic|Mendelian|Molecular|Omics|Pharmacogenomics|Prenatal|Statistical Genetics)\b'
+title: null               # "PB1001. <title>": plain 11pt, same as the body
+open_regex: '^PB\d{4}\*?\.'
+id_regex: '^PB(\d{4})\*?\.\s*'  # some ids carry a "*"

@@ -1,0 +1,20 @@
+{% extends "base.html.j2" %}
+{% import "macros.html.j2" as m %}
+{% block content %}
+<h1>{{ page.title }}</h1>
+<p class="lede">Talk rate at the institutions with the most abstracts.</p>
+<p>Credit goes to every institution of the first author, or, with the toggle, of the senior (last) author.
+An abstract can count for several institutions, so rows don't sum to the total. Institutions are resolved with a
+hand-curated list of {{ n_institutes }} institutions, which places about {{ "{:.0%}".format(years[-1].summary.first_inst_coverage) }} of
+abstracts. The figure shows the 20 highest talk rates among the 50 institutions with the most abstracts each year;
+the tables list all 50, except any without a talk that year.{% if pooled %} For all years pooled, see the
+<a href="index.html#all-institutions">overview</a>.{% endif %}</p>
+{{ m.toolbar(years, basis=True, filter="Institution…") }}
+{% for y in years %}
+<section data-show-year="{{ y.year }}">
+{{ m.year_heading(y) }}
+{{ m.basis_figures(y.year, "institutions", "the 20 institutions with the highest talk rate among the 50 largest") }}
+{{ m.by_basis(y.institutions) }}
+</section>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,4 @@
+year,type,abstracts,person_distinct,person_ratio,person_per_200,initials_distinct,initials_ratio,initials_per_200
+2022,all,2928,1995,0.6814,191.6,1931,0.6595,190.7
+2022,poster,2579,1827,0.7084,191.9,1771,0.6867,191
+2022,talk,349,300,0.8596,181.5,298,0.8539,180.8

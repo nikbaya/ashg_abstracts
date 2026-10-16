@@ -1,0 +1,51 @@
+basis,rank,country,region,abstracts,talks,talk_rate,ci_lo,ci_hi,baseline,year
+first,1,United States,Northern America,2173,264,0.1215,0.1084,0.1359,0.1024,2023
+first,2,Canada,Northern America,147,9,0.06122,0.03254,0.1123,0.1024,2023
+first,3,United Kingdom,Europe,137,21,0.1533,0.1025,0.223,0.1024,2023
+first,4,Japan,Asia,106,9,0.08491,0.04531,0.1535,0.1024,2023
+first,5,South Korea,Asia,82,5,0.06098,0.02632,0.1349,0.1024,2023
+first,6,China,Asia,71,6,0.08451,0.03931,0.1724,0.1024,2023
+first,7,India,Asia,54,0,0,6.478e-18,0.06642,0.1024,2023
+first,8,Germany,Europe,38,1,0.02632,0.00466,0.135,0.1024,2023
+first,9,Australia,Oceania,35,4,0.1143,0.04535,0.2595,0.1024,2023
+first,10,Italy,Europe,31,3,0.09677,0.03346,0.249,0.1024,2023
+first,11,Taiwan,Asia,31,1,0.03226,0.005717,0.1619,0.1024,2023
+first,12,Switzerland,Europe,29,5,0.1724,0.07598,0.3455,0.1024,2023
+first,13,Finland,Europe,26,4,0.1538,0.0615,0.3353,0.1024,2023
+first,14,France,Europe,25,1,0.04,0.007096,0.1954,0.1024,2023
+first,15,Hong Kong,Asia,22,1,0.04545,0.008069,0.218,0.1024,2023
+first,16,Netherlands,Europe,21,1,0.04762,0.008456,0.2267,0.1024,2023
+first,17,Pakistan,Asia,21,0,0,0,0.1546,0.1024,2023
+first,18,Denmark,Europe,20,1,0.05,0.008881,0.2361,0.1024,2023
+first,19,Qatar,Asia,20,0,0,0,0.1611,0.1024,2023
+first,20,Mexico,Latin America and the Caribbean,18,0,0,0,0.1759,0.1024,2023
+first,21,Israel,Asia,14,1,0.07143,0.01272,0.3147,0.1024,2023
+first,22,Singapore,Asia,14,0,0,0,0.2153,0.1024,2023
+first,23,Sweden,Europe,14,0,0,0,0.2153,0.1024,2023
+first,24,Belgium,Europe,13,0,0,0,0.2281,0.1024,2023
+first,25,Nigeria,Africa,13,0,0,0,0.2281,0.1024,2023
+senior,1,United States,Northern America,2160,258,0.1194,0.1064,0.1338,0.1024,2023
+senior,2,United Kingdom,Europe,147,24,0.1633,0.1122,0.2314,0.1024,2023
+senior,3,Canada,Northern America,147,10,0.06803,0.03737,0.1207,0.1024,2023
+senior,4,Japan,Asia,100,9,0.09,0.04807,0.1623,0.1024,2023
+senior,5,South Korea,Asia,83,5,0.06024,0.026,0.1334,0.1024,2023
+senior,6,China,Asia,64,7,0.1094,0.054,0.209,0.1024,2023
+senior,7,India,Asia,55,0,0,0,0.06529,0.1024,2023
+senior,8,Germany,Europe,43,3,0.06977,0.02401,0.1861,0.1024,2023
+senior,9,Australia,Oceania,35,3,0.08571,0.02958,0.2238,0.1024,2023
+senior,10,Switzerland,Europe,31,5,0.1613,0.07093,0.3263,0.1024,2023
+senior,11,Taiwan,Asia,30,1,0.03333,0.005908,0.1667,0.1024,2023
+senior,12,Italy,Europe,29,2,0.06897,0.01912,0.2196,0.1024,2023
+senior,13,France,Europe,26,2,0.07692,0.02135,0.2414,0.1024,2023
+senior,14,Netherlands,Europe,25,1,0.04,0.007096,0.1954,0.1024,2023
+senior,15,Finland,Europe,24,4,0.1667,0.06679,0.3585,0.1024,2023
+senior,16,Hong Kong,Asia,19,1,0.05263,0.009352,0.2464,0.1024,2023
+senior,17,Mexico,Latin America and the Caribbean,19,0,0,0,0.1682,0.1024,2023
+senior,18,Sweden,Europe,18,0,0,0,0.1759,0.1024,2023
+senior,19,Denmark,Europe,17,2,0.1176,0.03288,0.3434,0.1024,2023
+senior,20,Pakistan,Asia,16,0,0,0,0.1936,0.1024,2023
+senior,21,Qatar,Asia,15,0,0,0,0.2039,0.1024,2023
+senior,22,Singapore,Asia,15,0,0,0,0.2039,0.1024,2023
+senior,23,Belgium,Europe,13,0,0,0,0.2281,0.1024,2023
+senior,24,Estonia,Europe,12,1,0.08333,0.01486,0.3539,0.1024,2023
+senior,25,Israel,Asia,12,1,0.08333,0.01486,0.3539,0.1024,2023

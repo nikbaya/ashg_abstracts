@@ -1,0 +1,214 @@
+institute,metro
+# One row per institute in aliases.csv. US metros are Census MSAs, except SF Bay Area (SF + San Jose) and Research Triangle (Durham-Chapel Hill + Raleigh).,
+# Checked against the cities in 2023-2024 affiliations. Blank = sites in several metros (>= 1/3 of 2024 affiliations outside the main one); those are left out of metro totals.,
+Broad Clinical Labs,Boston
+Broad Institute,Boston
+Mass General Brigham,Boston
+Massachusetts General Hospital,Boston
+Brigham and Women's Hospital,Boston
+Boston Children's Hospital,Boston
+Dana-Farber Cancer Institute,Boston
+Massachusetts Eye and Ear,Boston
+Harvard Medical School,Boston
+Harvard University,Boston
+Whitehead Institute,Boston
+MIT,Boston
+VA Boston Healthcare System,Boston
+Boston University,Boston
+UMass Chan Medical School,Worcester
+Northeastern University,Boston
+Children's Hospital of Philadelphia,Philadelphia
+University of Pennsylvania,Philadelphia
+Penn State University,
+University of Pittsburgh,Pittsburgh
+Baylor Genetics,Houston
+Baylor College of Medicine,Houston
+Baylor University,Waco
+Texas Children's Hospital,Houston
+UTHealth Houston,Houston
+MD Anderson Cancer Center,Houston
+UT Southwestern Medical Center,Dallas
+Texas A&M University,
+Vanderbilt University Medical Center,Nashville
+Vanderbilt University,Nashville
+University of Chicago,Chicago
+Icahn School of Medicine at Mount Sinai,New York
+Stanford University,SF Bay Area
+George Washington University,"Washington, DC"
+Washington University in St. Louis,St. Louis
+University of Washington,Seattle
+University of Michigan,Ann Arbor
+Yale University,New Haven
+NIH,"Washington, DC"
+University of North Carolina at Chapel Hill,Research Triangle
+UC San Diego,San Diego
+UC San Francisco,SF Bay Area
+UCLA,Los Angeles
+UC Berkeley,SF Bay Area
+UC Davis,Sacramento
+UC Irvine,Los Angeles
+UC Santa Cruz,Santa Cruz
+UC Riverside,Riverside
+University of Southern California,Los Angeles
+Johns Hopkins University,Baltimore
+The Hospital for Sick Children,Toronto
+University of Toronto,Toronto
+Emory University,Atlanta
+University of Oxford,Oxford
+University of Cambridge,"Cambridge, UK"
+Wellcome Sanger Institute,"Cambridge, UK"
+McGill University,Montreal
+University of Helsinki,Helsinki
+Case Western Reserve University,Cleveland
+Cleveland Clinic,Cleveland
+Mayo Clinic,
+University of Texas Medical Branch,Houston
+Columbia University,New York
+University of Utah,Salt Lake City
+University of Miami,Miami
+Medical College of Wisconsin,Milwaukee
+University of Wisconsin-Madison,Madison
+University of Minnesota,Minneapolis
+National Taiwan University,Taipei
+Taichung Veterans General Hospital,Taichung
+Academia Sinica,Taipei
+University of Virginia,Charlottesville
+Virginia Commonwealth University,Richmond
+University of Lausanne,Lausanne
+Seoul National University,Seoul
+UNIST,Ulsan
+Chungbuk National University,Cheongju
+Fudan University,Shanghai
+University of Alabama at Birmingham,Birmingham
+RIKEN,Tokyo
+University of Tokyo,Tokyo
+Cornell University,
+New York Genome Center,New York
+Memorial Sloan Kettering Cancer Center,New York
+Rockefeller University,New York
+Fred Hutchinson Cancer Center,Seattle
+Purdue University,Lafayette
+Geisinger,"Danville, PA"
+Helix,SF Bay Area
+Illumina,San Diego
+Regeneron,New York
+23andMe,SF Bay Area
+Genentech,SF Bay Area
+AstraZeneca,
+Biogen,Boston
+PacBio,SF Bay Area
+Thermo Fisher Scientific,
+GeneDx,"Washington, DC"
+Ambry Genetics,Los Angeles
+Invitae,SF Bay Area
+Labcorp,
+University of Cincinnati,Cincinnati
+Cincinnati Children's Hospital Medical Center,Cincinnati
+Nationwide Children's Hospital,Columbus
+Ohio State University,Columbus
+University of Georgia,"Athens, GA"
+University of Colorado,Denver
+Howard Hughes Medical Institute,
+University of Leicester,Leicester
+Imperial College London,London
+Queen Mary University of London,London
+University of Bristol,Bristol
+University of Edinburgh,Edinburgh
+The Chinese University of Hong Kong,Hong Kong
+The University of Hong Kong,Hong Kong
+Indiana University,Indianapolis
+Duke University,Research Triangle
+University of Florida,Gainesville
+Technical University of Munich,Munich
+LMU Munich,Munich
+Helmholtz Munich,Munich
+Ontario Institute for Cancer Research,Toronto
+St. Jude Children's Research Hospital,Memphis
+Stony Brook University,New York
+University of Copenhagen,Copenhagen
+Cedars-Sinai Medical Center,Los Angeles
+Aga Khan University,Karachi
+Princeton University,Princeton
+Garvan Institute of Medical Research,Sydney
+Translational Genomics Research Institute,Phoenix
+Wake Forest University,Winston-Salem
+Clemson University,
+Tulane University,New Orleans
+Northwestern University,Chicago
+University of Iowa,Iowa City
+Karolinska Institutet,Stockholm
+University of Queensland,Brisbane
+Murdoch Children's Research Institute,Melbourne
+deCODE genetics,Reykjavik
+The Jackson Laboratory,
+Kaiser Permanente,
+Nemours Children's Health,
+University of Tartu,Tartu
+Max Planck Institute,
+Brown University,Providence
+Montreal Heart Institute,Montreal
+Université de Montréal,Montreal
+Albert Einstein College of Medicine,New York
+NYU Langone Health,New York
+Asan Medical Center,Seoul
+University of Ulsan,Seoul
+The Catholic University of Korea,Seoul
+Nagoya City University,Nagoya
+Shanghai Institute of Nutrition and Health,Shanghai
+Quest Diagnostics,
+Oxford Nanopore Technologies,
+Parse Biosciences,Seattle
+Nabsys,Providence
+Geneial,Houston
+Brigham Young University,Provo
+University of Exeter,Exeter
+King's College London,London
+Sichuan University,Chengdu
+Nanchang University,Nanchang
+Zhejiang University,Hangzhou
+Central South University,Changsha
+Peking Union Medical College,Beijing
+SUNY Upstate Medical University,Syracuse
+University of Arizona,Tucson
+Arizona State University,Phoenix
+Michigan State University,Lansing
+University of Oklahoma,Oklahoma City
+University of British Columbia,Vancouver
+Université du Québec à Chicoutimi,Saguenay
+Radboud University Medical Center,Nijmegen
+Uppsala University,Uppsala
+Nanyang Technological University,Singapore
+Hamad Bin Khalifa University,Doha
+Sungkyunkwan University,Seoul
+Kanagawa Children's Medical Center,Tokyo
+Myriad Genetics,Salt Lake City
+Novo Nordisk,
+Empirico,San Diego
+QIMR Berghofer Medical Research Institute,Brisbane
+University College London,London
+Vanda Pharmaceuticals,"Washington, DC"
+University of the Witwatersrand,Johannesburg
+Institut Pasteur,Paris
+Sidra Medicine,Doha
+National Institute of Biomedical Genomics,Kolkata
+Rady Children's Institute for Genomic Medicine,San Diego
+University of Texas at Austin,Austin
+Georgia Institute of Technology,Atlanta
+Osaka University,Osaka
+Leiden University Medical Center,Leiden
+Pacific Northwest Research Institute,Seattle
+G42 Healthcare,Abu Dhabi
+Children's Mercy Kansas City,Kansas City
+RTI International,Research Triangle
+University of Maryland,Baltimore
+University of São Paulo,São Paulo
+University of Calgary,Calgary
+Mohammed Bin Rashid University of Medicine and Health Sciences,Dubai
+Bionano Genomics,San Diego
+Alnylam Pharmaceuticals,Boston
+Ponce Health Sciences University,Ponce
+San Jorge Children's Hospital,San Juan
+BioSkryb Genomics,Research Triangle
+GenomeArc,Toronto
+St. Michael's Hospital,Toronto
+Rutgers University,New York

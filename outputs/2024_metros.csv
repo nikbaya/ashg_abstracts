@@ -1,0 +1,61 @@
+basis,rank,metro,abstracts,talks,talk_rate,ci_lo,ci_hi,baseline,institutes,year
+first,1,Boston,189,39,0.2063,0.1548,0.2696,0.1149,Broad Institute; Harvard Medical School; Massachusetts General Hospital,2024
+first,2,New York,150,27,0.18,0.1268,0.2492,0.1149,Icahn School of Medicine at Mount Sinai; Columbia University; Regeneron,2024
+first,3,"Washington, DC",115,14,0.1217,0.07392,0.194,0.1149,NIH; Vanda Pharmaceuticals; George Washington University,2024
+first,4,Philadelphia,107,14,0.1308,0.07956,0.2077,0.1149,University of Pennsylvania; Children's Hospital of Philadelphia,2024
+first,5,SF Bay Area,103,26,0.2524,0.1785,0.3442,0.1149,Stanford University; UC San Francisco; Invitae,2024
+first,6,Houston,91,10,0.1099,0.06079,0.1906,0.1149,Baylor College of Medicine; MD Anderson Cancer Center; UTHealth Houston,2024
+first,7,Research Triangle,81,12,0.1481,0.08683,0.2413,0.1149,University of North Carolina at Chapel Hill; Duke University; RTI International,2024
+first,8,Los Angeles,74,16,0.2162,0.1377,0.3227,0.1149,UCLA; University of Southern California; Cedars-Sinai Medical Center,2024
+first,9,Denver,65,4,0.06154,0.02419,0.1478,0.1149,University of Colorado,2024
+first,10,Ann Arbor,56,9,0.1607,0.08693,0.2781,0.1149,University of Michigan,2024
+first,11,Seattle,54,6,0.1111,0.05193,0.2219,0.1149,University of Washington; Fred Hutchinson Cancer Center; Parse Biosciences,2024
+first,12,Nashville,54,3,0.05556,0.01907,0.1511,0.1149,Vanderbilt University Medical Center; Vanderbilt University,2024
+first,13,Chicago,53,6,0.1132,0.05293,0.2258,0.1149,University of Chicago; Northwestern University,2024
+first,14,Montreal,43,5,0.1163,0.0507,0.2448,0.1149,McGill University; Université de Montréal; Montreal Heart Institute,2024
+first,15,San Diego,43,1,0.02326,0.004117,0.1206,0.1149,UC San Diego; Illumina; Rady Children's Institute for Genomic Medicine,2024
+first,16,Cleveland,39,3,0.07692,0.02651,0.2032,0.1149,Case Western Reserve University; Cleveland Clinic,2024
+first,17,Toronto,36,3,0.08333,0.02875,0.2183,0.1149,University of Toronto; The Hospital for Sick Children; St. Michael's Hospital,2024
+first,18,Baltimore,34,3,0.08824,0.03047,0.2296,0.1149,Johns Hopkins University; University of Maryland,2024
+first,19,Salt Lake City,34,3,0.08824,0.03047,0.2296,0.1149,University of Utah; Myriad Genetics,2024
+first,20,New Haven,30,4,0.1333,0.0531,0.2968,0.1149,Yale University,2024
+first,21,Atlanta,27,6,0.2222,0.1061,0.4076,0.1149,Emory University; Georgia Institute of Technology,2024
+first,22,Miami,27,2,0.07407,0.02055,0.2337,0.1149,University of Miami,2024
+first,23,Tokyo,26,1,0.03846,0.006822,0.1889,0.1149,RIKEN; University of Tokyo; Kanagawa Children's Medical Center,2024
+first,24,Seoul,24,1,0.04167,0.007393,0.2024,0.1149,Seoul National University; Sungkyunkwan University,2024
+first,25,London,21,3,0.1429,0.04981,0.3464,0.1149,University College London; King's College London; Imperial College London,2024
+first,26,Taipei,19,1,0.05263,0.009352,0.2464,0.1149,National Taiwan University; Academia Sinica,2024
+first,27,Pittsburgh,17,0,0,0,0.1843,0.1149,University of Pittsburgh,2024
+first,28,Oxford,16,4,0.25,0.1018,0.495,0.1149,University of Oxford,2024
+first,29,Helsinki,16,3,0.1875,0.06591,0.4301,0.1149,University of Helsinki,2024
+first,30,Minneapolis,16,2,0.125,0.03498,0.3602,0.1149,University of Minnesota,2024
+senior,1,Boston,191,44,0.2304,0.1763,0.295,0.1149,Broad Institute; Harvard Medical School; Massachusetts General Hospital,2024
+senior,2,New York,149,26,0.1745,0.122,0.2434,0.1149,Icahn School of Medicine at Mount Sinai; Columbia University; Regeneron,2024
+senior,3,Philadelphia,113,14,0.1239,0.07525,0.1973,0.1149,University of Pennsylvania; Children's Hospital of Philadelphia,2024
+senior,4,"Washington, DC",113,13,0.115,0.06848,0.1869,0.1149,NIH; Vanda Pharmaceuticals; GeneDx,2024
+senior,5,SF Bay Area,105,28,0.2667,0.1914,0.3584,0.1149,Stanford University; UC San Francisco; Invitae,2024
+senior,6,Houston,85,8,0.09412,0.04846,0.1749,0.1149,Baylor College of Medicine; MD Anderson Cancer Center; UTHealth Houston,2024
+senior,7,Research Triangle,81,13,0.1605,0.09626,0.2555,0.1149,University of North Carolina at Chapel Hill; Duke University; RTI International,2024
+senior,8,Los Angeles,74,16,0.2162,0.1377,0.3227,0.1149,UCLA; University of Southern California; Cedars-Sinai Medical Center,2024
+senior,9,Seattle,60,5,0.08333,0.03612,0.1807,0.1149,University of Washington; Fred Hutchinson Cancer Center; Parse Biosciences,2024
+senior,10,Nashville,57,2,0.03509,0.009675,0.1192,0.1149,Vanderbilt University Medical Center; Vanderbilt University,2024
+senior,11,Chicago,56,6,0.1071,0.05004,0.2147,0.1149,University of Chicago; Northwestern University,2024
+senior,12,Denver,56,1,0.01786,0.003159,0.09446,0.1149,University of Colorado,2024
+senior,13,Ann Arbor,55,9,0.1636,0.08855,0.2826,0.1149,University of Michigan,2024
+senior,14,San Diego,47,3,0.06383,0.02194,0.1716,0.1149,UC San Diego; Rady Children's Institute for Genomic Medicine; Illumina,2024
+senior,15,Montreal,38,4,0.1053,0.0417,0.2413,0.1149,McGill University; Université de Montréal; Montreal Heart Institute,2024
+senior,16,Toronto,38,4,0.1053,0.0417,0.2413,0.1149,University of Toronto; The Hospital for Sick Children; St. Michael's Hospital,2024
+senior,17,Cleveland,38,2,0.05263,0.01455,0.1729,0.1149,Case Western Reserve University; Cleveland Clinic,2024
+senior,18,New Haven,36,4,0.1111,0.04407,0.2532,0.1149,Yale University,2024
+senior,19,Baltimore,31,2,0.06452,0.01787,0.2072,0.1149,Johns Hopkins University; University of Maryland,2024
+senior,20,Salt Lake City,31,2,0.06452,0.01787,0.2072,0.1149,University of Utah; Myriad Genetics,2024
+senior,21,London,29,5,0.1724,0.07598,0.3455,0.1149,University College London; Imperial College London; King's College London,2024
+senior,22,Tokyo,29,3,0.1034,0.03581,0.2639,0.1149,RIKEN; University of Tokyo; Kanagawa Children's Medical Center,2024
+senior,23,Miami,27,3,0.1111,0.03852,0.2806,0.1149,University of Miami,2024
+senior,24,Atlanta,25,6,0.24,0.115,0.4343,0.1149,Emory University; Georgia Institute of Technology,2024
+senior,25,Seoul,23,1,0.04348,0.007716,0.2099,0.1149,Seoul National University; Sungkyunkwan University,2024
+senior,26,Oxford,18,4,0.2222,0.09001,0.4522,0.1149,University of Oxford,2024
+senior,27,Taipei,18,0,0,0,0.1759,0.1149,National Taiwan University; Academia Sinica,2024
+senior,28,St. Louis,17,3,0.1765,0.06191,0.4103,0.1149,Washington University in St. Louis,2024
+senior,29,Pittsburgh,17,0,0,0,0.1843,0.1149,University of Pittsburgh,2024
+senior,30,"Cambridge, UK",15,4,0.2667,0.109,0.5195,0.1149,University of Cambridge; Wellcome Sanger Institute,2024
