@@ -107,13 +107,17 @@ def sample_size_panel(ax, ss):
     ax.set_yticks([0, 1], [f"{label}: median {short_number(ss.loc[t].median_max_n)}"
                            for t, label in [("poster", "Posters"), ("talk", "Talks")]])
     ax.set_ylim(-0.7, 1.7)
+    # sub-figure header at the figure's left margin, in line with the title
+    ax.annotate("Sample size: talks report larger cohorts", (0.02, 1), xycoords=("figure fraction", "axes fraction"),
+                xytext=(0, 12), textcoords="offset points", ha="left", va="bottom", color=INK,
+                fontweight="bold", fontsize=12)
     ax.set_xlabel(f"Largest stated sample size per abstract (\"12,000 individuals\") · median and IQR\n"
                   f"(an N is stated in {ss.loc['talk'].coverage:.0%} of talks and {ss.loc['poster'].coverage:.0%} "
                   f"of posters)", color=INK_2, labelpad=6)
 
 
 def headline(premium, summary, ss, year, k, path):
-    fig, gs = new_figure((8, 12), nrows=2, height_ratios=[15, 1.5], hspace=0.22,
+    fig, gs = new_figure((8, 12), nrows=2, height_ratios=[15, 1.5], hspace=0.3,
                          left=0.3, right=0.97, top=0.875, bottom=0.085)
     phrases_panel(fig.add_subplot(gs[0]), premium, k)
     sample_size_panel(fig.add_subplot(gs[1]), ss)
