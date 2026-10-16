@@ -1,0 +1,4 @@
+abstract_id,role,name,affils
+# Hand fixes for author lists the parser can't handle. role = first | senior; affils separated by ";".
+# Shared affiliation listed once after all names, no parentheses (golden review 2025):
+2025-plenary-0009,senior,D Liu,"Penn State Coll. of Med., Hershey, PA"

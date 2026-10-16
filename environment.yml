@@ -1,0 +1,15 @@
+name: ashg
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pymupdf
+  - duckdb
+  - python-duckdb
+  - pyarrow
+  - pandas
+  - scikit-learn
+  - matplotlib
+  - jinja2
+  - pyyaml
+  - pytest

@@ -1,0 +1,14 @@
+# ASHG abstract booklets are copyrighted; never commit them
+*.pdf
+
+# Per-abstract derived data (contains full abstract text / author lists)
+data/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+
+# OS
+.DS_Store

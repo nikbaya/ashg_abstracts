@@ -1,0 +1,162 @@
+institute,pattern
+# Order matters: patterns are tried top to bottom and each match consumes its text, so put specific names before general ones (e.g. Broad before MIT/Harvard, CUHK before HKU).,
+# Patterns are case-insensitive; wrap acronyms in (?-i:...) to make them case-sensitive.,
+# Rule: schools/faculties fold into their university (except HMS); hospitals and independent institutes stay separate; NIH institutes fold into NIH.,
+Broad Clinical Labs,Broad Clinical Lab(oratorie)?s?
+Broad Institute,Broad Inst(itute|\.)?( of (MIT and Harvard|Harvard and MIT))?
+Mass General Brigham,Mass General Brigham|(?-i:\bMGB\b)
+Massachusetts General Hospital,Massachusetts General Hospital|Mass(achusetts)? General|(?-i:\bMGH\b)
+Brigham and Women's Hospital,Brigham (and|&) Women'?s( Hospital)?|(?-i:\bBWH\b)
+Boston Children's Hospital,Boston Children'?s Hospital|(?-i:\bBCH\b)
+Dana-Farber Cancer Institute,Dana[- ]Farber
+Massachusetts Eye and Ear,Mass(achusetts)? Eye (and|&) Ear
+Harvard Medical School,Harvard Medical School|(?-i:\bHMS\b)
+Harvard University,Harvard T\.? ?H\.? Chan|Harvard (School|University)|\bHarvard\b
+Whitehead Institute,Whitehead Institute
+MIT,Massachusetts Institute of Technology|(?-i:\bMIT\b)
+VA Boston Healthcare System,VA Boston
+Boston University,Boston University|(?-i:\bBU\b)
+UMass Chan Medical School,UMass Chan|University of Massachusetts (Chan )?Medical School
+Northeastern University,Northeastern University
+Children's Hospital of Philadelphia,Children'?s Hospital of Philadelphia|(?-i:\bCHOP\b)
+University of Pennsylvania,University of Pennsylvania|Perelman School of Medicine|Penn Medicine|(?-i:\bUPenn\b)
+Penn State University,Penn(sylvania)? State
+University of Pittsburgh,University of Pittsburgh
+Baylor Genetics,Baylor Genetics
+Baylor College of Medicine,Baylor College of Medicine|(?-i:\bBCM\b)|Human Genome Sequencing Center
+Baylor University,Baylor University
+Texas Children's Hospital,Texas Children'?s Hospital
+UTHealth Houston,University of Texas Health Science Center at Houston|UTHealth
+MD Anderson Cancer Center,MD Anderson
+UT Southwestern Medical Center,UT Southwestern|University of Texas Southwestern
+Texas A&M University,Texas A&M
+Vanderbilt University Medical Center,Vanderbilt University Medical Center|(?-i:\bVUMC\b)|Vanderbilt Genetics Institute|Vanderbilt Epidemiology Center
+Vanderbilt University,\bVanderbilt\b
+University of Chicago,University of Chicago|UChicago
+Icahn School of Medicine at Mount Sinai,Icahn School of Medicine|Mount Sinai|Friedman Brain Institute
+Stanford University,\bStanford\b
+George Washington University,George Washington University
+Washington University in St. Louis,Washington University|\bWashU\b
+University of Washington,University of Washington
+University of Michigan,University of Michigan|Michigan Medicine
+Yale University,\bYale\b
+NIH,"National Institutes? of Health|(?-i:\bNIH\b)|National Human Genome Research Institute|(?-i:\bNHGRI\b)|National Cancer Institute|(?-i:\bNCI\b)|National Heart,? Lung,? and Blood Institute|(?-i:\bNHLBI\b)|National Institute of Environmental Health Sciences|(?-i:\bNIEHS\b)|National Institute of Diabetes|(?-i:\bNIDDK\b)|National Institute of Mental Health|(?-i:\bNIMH\b)|National Institute of Neurological|(?-i:\bNINDS\b)|National Institute on Aging|(?-i:\bNIA\b)|National Institute of Child Health|(?-i:\bNICHD\b)|National Institute of Allergy|(?-i:\bNIAID\b)|National Library of Medicine|(?-i:\bNLM\b)|(?-i:\bNCBI\b)"
+University of North Carolina at Chapel Hill,University of North Carolina|(?-i:\bUNC\b)
+UC San Diego,"University of California,? San Diego|UC San Diego|(?-i:\bUCSD\b)"
+UC San Francisco,"University of California,? San Francisco|UC San Francisco|(?-i:\bUCSF\b)"
+UCLA,"University of California,? Los Angeles|David Geffen School of Medicine|(?-i:\bUCLA\b)"
+UC Berkeley,"University of California,? Berkeley|UC Berkeley"
+UC Davis,"University of California,? Davis|UC Davis"
+UC Irvine,"University of California,? Irvine|UC Irvine|(?-i:\bUCI\b)"
+UC Santa Cruz,"University of California,? Santa Cruz|UC Santa Cruz|(?-i:\bUCSC\b)"
+UC Riverside,"University of California,? Riverside|UC Riverside"
+University of Southern California,University of Southern California|Keck School of Medicine|(?-i:\bUSC\b)
+Johns Hopkins University,Johns Hopkins
+The Hospital for Sick Children,Hospital for Sick Children|SickKids
+University of Toronto,University of Toronto
+Emory University,\bEmory\b
+University of Oxford,University of Oxford|Oxford University
+University of Cambridge,University of Cambridge
+Wellcome Sanger Institute,Sanger Institute
+McGill University,\bMcGill\b
+University of Helsinki,University of Helsinki|Institute for Molecular Medicine Finland|(?-i:\bFIMM\b)|(?-i:\bHiLIFE\b)
+Case Western Reserve University,Case Western
+Cleveland Clinic,Cleveland Clinic|Lerner Research Institute
+Mayo Clinic,\bMayo Clinic
+Columbia University,Columbia University|(?-i:\bCUIMC\b)
+University of Utah,University of Utah
+University of Miami,University of Miami|Hussman Institute
+Medical College of Wisconsin,Medical College of Wisconsin
+University of Wisconsin-Madison,University of Wisconsin[- ]?Madison|University of Wisconsin
+University of Minnesota,University of Minnesota
+National Taiwan University,National Taiwan University
+Taichung Veterans General Hospital,Taichung Veterans General Hospital
+Academia Sinica,Academia Sinica
+University of Virginia,University of Virginia
+Virginia Commonwealth University,Virginia Commonwealth University
+University of Lausanne,University of Lausanne
+Seoul National University,Seoul National University
+UNIST,Ulsan National Institute of Science and Technology|(?-i:\bUNIST\b)
+Chungbuk National University,Chungbuk National University
+Fudan University,Fudan University
+University of Alabama at Birmingham,University of Alabama at Birmingham|(?-i:\bUAB\b)
+RIKEN,(?-i:\bRIKEN\b)
+University of Tokyo,University of Tokyo
+Cornell University,Weill Cornell|Cornell University
+New York Genome Center,New York Genome Center|(?-i:\bNYGC\b)
+Memorial Sloan Kettering Cancer Center,Sloan[- ]Kettering|(?-i:\bMSKCC\b)
+Rockefeller University,Rockefeller University
+Fred Hutchinson Cancer Center,Fred Hutch
+Purdue University,Purdue University
+Geisinger,\bGeisinger\b
+Helix,(?-i:\bHelix\b)
+Illumina,\bIllumina\b
+Regeneron,\bRegeneron\b
+23andMe,23andMe
+Genentech,\bGenentech\b
+AstraZeneca,AstraZeneca
+Biogen,\bBiogen\b
+PacBio,PacBio|Pacific Biosciences
+Thermo Fisher Scientific,Thermo Fisher
+GeneDx,GeneDx
+Ambry Genetics,Ambry Genetics
+Invitae,\bInvitae\b
+Labcorp,\bLabcorp\b
+University of Cincinnati,University of Cincinnati
+Cincinnati Children's Hospital Medical Center,Cincinnati Children'?s
+Nationwide Children's Hospital,Nationwide Children'?s
+Ohio State University,Ohio State University
+University of Georgia,University of Georgia
+University of Colorado,University of Colorado
+Howard Hughes Medical Institute,Howard Hughes Medical Institute|(?-i:\bHHMI\b)
+University of Leicester,University of Leicester
+Imperial College London,Imperial College
+Queen Mary University of London,Queen Mary University
+University of Bristol,University of Bristol
+University of Edinburgh,University of Edinburgh
+The Chinese University of Hong Kong,Chinese University of Hong Kong|(?-i:\bCUHK\b)
+The University of Hong Kong,University of Hong Kong|(?-i:\bHKU\b)
+Indiana University,Indiana University
+Duke University,Duke University
+University of Florida,University of Florida
+Technical University of Munich,Technical University of Munich|Technische Universit.t M.nchen|(?-i:\bTUM\b)
+LMU Munich,Ludwig[- ]Maximilians|(?-i:\bLMU\b)
+Helmholtz Munich,Helmholtz Zentrum M.nchen|Helmholtz Munich
+Ontario Institute for Cancer Research,Ontario Institute for Cancer Research
+St. Jude Children's Research Hospital,St\.? Jude
+Stony Brook University,Stony Brook
+University of Copenhagen,University of Copenhagen
+Cedars-Sinai Medical Center,Cedars[- ]Sinai
+Aga Khan University,Aga Khan University
+Princeton University,Princeton University
+Garvan Institute of Medical Research,Garvan Institute
+Translational Genomics Research Institute,Translational Genomics Research Institute|(?-i:\bTGen\b)
+Wake Forest University,Wake Forest
+Clemson University,Clemson University
+Tulane University,Tulane University
+Northwestern University,Northwestern University
+University of Iowa,University of Iowa
+Karolinska Institutet,Karolinska
+University of Queensland,University of Queensland
+Murdoch Children's Research Institute,Murdoch Children'?s Research Institute
+deCODE genetics,deCODE
+The Jackson Laboratory,Jackson Laboratory
+Kaiser Permanente,Kaiser Permanente
+Nemours Children's Health,\bNemours\b
+University of Tartu,University of Tartu|Estonian Genome Cent(er|re)
+Max Planck Institute,Max Planck
+Brown University,Brown University
+Montreal Heart Institute,Montreal Heart Institute
+Université de Montréal,Universit. de Montr.al|University of Montreal
+Albert Einstein College of Medicine,Albert Einstein College of Medicine
+NYU Langone Health,NYU|New York University
+Asan Medical Center,Asan Medical Center
+University of Ulsan,University of Ulsan
+The Catholic University of Korea,Catholic University of Korea
+Nagoya City University,Nagoya City University
+Shanghai Institute of Nutrition and Health,Shanghai Institute of Nutrition and Health
+Quest Diagnostics,Quest Diagnostics
+Oxford Nanopore Technologies,Oxford Nanopore
+Parse Biosciences,Parse Biosciences
+Nabsys,\bNabsys\b
+Geneial,\bGeneial\b
