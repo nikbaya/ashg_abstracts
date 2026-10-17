@@ -34,7 +34,7 @@ PAGES = [  # (file, nav label, page title)
     ("methods.html", "Methods", "Methods and caveats"),
 ]
 YEAR_FIGURES = ("headline", "institutions", "metros", "regions", "senior_authors")
-TREND_FIGURES = ("trends_talk_rate", "trends_phrases", "trends_shift", "trends_sample_size", "trends_regions",
+TREND_FIGURES = ("trends_talk_rate", "trends_phrases", "trends_biobanks", "trends_shift", "trends_sample_size", "trends_regions",
                  "trends_metros", "trends_center_na", "trends_center_world")
 EXPLORER_ROWS = 10
 
@@ -163,14 +163,14 @@ def sparkline_pair(talks, posters, w=120, h=40, pad=4):
 
 def highlights(out, years, n_rising=6, n_hot=6, min_hot_talks=10, n_rows=6):
     """Numbers for the overview's vignettes: rising topics and 2026's talk-leaning phrases, the clinical
-    shift, the institutions and senior authors with the highest pooled talk rate, and the host-city pull on the
-    center of mass."""
+    shift, the institutions with the highest pooled talk rate, and the host-city pull on the center of mass."""
     latest = years[-1]
     t = pd.read_csv(out / "trends_phrases.csv")
     rising = []
     for phrase, g in t[t.group == "Topics to watch"].groupby("phrase", sort=False):
         g = g.set_index("year").loc[years]
         rising.append({"phrase": phrase, "first": g.share.iloc[0], "last": g.share.iloc[-1],
+                       "peak_year": int(g.share.idxmax()), "peak": g.share.max(),  # for topics that peaked earlier
                        "spark": sparkline(list(g.share)), "talks_last": int(g.talk_docs.iloc[-1])})
     rising.sort(key=lambda r: r["last"] - r["first"], reverse=True)  # biggest gain first
 
@@ -186,9 +186,6 @@ def highlights(out, years, n_rising=6, n_hot=6, min_hot_talks=10, n_rows=6):
     inst = pd.read_csv(out / "all_institutions.csv")
     pool = inst[inst.basis == "first"]
     top = pool[pool.talks > 0].sort_values(["talk_rate", "abstracts"], ascending=False).head(n_rows)
-    authors = pd.read_csv(out / "all_senior_authors.csv")
-    authors = authors[authors.talks > 0]
-    most = authors.sort_values(["talks", "talk_rate"], ascending=False).iloc[0]
     latest_inst = pd.read_csv(out / f"{latest}_institutions.csv")
     latest_inst = latest_inst[(latest_inst.basis == "first") & (latest_inst.talks > 0)]
     latest_top = list(latest_inst.sort_values(["talk_rate", "abstracts"], ascending=False).head(3).institute)
@@ -203,9 +200,7 @@ def highlights(out, years, n_rising=6, n_hot=6, min_hot_talks=10, n_rows=6):
     baseline = pool.baseline.iloc[0]
     return {"rising": rising[:n_rising], "hot": odds_rows(hot.sort_values("or", ascending=False)), "shift": shift,
             "inst": rate_rows(top, "institute", baseline), "inst_pool": len(pool), "baseline": baseline,
-            "latest_top": latest_top, "authors": rate_rows(authors.head(n_rows), "name", authors.baseline.iloc[0]),
-            "author_min": int(authors.min_abstracts.iloc[0]), "author_most": most.to_dict(),
-            "center": center, "latest": latest}
+            "latest_top": latest_top, "center": center, "latest": latest}
 
 
 def rate_rows(df, key, baseline):

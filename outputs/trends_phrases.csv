@@ -12,7 +12,7 @@ year,phrase,group,abstracts,docs,share,talks,posters,talk_docs,poster_docs,talk_
 2022,microarray,Consistently more common in posters,2928,85,0.02903,349,2579,4,81,0.01146,0.03141,0.3993,0.1535,1.038
 2022,symptoms,Consistently more common in posters,2928,154,0.0526,349,2579,12,142,0.03438,0.05506,0.6335,0.3514,1.142
 2022,long-read,Topics to watch,2928,120,0.04098,349,2579,21,99,0.06017,0.03839,1.632,1.009,2.637
-2022,single-cell,Topics to watch,2928,214,0.07309,349,2579,32,182,0.09169,0.07057,1.345,0.9095,1.988
+2022,All of Us,Topics to watch,2928,28,0.009563,349,2579,10,18,0.02865,0.006979,4.282,1.991,9.209
 2022,language model,Topics to watch,2928,2,0.0006831,349,2579,0,2,0,0.0007755,1.475,0.07066,30.79
 2022,proteomics,Topics to watch,2928,74,0.02527,349,2579,11,63,0.03152,0.02443,1.346,0.7111,2.549
 2022,multi-ancestry,Topics to watch,2928,52,0.01776,349,2579,14,38,0.04011,0.01473,2.853,1.543,5.275
@@ -23,6 +23,13 @@ year,phrase,group,abstracts,docs,share,talks,posters,talk_docs,poster_docs,talk_
 2022,idiopathic,Largest 2026 shifts among clinical terms (found by scanning every phrase),2928,33,0.01127,349,2579,3,30,0.008596,0.01163,0.8443,0.2778,2.567
 2022,genetic disease,Largest 2026 shifts among clinical terms (found by scanning every phrase),2928,64,0.02186,349,2579,9,55,0.02579,0.02133,1.269,0.6318,2.549
 2022,therapy,Largest 2026 shifts among clinical terms (found by scanning every phrase),2928,118,0.0403,349,2579,16,102,0.04585,0.03955,1.196,0.7022,2.036
+2022,UK Biobank,Biobanks,2928,364,0.1243,349,2579,69,295,0.1977,0.1144,1.916,1.434,2.558
+2022,FinnGen,Biobanks,2928,45,0.01537,349,2579,14,31,0.04011,0.01202,3.497,1.858,6.581
+2022,Million Veteran Program,Biobanks,2928,20,0.006831,349,2579,3,17,0.008596,0.006592,1.479,0.4669,4.686
+2022,BioBank Japan,Biobanks,2928,24,0.008197,349,2579,3,21,0.008596,0.008143,1.202,0.3862,3.741
+2022,Taiwan Biobank,Biobanks,2928,5,0.001708,349,2579,2,3,0.005731,0.001163,5.296,1.041,26.95
+2022,BioVU,Biobanks,2928,25,0.008538,349,2579,1,24,0.002865,0.009306,0.449,0.08602,2.343
+2022,Penn Medicine Biobank,Biobanks,2928,9,0.003074,349,2579,1,8,0.002865,0.003102,1.302,0.2287,7.414
 2022,human,"Top in talks, all years",2928,903,0.3084,349,2579,132,771,0.3782,0.299,1.428,1.133,1.801
 2022,regulatory,"Top in talks, all years",2928,286,0.09768,349,2579,56,230,0.1605,0.08918,1.962,1.432,2.689
 2022,loci,"Top in talks, all years",2928,577,0.1971,349,2579,98,479,0.2808,0.1857,1.716,1.332,2.21
@@ -48,6 +55,7 @@ year,phrase,group,abstracts,docs,share,talks,posters,talk_docs,poster_docs,talk_
 2022,cell types,"Top in talks, all years",2928,184,0.06284,349,2579,29,155,0.08309,0.0601,1.435,0.9519,2.164
 2022,causal,"Top in talks, all years",2928,366,0.125,349,2579,62,304,0.1777,0.1179,1.625,1.205,2.19
 2022,non-coding,"Top in talks, all years",2928,143,0.04884,349,2579,25,118,0.07163,0.04575,1.632,1.048,2.543
+2022,single-cell,"Top in talks, all years",2928,164,0.05601,349,2579,28,136,0.08023,0.05273,1.587,1.043,2.415
 2022,neurons,"Top in talks, all years",2928,96,0.03279,349,2579,16,80,0.04585,0.03102,1.536,0.8936,2.641
 2022,fine-mapping,"Top in talks, all years",2928,84,0.02869,349,2579,21,63,0.06017,0.02443,2.594,1.569,4.287
 2022,fine-mapped,"Top in talks, all years",2928,30,0.01025,349,2579,10,20,0.02865,0.007755,3.861,1.82,8.194
@@ -123,7 +131,7 @@ year,phrase,group,abstracts,docs,share,talks,posters,talk_docs,poster_docs,talk_
 2023,microarray,Consistently more common in posters,3330,104,0.03123,341,2989,5,99,0.01466,0.03312,0.4748,0.1997,1.129
 2023,symptoms,Consistently more common in posters,3330,159,0.04775,341,2989,9,150,0.02639,0.05018,0.5391,0.2771,1.049
 2023,long-read,Topics to watch,3330,172,0.05165,341,2989,22,150,0.06452,0.05018,1.329,0.8406,2.1
-2023,single-cell,Topics to watch,3330,253,0.07598,341,2989,49,204,0.1437,0.06825,2.305,1.652,3.216
+2023,All of Us,Topics to watch,3330,53,0.01592,341,2989,10,43,0.02933,0.01439,2.145,1.083,4.249
 2023,language model,Topics to watch,3330,8,0.002402,341,2989,3,5,0.008798,0.001673,5.611,1.462,21.53
 2023,proteomics,Topics to watch,3330,97,0.02913,341,2989,12,85,0.03519,0.02844,1.289,0.7042,2.358
 2023,multi-ancestry,Topics to watch,3330,70,0.02102,341,2989,16,54,0.04692,0.01807,2.73,1.556,4.792
@@ -134,6 +142,13 @@ year,phrase,group,abstracts,docs,share,talks,posters,talk_docs,poster_docs,talk_
 2023,idiopathic,Largest 2026 shifts among clinical terms (found by scanning every phrase),3330,38,0.01141,341,2989,3,35,0.008798,0.01171,0.8605,0.2853,2.595
 2023,genetic disease,Largest 2026 shifts among clinical terms (found by scanning every phrase),3330,78,0.02342,341,2989,6,72,0.0176,0.02409,0.7796,0.3467,1.753
 2023,therapy,Largest 2026 shifts among clinical terms (found by scanning every phrase),3330,137,0.04114,341,2989,17,120,0.04985,0.04015,1.284,0.7678,2.148
+2023,UK Biobank,Biobanks,3330,404,0.1213,341,2989,55,349,0.1613,0.1168,1.464,1.075,1.992
+2023,FinnGen,Biobanks,3330,39,0.01171,341,2989,3,36,0.008798,0.01204,0.8367,0.2778,2.52
+2023,Million Veteran Program,Biobanks,3330,43,0.01291,341,2989,3,40,0.008798,0.01338,0.753,0.2512,2.257
+2023,BioBank Japan,Biobanks,3330,27,0.008108,341,2989,3,24,0.008798,0.008029,1.252,0.4061,3.857
+2023,Taiwan Biobank,Biobanks,3330,12,0.003604,341,2989,1,11,0.002933,0.00368,1.141,0.2074,6.278
+2023,BioVU,Biobanks,3330,22,0.006607,341,2989,1,21,0.002933,0.007026,0.6082,0.1158,3.196
+2023,Penn Medicine Biobank,Biobanks,3330,10,0.003003,341,2989,0,10,0,0.003346,0.4155,0.02429,7.106
 2023,human,"Top in talks, all years",3330,1064,0.3195,341,2989,136,928,0.3988,0.3105,1.475,1.172,1.856
 2023,regulatory,"Top in talks, all years",3330,320,0.0961,341,2989,51,269,0.1496,0.09,1.79,1.297,2.469
 2023,loci,"Top in talks, all years",3330,644,0.1934,341,2989,85,559,0.2493,0.187,1.448,1.115,1.881
@@ -159,6 +174,7 @@ year,phrase,group,abstracts,docs,share,talks,posters,talk_docs,poster_docs,talk_
 2023,cell types,"Top in talks, all years",3330,222,0.06667,341,2989,43,179,0.1261,0.05989,2.282,1.605,3.245
 2023,causal,"Top in talks, all years",3330,426,0.1279,341,2989,55,371,0.1613,0.1241,1.365,1.004,1.857
 2023,non-coding,"Top in talks, all years",3330,169,0.05075,341,2989,23,146,0.06745,0.04885,1.432,0.9125,2.247
+2023,single-cell,"Top in talks, all years",3330,192,0.05766,341,2989,39,153,0.1144,0.05119,2.413,1.668,3.491
 2023,neurons,"Top in talks, all years",3330,139,0.04174,341,2989,29,110,0.08504,0.0368,2.46,1.612,3.754
 2023,fine-mapping,"Top in talks, all years",3330,83,0.02492,341,2989,11,72,0.03226,0.02409,1.4,0.7439,2.636
 2023,fine-mapped,"Top in talks, all years",3330,35,0.01051,341,2989,9,26,0.02639,0.008699,3.195,1.51,6.763
@@ -234,7 +250,7 @@ year,phrase,group,abstracts,docs,share,talks,posters,talk_docs,poster_docs,talk_
 2024,microarray,Consistently more common in posters,2950,86,0.02915,339,2611,5,81,0.01475,0.03102,0.5105,0.2137,1.22
 2024,symptoms,Consistently more common in posters,2950,180,0.06102,339,2611,14,166,0.0413,0.06358,0.6543,0.3779,1.133
 2024,long-read,Topics to watch,2950,185,0.06271,339,2611,33,152,0.09735,0.05822,1.763,1.191,2.61
-2024,single-cell,Topics to watch,2950,247,0.08373,339,2611,48,199,0.1416,0.07622,2.012,1.437,2.817
+2024,All of Us,Topics to watch,2950,147,0.04983,339,2611,26,121,0.0767,0.04634,1.733,1.12,2.68
 2024,language model,Topics to watch,2950,34,0.01153,339,2611,3,31,0.00885,0.01187,0.8521,0.2808,2.586
 2024,proteomics,Topics to watch,2950,116,0.03932,339,2611,20,96,0.059,0.03677,1.673,1.024,2.732
 2024,multi-ancestry,Topics to watch,2950,106,0.03593,339,2611,17,89,0.05015,0.03409,1.529,0.9045,2.586
@@ -245,6 +261,13 @@ year,phrase,group,abstracts,docs,share,talks,posters,talk_docs,poster_docs,talk_
 2024,idiopathic,Largest 2026 shifts among clinical terms (found by scanning every phrase),2950,29,0.009831,339,2611,0,29,0,0.01111,0.1289,0.007859,2.115
 2024,genetic disease,Largest 2026 shifts among clinical terms (found by scanning every phrase),2950,58,0.01966,339,2611,6,52,0.0177,0.01992,0.9502,0.4173,2.164
 2024,therapy,Largest 2026 shifts among clinical terms (found by scanning every phrase),2950,116,0.03932,339,2611,7,109,0.02065,0.04175,0.5155,0.2438,1.09
+2024,UK Biobank,Biobanks,2950,426,0.1444,339,2611,73,353,0.2153,0.1352,1.762,1.33,2.335
+2024,FinnGen,Biobanks,2950,48,0.01627,339,2611,9,39,0.02655,0.01494,1.872,0.9135,3.836
+2024,Million Veteran Program,Biobanks,2950,46,0.01559,339,2611,8,38,0.0236,0.01455,1.714,0.8084,3.634
+2024,BioBank Japan,Biobanks,2950,29,0.009831,339,2611,6,23,0.0177,0.008809,2.147,0.894,5.155
+2024,Taiwan Biobank,Biobanks,2950,14,0.004746,339,2611,2,12,0.0059,0.004596,1.54,0.3943,6.018
+2024,BioVU,Biobanks,2950,20,0.00678,339,2611,2,18,0.0059,0.006894,1.038,0.2759,3.909
+2024,Penn Medicine Biobank,Biobanks,2950,11,0.003729,339,2611,1,10,0.00295,0.00383,1.098,0.1977,6.098
 2024,human,"Top in talks, all years",2950,877,0.2973,339,2611,151,726,0.4454,0.2781,2.086,1.657,2.626
 2024,regulatory,"Top in talks, all years",2950,319,0.1081,339,2611,59,260,0.174,0.09958,1.915,1.408,2.605
 2024,loci,"Top in talks, all years",2950,595,0.2017,339,2611,93,502,0.2743,0.1923,1.592,1.231,2.059
@@ -270,6 +293,7 @@ year,phrase,group,abstracts,docs,share,talks,posters,talk_docs,poster_docs,talk_
 2024,cell types,"Top in talks, all years",2950,239,0.08102,339,2611,40,199,0.118,0.07622,1.635,1.143,2.34
 2024,causal,"Top in talks, all years",2950,358,0.1214,339,2611,61,297,0.1799,0.1137,1.718,1.271,2.322
 2024,non-coding,"Top in talks, all years",2950,148,0.05017,339,2611,33,115,0.09735,0.04404,2.362,1.58,3.533
+2024,single-cell,"Top in talks, all years",2950,196,0.06644,339,2611,34,162,0.1003,0.06205,1.702,1.157,2.505
 2024,neurons,"Top in talks, all years",2950,137,0.04644,339,2611,34,103,0.1003,0.03945,2.737,1.829,4.096
 2024,fine-mapping,"Top in talks, all years",2950,89,0.03017,339,2611,24,65,0.0708,0.02489,3.019,1.871,4.873
 2024,fine-mapped,"Top in talks, all years",2950,39,0.01322,339,2611,11,28,0.03245,0.01072,3.173,1.585,6.354
@@ -345,7 +369,7 @@ year,phrase,group,abstracts,docs,share,talks,posters,talk_docs,poster_docs,talk_
 2025,microarray,Consistently more common in posters,3138,75,0.0239,247,2891,4,71,0.01619,0.02456,0.729,0.2787,1.907
 2025,symptoms,Consistently more common in posters,3138,156,0.04971,247,2891,5,151,0.02024,0.05223,0.4103,0.1735,0.9704
 2025,long-read,Topics to watch,3138,226,0.07202,247,2891,32,194,0.1296,0.0671,2.092,1.407,3.109
-2025,single-cell,Topics to watch,3138,358,0.1141,247,2891,41,317,0.166,0.1097,1.63,1.145,2.32
+2025,All of Us,Topics to watch,3138,167,0.05322,247,2891,15,152,0.06073,0.05258,1.198,0.6983,2.054
 2025,language model,Topics to watch,3138,47,0.01498,247,2891,5,42,0.02024,0.01453,1.521,0.6196,3.732
 2025,proteomics,Topics to watch,3138,155,0.04939,247,2891,12,143,0.04858,0.04946,1.017,0.5618,1.84
 2025,multi-ancestry,Topics to watch,3138,114,0.03633,247,2891,13,101,0.05263,0.03494,1.583,0.8833,2.836
@@ -356,6 +380,13 @@ year,phrase,group,abstracts,docs,share,talks,posters,talk_docs,poster_docs,talk_
 2025,idiopathic,Largest 2026 shifts among clinical terms (found by scanning every phrase),3138,33,0.01052,247,2891,2,31,0.008097,0.01072,0.9247,0.2534,3.374
 2025,genetic disease,Largest 2026 shifts among clinical terms (found by scanning every phrase),3138,62,0.01976,247,2891,4,58,0.01619,0.02006,0.8951,0.3401,2.356
 2025,therapy,Largest 2026 shifts among clinical terms (found by scanning every phrase),3138,138,0.04398,247,2891,8,130,0.03239,0.04497,0.751,0.3706,1.522
+2025,UK Biobank,Biobanks,3138,381,0.1214,247,2891,36,345,0.1457,0.1193,1.272,0.8796,1.839
+2025,FinnGen,Biobanks,3138,64,0.0204,247,2891,9,55,0.03644,0.01902,2.036,1.01,4.103
+2025,Million Veteran Program,Biobanks,3138,54,0.01721,247,2891,10,44,0.04049,0.01522,2.829,1.426,5.614
+2025,BioBank Japan,Biobanks,3138,17,0.005417,247,2891,3,14,0.01215,0.004843,2.841,0.8777,9.195
+2025,Taiwan Biobank,Biobanks,3138,14,0.004461,247,2891,2,12,0.008097,0.004151,2.346,0.5996,9.178
+2025,BioVU,Biobanks,3138,17,0.005417,247,2891,2,15,0.008097,0.005189,1.89,0.4938,7.233
+2025,Penn Medicine Biobank,Biobanks,3138,18,0.005736,247,2891,2,16,0.008097,0.005534,1.775,0.4663,6.754
 2025,human,"Top in talks, all years",3138,927,0.2954,247,2891,102,825,0.413,0.2854,1.764,1.353,2.299
 2025,regulatory,"Top in talks, all years",3138,473,0.1507,247,2891,64,409,0.2591,0.1415,2.131,1.575,2.883
 2025,loci,"Top in talks, all years",3138,667,0.2126,247,2891,101,566,0.4089,0.1958,2.844,2.173,3.723
@@ -381,6 +412,7 @@ year,phrase,group,abstracts,docs,share,talks,posters,talk_docs,poster_docs,talk_
 2025,cell types,"Top in talks, all years",3138,317,0.101,247,2891,40,277,0.1619,0.09581,1.839,1.285,2.632
 2025,causal,"Top in talks, all years",3138,354,0.1128,247,2891,52,302,0.2105,0.1045,2.299,1.657,3.188
 2025,non-coding,"Top in talks, all years",3138,167,0.05322,247,2891,33,134,0.1336,0.04635,3.202,2.14,4.792
+2025,single-cell,"Top in talks, all years",3138,307,0.09783,247,2891,33,274,0.1336,0.09478,1.489,1.014,2.188
 2025,neurons,"Top in talks, all years",3138,156,0.04971,247,2891,22,134,0.08907,0.04635,2.046,1.283,3.262
 2025,fine-mapping,"Top in talks, all years",3138,102,0.0325,247,2891,17,85,0.06883,0.0294,2.492,1.465,4.24
 2025,fine-mapped,"Top in talks, all years",3138,54,0.01721,247,2891,9,45,0.03644,0.01557,2.492,1.223,5.076
@@ -456,7 +488,7 @@ year,phrase,group,abstracts,docs,share,talks,posters,talk_docs,poster_docs,talk_
 2026,microarray,Consistently more common in posters,2965,67,0.0226,252,2713,1,66,0.003968,0.02433,0.2374,0.04683,1.204
 2026,symptoms,Consistently more common in posters,2965,106,0.03575,252,2713,6,100,0.02381,0.03686,0.6857,0.3069,1.532
 2026,long-read,Topics to watch,2965,258,0.08702,252,2713,35,223,0.1389,0.0822,1.819,1.243,2.66
-2026,single-cell,Topics to watch,2965,296,0.09983,252,2713,39,257,0.1548,0.09473,1.765,1.228,2.537
+2026,All of Us,Topics to watch,2965,179,0.06037,252,2713,23,156,0.09127,0.0575,1.673,1.063,2.635
 2026,language model,Topics to watch,2965,49,0.01653,252,2713,8,41,0.03175,0.01511,2.239,1.058,4.737
 2026,proteomics,Topics to watch,2965,189,0.06374,252,2713,16,173,0.06349,0.06377,1.022,0.606,1.722
 2026,multi-ancestry,Topics to watch,2965,120,0.04047,252,2713,14,106,0.05556,0.03907,1.489,0.8465,2.617
@@ -467,6 +499,13 @@ year,phrase,group,abstracts,docs,share,talks,posters,talk_docs,poster_docs,talk_
 2026,idiopathic,Largest 2026 shifts among clinical terms (found by scanning every phrase),2965,32,0.01079,252,2713,8,24,0.03175,0.008846,3.816,1.73,8.418
 2026,genetic disease,Largest 2026 shifts among clinical terms (found by scanning every phrase),2965,71,0.02395,252,2713,18,53,0.07143,0.01954,3.923,2.274,6.768
 2026,therapy,Largest 2026 shifts among clinical terms (found by scanning every phrase),2965,138,0.04654,252,2713,20,118,0.07937,0.04349,1.931,1.186,3.145
+2026,UK Biobank,Biobanks,2965,390,0.1315,252,2713,40,350,0.1587,0.129,1.285,0.9018,1.832
+2026,FinnGen,Biobanks,2965,39,0.01315,252,2713,5,34,0.01984,0.01253,1.726,0.6952,4.285
+2026,Million Veteran Program,Biobanks,2965,40,0.01349,252,2713,4,36,0.01587,0.01327,1.328,0.4947,3.567
+2026,BioBank Japan,Biobanks,2965,23,0.007757,252,2713,1,22,0.003968,0.008109,0.7135,0.1359,3.744
+2026,Taiwan Biobank,Biobanks,2965,16,0.005396,252,2713,0,16,0,0.005898,0.3237,0.01936,5.412
+2026,BioVU,Biobanks,2965,13,0.004384,252,2713,1,12,0.003968,0.004423,1.289,0.2358,7.046
+2026,Penn Medicine Biobank,Biobanks,2965,19,0.006408,252,2713,2,17,0.007937,0.006266,1.538,0.4061,5.823
 2026,human,"Top in talks, all years",2965,828,0.2793,252,2713,104,724,0.4127,0.2669,1.932,1.484,2.517
 2026,regulatory,"Top in talks, all years",2965,461,0.1555,252,2713,65,396,0.2579,0.146,2.042,1.511,2.758
 2026,loci,"Top in talks, all years",2965,645,0.2175,252,2713,68,577,0.2698,0.2127,1.374,1.026,1.84
@@ -492,6 +531,7 @@ year,phrase,group,abstracts,docs,share,talks,posters,talk_docs,poster_docs,talk_
 2026,cell types,"Top in talks, all years",2965,210,0.07083,252,2713,27,183,0.1071,0.06745,1.682,1.101,2.568
 2026,causal,"Top in talks, all years",2965,331,0.1116,252,2713,37,294,0.1468,0.1084,1.43,0.9902,2.064
 2026,non-coding,"Top in talks, all years",2965,145,0.0489,252,2713,18,127,0.07143,0.04681,1.6,0.9653,2.654
+2026,single-cell,"Top in talks, all years",2965,273,0.09207,252,2713,38,235,0.1508,0.08662,1.889,1.307,2.73
 2026,neurons,"Top in talks, all years",2965,115,0.03879,252,2713,10,105,0.03968,0.0387,1.071,0.5601,2.046
 2026,fine-mapping,"Top in talks, all years",2965,122,0.04115,252,2713,17,105,0.06746,0.0387,1.837,1.089,3.1
 2026,fine-mapped,"Top in talks, all years",2965,49,0.01653,252,2713,9,40,0.03571,0.01474,2.575,1.255,5.284

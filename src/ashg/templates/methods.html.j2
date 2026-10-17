@@ -90,7 +90,11 @@ name; surnames seen with 5+ different initials need a shared institution, and tw
 <li><strong>Phrases.</strong> 1–3-word n-grams from the abstract text, appearing in at least 5 talks (or the
 equivalent share of posters). Each gets a talk-vs-poster odds ratio with +0.5 smoothing and a 95% CI, ranked by
 z-score. Phrases that share a word or are an acronym of each other and appear in mostly the same abstracts (Jaccard
-≥ 0.45; exact acronyms like “QTLs” always) form one group, shown under its best-ranked member.</li>
+≥ 0.45; exact acronyms like “QTLs” always) form one group, shown under its best-ranked member. A narrower phrase
+stays separate from a broader one that contains it when the broader one carries its own signal: every abstract
+mentioning “chromatin accessibility” also mentions “chromatin” (Jaccard 0.43), but most “chromatin” abstracts are
+about something else, and those still lean toward talks ({{ years[0].year }}–{{ years[-1].year }} talk rate 15.7%
+for “chromatin” without accessibility, 21.9% with “chromatin accessibility”, 9.4% without “chromatin”).</li>
 <li><strong>All years.</strong> Institution, place and author talk rates pool the counts from every year. Phrase
 odds ratios across years are Mantel–Haenszel estimates stratified by year (each year's 2×2 table, +0.5 in every
 cell, Robins–Breslow–Greenland variance), because the baseline talk rate differs by year.</li>

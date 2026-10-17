@@ -9,6 +9,7 @@ abstracts (“massively parallel reporter”, “parallel reporter assay”, “
 best-scoring one, with the rest listed beneath it in small type.</p>
 <nav class="toc" aria-label="On this page"><a href="#by-year">Phrases that predict a talk</a>
 {% if "trends_phrases" in trends %}<a href="#phrase-trends">Phrase trends</a>{% endif %}
+{% if "trends_biobanks" in trends %}<a href="#biobanks">Biobanks</a>{% endif %}
 {% if "trends_shift" in trends %}<a href="#shift">What changed in {{ years[-1].year }}</a>{% endif %}
 {% if drivers_json %}<a href="#explorer">Look up a phrase</a>{% endif %}
 {% if "trends_sample_size" in trends %}<a href="#sample-size">Sample size</a>{% endif %}</nav>
@@ -56,6 +57,14 @@ left out of the phrase counts.{% endif %}</p>
 <h2 id="phrase-trends">Phrase trends</h2>
 <p>Year by year, {{ years[0].year }}–{{ years[-1].year }}: the share of talks and of posters mentioning selected phrases.</p>
 {{ m.figure("img/trends_phrases.png", "For selected phrases, the share of talks and of posters mentioning each one, per year.") }}
+{% endif %}
+
+{% if "trends_biobanks" in trends %}
+<h2 id="biobanks">Biobanks</h2>
+<p>How often abstracts mention the most-cited biobanks, {{ years[0].year }}–{{ years[-1].year }}, counting common
+acronyms (UKB, MVP, BBJ). UK Biobank is in about one abstract in eight every year; All of Us grew six-fold. To compare
+talks with posters for any of them, <a href="#explorer">look it up</a> below.</p>
+{{ m.figure("img/trends_biobanks.png", "Share of accepted abstracts mentioning each of eight biobanks per year, with the number of abstracts mentioning it.") }}
 {% endif %}
 
 {% if "trends_shift" in trends %}

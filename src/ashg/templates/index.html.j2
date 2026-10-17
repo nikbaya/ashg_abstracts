@@ -5,11 +5,11 @@
 {% set p = pooled or latest %}
 {% set h = highlights %}
 {% macro pct(v, d=1) %}{{ ("%." ~ d ~ "f")|format(100 * v) }}%{% endmacro %}
-{% macro rate_table(t, head, sub=None, count_head="Talks / abstracts", val_head="Talk rate · 95% CI") %}
+{% macro rate_table(t, head, count_head="Talks / abstracts", val_head="Talk rate · 95% CI") %}
 <div class="scroll"><table class="hl-table rates">
 <thead><tr><th class="text">{{ head }}</th><th>{{ count_head }}</th><th class="text">{{ val_head }}</th></tr></thead>
 <tbody>
-{% for r in t.rows %}<tr><td class="text">{{ r.label }}{% if sub %}<span class="related">{{ r[sub] }}</span>{% endif %}</td>
+{% for r in t.rows %}<tr><td class="text">{{ r.label }}</td>
 <td>{{ r.count }}</td>
 <td class="text"><span class="rate"><span class="track">
 <span class="ci" style="left:{{ '%.1f'|format(r.ci_left) }}%;width:{{ '%.1f'|format(r.ci_width) }}%"></span>
@@ -44,7 +44,8 @@ from {{ pct(r0.first) }} in {{ years[0].year }}.</p>
 <td><strong>{{ pct(r.last) }}</strong></td><td>{{ r.talks_last }}</td></tr>
 {% endfor %}
 </tbody></table></div>
-<p class="table-note">Share of each year's accepted abstracts mentioning the topic (title or text; spelling variants count).</p>
+<p class="table-note">Share of each year's accepted abstracts mentioning the topic (title or text; spelling variants count).
+{% for r in h.rising if r.peak_year != h.latest %}“{{ r.phrase }}” peaked in {{ r.peak_year }} ({{ pct(r.peak) }}).{% endfor %}</p>
 <p><strong>Most talk-leaning in {{ h.latest }}.</strong> Among phrases in at least 10 talks, an abstract mentioning
 “{{ h.hot.rows[0].label }}” had {{ h.hot.rows[0].val }} the odds of a talk of one that didn't.</p>
 {{ rate_table(h.hot, "Phrase", count_head="Talks / posters", val_head="Odds of a talk · 95% CI") }}
@@ -83,23 +84,9 @@ institutions have wide intervals. In {{ h.latest }} alone, {{ h.latest_top | joi
 <p class="more-link"><a href="institutions.html">All 50 largest institutions, year by year →</a></p>
 </section>
 
-<section class="vignette" id="authors">
-<h2><span class="num">3</span>Senior authors with the highest talk rate</h2>
-{% set most = h.author_most %}
-<p class="lead">Sorted by the lower end of a 95% interval, so a rate over many abstracts comes before the same rate over a few (at least
-{{ h.author_min }} abstracts as senior author, {{ p.label }}). {{ most.name }} ({{ most.institute }}) has the most talks:
-{{ most.talks }} of {{ most.abstracts }}.</p>
-{{ rate_table(h.authors, "Senior author", "institute") }}
-<p class="table-note">Last listed author; dashed line = all abstracts. This is how often a group's abstracts became
-talks, not a measure of anyone's work, and the intervals overlap too much for the order to mean much. The
-{{ years[0].year }}–2024 abstracts give only initials, so across years one person is first initial + last name (common
-surnames also need a shared institution); names matched this way can merge two people or split one.</p>
-<p class="more-link"><a href="authors.html">The full list, year by year →</a></p>
-</section>
-
 {% if h.center %}
 <section class="vignette" id="center">
-<h2><span class="num">4</span>The center of mass follows the host city</h2>
+<h2><span class="num">3</span>The center of mass follows the host city</h2>
 {% set pulls = h.center | sort(attribute="km", reverse=True) %}
 <p class="lead">Local groups bring extra abstracts to a home meeting. Leave out first authors from the host city and the
 center of mass of North American abstracts moves {{ "{:,}".format(pulls[0].km) }} km for {{ pulls[0].host }}
@@ -114,38 +101,4 @@ center of mass of North American abstracts moves {{ "{:,}".format(pulls[0].km) }
 {% endif %}
 {% endif %}
 
-<h2 id="explore">Explore</h2>
-<p>Each page has a year toggle: all years pooled, or one meeting at a time.</p>
-<div class="cards">
-  <a class="card" href="phrases.html">
-    <img src="img/{{ 'all' if pooled else latest.year }}_headline.png" alt="" loading="lazy">
-    <div class="body"><h3>Phrases</h3>
-    <p>Phrases that predict a talk, how they trend year to year, a lookup for any phrase, and sample sizes in talks
-    versus posters.</p><span class="more">Phrases →</span></div>
-  </a>
-  <a class="card" href="institutions.html">
-    <img src="img/{{ 'all' if pooled else latest.year }}_institutions.png" alt="" loading="lazy">
-    <div class="body"><h3>Institutions</h3>
-    <p>Which of the largest institutions have the highest talk rate, crediting the first author.</p>
-    <span class="more">Institutions →</span></div>
-  </a>
-  <a class="card" href="geography.html">
-    <img src="img/{{ 'all' if pooled else latest.year }}_regions.png" alt="" loading="lazy">
-    <div class="body"><h3>Geography</h3>
-    <p>Talk rate by world region, country and metro area, the host-city effect, and where the meeting's center of
-    mass sits each year.</p>
-    <span class="more">Regions, countries and metros →</span></div>
-  </a>
-  <a class="card" href="authors.html">
-    <img src="img/{{ 'all' if pooled else latest.year }}_senior_authors.png" alt="" loading="lazy">
-    <div class="body"><h3>Senior authors</h3>
-    <p>Senior authors whose abstracts most often became talks, sorted by the lower end of a 95% interval.</p>
-    <span class="more">Senior authors →</span></div>
-  </a>
-  <a class="card text-only" href="methods.html">
-    <div class="body"><h3>Methods and caveats</h3>
-    <p>How the abstracts are parsed, how institutions and places are matched (and how often they can't be), how
-    phrases are scored, talk rates by year, and what the numbers can't tell you.</p><span class="more">Methods →</span></div>
-  </a>
-</div>
 {% endblock %}

@@ -2,6 +2,7 @@
 
 - outputs/trends_phrases.csv/.png  per phrase and year: share of talks and of posters mentioning
                                    it, plus the talk-vs-poster odds ratio (+0.5 smoothing, 95% CI)
+- outputs/trends_biobanks.png      per biobank and year: share of all abstracts mentioning it
 - outputs/trends_metros.csv/.png   per metro and year: first-author abstracts and talk rate
                                    (Wilson 95% CI), from data/institutions + metros.csv
 - outputs/trends_regions.csv/.png  per UN region and year: first-author abstracts and talk rate,
@@ -46,7 +47,7 @@ PHRASES = {
                                             "symptoms"],
     # rising share of abstracts 2022-2026 (trend z >= 4); reviewed with 2026 in: machine learning and polygenic
     # score were flat and spatial transcriptomics had 5 talks in 2026, so they gave way to the fastest risers
-    "Topics to watch": ["long-read|long read", "single-cell|single cell", "language model|large language model",
+    "Topics to watch": ["long-read|long read", "All of Us","language model|large language model",
                         "proteomics|proteomic", "multi-ancestry|multi-ancestral", "pangenome|pan-genome"],
 }
 # Clinical terms that leaned toward posters through 2025 but not in 2026 (trends_shift.png). The first group was
@@ -56,6 +57,14 @@ SHIFT = {
     "Poster-leaning through 2025 (pre-specified)": ["patients", "likely pathogenic", "next-generation sequencing"],
     "Largest 2026 shifts among clinical terms (found by scanning every phrase)": [
         "idiopathic", "genetic disease", "therapy"],
+}
+# The most-mentioned biobanks 2022-2026 (trends_biobanks.png); short forms checked against the full names. Left out:
+# eMERGE and deCODE (also ordinary words), TOPMed and gnomAD (not biobanks), and biobanks with under ~10 mentions a year.
+BIOBANKS = {
+    "Biobanks": ["UK Biobank|UKB|UKBB|UK-Biobank", "All of Us", "FinnGen",
+                 "Million Veteran Program|Million Veterans Program|MVP",
+                 "BioBank Japan|Biobank of Japan|BioBankJapan|BBJ", "Taiwan Biobank|TWB|TWBB", "BioVU",
+                 "Penn Medicine Biobank|PMBB"],
 }
 TOP_DRIVERS = 50  # rows kept per list; the site shows the top 10 with at least one talk
 EXPLORER_TOP = 50  # pooled top phrases each way added to the explorer
@@ -336,6 +345,35 @@ def share_panels(m, key, years, path, title, subtitle, source, ncols=4, hosts=No
     plt.close(fig)
 
 
+def biobanks_figure(t, years, path, specs, ncols=4):
+    """One panel per biobank: share of all accepted abstracts mentioning it, most-mentioned first."""
+    names = [s.split("|")[0] for s in specs]
+    names.sort(key=lambda p: -t[t.phrase == p].docs.sum())
+    nrows = -(-len(names) // ncols)
+    h = 2.0 + 2.0 * nrows
+    fig, gs = new_figure((10, h), nrows=nrows, ncols=ncols, hspace=0.95, wspace=0.3,
+                         left=0.06, right=0.98, top=1 - 1.35 / h, bottom=0.75 / h)
+    xs = np.arange(len(years))
+    for i, p in enumerate(names):
+        ax = fig.add_subplot(gs[i // ncols, i % ncols])
+        r = t[t.phrase == p].set_index("year").loc[years]
+        panel_style(ax, years, short_years=True)
+        series(ax, xs, r.share, INK)
+        ax.set_xticks(xs, [f"’{y % 100:02d}\n{n}" for y, n in zip(years, r.docs)])  # abstracts mentioning it
+        ax.set_ylim(0, r.share.max() * 1.25)
+        if r.share.max() < 0.03:  # small shares need a decimal to tell the ticks apart
+            ax.yaxis.set_major_formatter(PercentFormatter(1, decimals=1))
+            ax.yaxis.set_major_locator(MaxNLocator(3, steps=[1, 2, 4, 5, 10], min_n_ticks=3))  # no "0.25%" → "0.2%"
+        panel_title(ax, p, width=19)
+    header(fig, f"Biobanks mentioned at ASHG {years[0]}–{years[-1]}",
+           "Share of accepted abstracts mentioning each biobank (title or text, any spelling or acronym such as "
+           "UKB, MVP, BBJ).\nBelow each year: abstracts mentioning it.",
+           "Source: ASHG abstracts. Each panel has its own scale. Abstracts cut off in a booklet are left out.",
+           top=1 - 0.2 / h)
+    fig.savefig(path, dpi=200, facecolor=SURFACE)
+    plt.close(fig)
+
+
 def metros_figure(m, years, path):
     meetings = ", ".join(f"{y} {HOST_METRO[y]}" for y in years if y in HOST_METRO)
     share_panels(
@@ -458,11 +496,14 @@ def main():
     if args.phrases:
         PHRASES.clear()
         PHRASES["Selected phrases"] = args.phrases
-    curated = {**PHRASES, **SHIFT}
+    curated = {**PHRASES, **SHIFT, **BIOBANKS}
     groups = {**curated, **explorer_specs(data, args.explorer_top, [p for ps in curated.values() for p in ps])}
-    specs = [p for ps in groups.values() for p in ps]
+    specs = list(dict.fromkeys(p for ps in groups.values() for p in ps))  # a phrase in two groups is counted once
     labels = [s.split("|")[0] for s in specs]
-    group_of = {s.split("|")[0]: g for g, ps in groups.items() for s in ps}
+    group_of = {}
+    for g, ps in groups.items():
+        for s in ps:
+            group_of.setdefault(s.split("|")[0], g)  # its first group (All of Us stays a topic to watch)
     abstracts = pd.concat([pd.read_parquet(p) for y in years for p in sorted((data / "abstracts").glob(f"{y}_*.parquet"))])
     hits = phrase_hits(abstracts, specs)
     t = phrase_table(hits, labels)
@@ -480,6 +521,7 @@ def main():
                    title=f"What changed in {years[-1]}: clinical terms in talks",
                    subtitle="Share of talks and of posters mentioning each phrase. Below each panel: odds ratio of a "
                             "talk and p for the change.")
+    biobanks_figure(t, years, out / "trends_biobanks.png", BIOBANKS["Biobanks"])
 
     insts, credit = first_credit(data, years, load_metros(args.metros).set_index("institute").metro)
     m = metro_table(insts, credit, years, args.n_metros)
