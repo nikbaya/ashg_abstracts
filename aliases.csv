@@ -172,7 +172,7 @@ Central South University,Central South University
 Peking Union Medical College,Peking Union Medical College
 SUNY Upstate Medical University,SUNY Upstate|Upstate Medical University
 University of Arizona,University of Arizona
-Arizona State University,Arizona State University
+Arizona State University,Arizona State University|(?-i:\bASU\b)
 Michigan State University,Michigan State University
 University of Oklahoma,University of Oklahoma
 University of British Columbia,University of British Columbia|(?-i:\bUBC\b)
@@ -191,7 +191,7 @@ QIMR Berghofer Medical Research Institute,QIMR Berghofer|(?-i:\bQIMR\b)
 University College London,University College London|(?-i:\bUCL\b)
 Vanda Pharmaceuticals,Vanda Pharmaceuticals
 University of the Witwatersrand,Witwatersrand|Sydney Brenner Institute
-Institut Pasteur,Institut(e)? Pasteur
+Institut Pasteur,Inst(itut(e)?|\.)?\s?Pasteur(?!\s+(de|du|of)\b)|Pasteur Inst\.? and Coll
 Sidra Medicine,Sidra Medicine|Sidra Medical
 National Institute of Biomedical Genomics,National Institute of Bio ?Med(ical|\.)? Genomics|(?-i:\bNIBMG\b)
 Rady Children's Institute for Genomic Medicine,Rady Children'?s
@@ -217,3 +217,5 @@ St. Michael's Hospital,St\.? Michael'?s Hospital|Unity Health Toronto
 Rutgers University,\bRutgers\b
 # Added on review:
 Children's Mercy Kansas City,Children'?s Mercy
+HudsonAlpha Institute for Biotechnology,HudsonAlpha
+Shenzhen Bay Laboratory,Shenzhen Bay Lab(oratory)?

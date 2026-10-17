@@ -15,12 +15,21 @@ spans:
 	  pdf=$$(grep '^pdf:' $$cfg | awk '{print $$2}'); \
 	  $(PY) src/ashg/extract_spans.py $$pdf data/spans/$(YEAR)_$$t.parquet; done
 
+# 2026 has no booklet: abstracts come from the online program via data/manual/ (see src/ashg/floq.py)
+ifeq ($(YEAR),2026)
+abstracts:
+	@mkdir -p data/abstracts
+	@for t in $(TYPES); do $(PY) src/ashg/floq.py abstracts data/manual/$(YEAR)_$$t.yaml $(YEAR) $$t data/abstracts/$(YEAR)_$$t.parquet; done
+
+validate: abstracts
+else
 abstracts: spans
 	@mkdir -p data/abstracts
 	@for t in $(TYPES); do $(PY) src/ashg/segment.py configs/$(YEAR)_$$t.yaml data/spans/$(YEAR)_$$t.parquet data/abstracts/$(YEAR)_$$t.parquet; done
 
 validate: abstracts
 	@for t in $(TYPES); do $(PY) src/ashg/validate.py configs/$(YEAR)_$$t.yaml data/spans/$(YEAR)_$$t.parquet data/abstracts/$(YEAR)_$$t.parquet --show 3 || exit 1; done
+endif
 
 institutions:
 	@mkdir -p data/institutions

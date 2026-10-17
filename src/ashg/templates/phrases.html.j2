@@ -6,9 +6,34 @@
 an odds ratio: how much more likely an abstract containing it is to be a talk.</p>
 <p>Phrases are 1–3-word sequences from the abstract text. Variants of one idea that turn up in mostly the same
 abstracts (“massively parallel reporter”, “parallel reporter assay”, “MPRA”) are grouped under the
-best-scoring one, with the rest listed beneath it in small type.{% if pooled %} All years pooled, phrase trends
-and a phrase lookup are on the <a href="index.html#all-phrases">overview</a>.{% endif %}</p>
-{{ m.toolbar(years) }}
+best-scoring one, with the rest listed beneath it in small type.</p>
+<nav class="toc" aria-label="On this page"><a href="#by-year">Phrases that predict a talk</a>
+{% if "trends_phrases" in trends %}<a href="#phrase-trends">Phrase trends</a>{% endif %}
+{% if "trends_shift" in trends %}<a href="#shift">What changed in {{ years[-1].year }}</a>{% endif %}
+{% if drivers_json %}<a href="#explorer">Look up a phrase</a>{% endif %}
+{% if "trends_sample_size" in trends %}<a href="#sample-size">Sample size</a>{% endif %}</nav>
+<span id="by-year"></span>
+{{ m.toolbar(years, pooled) }}
+{% if pooled %}
+{% set p = pooled %}
+<section data-show-year="all">
+<h2>All years <span class="sub">· {{ p.label }}</span></h2>
+<p>{{ "{:,}".format(p.summary.abstracts) }} abstracts, {{ "{:,}".format(p.summary.talks) }} of them talks: a pooled
+talk rate of <strong>{{ "%.1f"|format(100 * p.summary.talk_rate) }}%</strong>. Odds ratios are combined across years
+(Mantel–Haenszel, stratified by year), so a phrase that rose or fell over time isn't credited with each year's
+different baseline. {{ "{:,}".format(p.summary.truncated) }} abstracts cut off in a booklet are left out of the phrase
+counts.</p>
+{{ m.figure("img/all_headline.png", "Dot plot of the phrases most over-represented in ASHG %s talks versus posters, with odds ratios and 95%% confidence intervals." % p.label) }}
+{% call m.details("Top 30 phrases each way") %}
+<div class="cols">
+{% for dir, label in [("talk", "More common in talks"), ("poster", "More common in posters")] %}
+<div class="scroll"><p class="table-title"><span class="key" style="background: var(--{{ dir }})"></span>{{ label }}</p>
+{{ p.premium[dir] }}</div>
+{% endfor %}
+</div>
+{% endcall %}
+</section>
+{% endif %}
 {% for y in years %}
 <section data-show-year="{{ y.year }}">
 {{ m.year_heading(y) }}
@@ -26,4 +51,70 @@ left out of the phrase counts.{% endif %}</p>
 </div>
 </section>
 {% endfor %}
+
+{% if "trends_phrases" in trends %}
+<h2 id="phrase-trends">Phrase trends</h2>
+<p>Year by year, {{ years[0].year }}–{{ years[-1].year }}: the share of talks and of posters mentioning selected phrases.</p>
+{{ m.figure("img/trends_phrases.png", "For selected phrases, the share of talks and of posters mentioning each one, per year.") }}
+{% endif %}
+
+{% if "trends_shift" in trends %}
+<h2 id="shift">What changed in {{ years[-1].year }}</h2>
+<p>Clinical vocabulary stopped leaning toward posters. “Patients”, “likely pathogenic” and “next-generation
+sequencing” leaned toward posters over {{ years[0].year }}–{{ years[-2].year }} (pooled odds ratios 0.4–0.7); in
+{{ years[-1].year }} all three were at least as common in talks. Scanning every phrase for the largest
+{{ years[-1].year }} shifts turns up more of the same: “idiopathic”, “genetic disease” and “therapy”.</p>
+<p class="caveat"><strong>Suggestive, not established.</strong> The top row was chosen before looking at
+{{ years[-1].year }}; the bottom row was picked for having the largest shifts, so its p-values overstate the
+evidence. Across all ~10,800 phrases tested, no single shift survives a false-discovery-rate correction.</p>
+{{ m.figure("img/trends_shift.png", "Share of talks and of posters mentioning six clinical terms per year, with the odds ratio of a talk before and in %s and the p-value for the change." % years[-1].year) }}
+{% endif %}
+
+{% if drivers_json %}
+<section class="explorer">
+<h2 id="explorer">Look up a phrase</h2>
+<p>The phrases above plus the top 50 each way across all years. See how often talks and posters mention a phrase
+each year, then which first-author institutions and metro areas write about it (among those with at least one
+talk mentioning it; an abstract counts for each of its institutions). Hover or focus a row for that institution's
+own mention rate. Searching also finds every other phrase in at least 5 talks over all years; for those the counts
+are exact matches in the abstract text (no titles or plurals), and there is no institution breakdown.</p>
+<div class="filters">
+  <label>Find <input type="search" id="drv-search" placeholder="e.g. enhancer" autocomplete="off"></label>
+  <label>Phrase <select id="drv-phrase"></select></label>
+  <span class="lbl">Plot</span><span class="seg" id="drv-mode" role="group" aria-label="Plot">
+    <button type="button" data-mode="abs" aria-pressed="true">Shares</button><button type="button" data-mode="rel" aria-pressed="false">Ratio</button>
+  </span>
+</div>
+<div class="drv-trend">
+  <svg id="drv-chart" role="img" viewBox="0 0 360 150"></svg>
+  <div><p id="drv-or"></p>
+  <div class="legend" id="drv-legend"><span><i style="background: var(--talk)"></i>share of talks</span><span><i style="background: var(--poster)"></i>share of posters</span></div>
+  <p class="legend" id="drv-ratio-note" hidden>Share of talks ÷ share of posters mentioning it each year, with 95% CIs; above 1× it is more common in talks.</p></div>
+</div>
+<p id="drv-none" class="empty" hidden>No institution or metro breakdown for this phrase: that is kept for the phrases listed before you search.</p>
+<div id="drv-who">
+<div class="filters"><span class="lbl">Who writes about it</span><span class="seg" id="drv-year" role="group" aria-label="Year"></span>
+  <span class="lbl">Bars</span><span class="seg" id="drv-bar-mode" role="group" aria-label="Bars">
+    <button type="button" data-mode="abs" aria-pressed="true">Counts</button><button type="button" data-mode="rel" aria-pressed="false">Ratio</button>
+  </span>
+</div>
+<p id="drv-summary"></p>
+<div class="legend" id="drv-bar-legend"><span><i style="background: var(--talk)"></i>talks</span><span><i style="background: var(--poster)"></i>posters</span></div>
+<p class="legend" id="drv-bar-note" hidden>Share of that institution's (or metro's) abstracts mentioning it ÷ share of all abstracts: dot and 95% CI, log scale; the dashed line is 1×, the average.</p>
+<div class="cols bars">
+  <div><h4>Institutions</h4><div id="drv-institutes"></div></div>
+  <div><h4>Metro areas</h4><div id="drv-metros"></div></div>
+</div>
+</div>
+<div class="tip" id="drv-tip" role="tooltip" hidden></div>
+<script type="application/json" id="drv-data">{{ drivers_json }}</script>
+</section>
+{% endif %}
+
+{% if "trends_sample_size" in trends %}
+<h2 id="sample-size">Sample size</h2>
+<p>Talks report larger cohorts than posters, every year: the largest human-subject sample size
+each abstract states (“12,000 individuals”, “N = 450”); the bars span the middle half of abstracts that state one.</p>
+{{ m.figure("img/trends_sample_size.png", "Median largest stated sample size per abstract, with interquartile bars, and the share of abstracts stating a sample size, for talks and posters each year.") }}
+{% endif %}
 {% endblock %}

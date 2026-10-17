@@ -1,0 +1,13 @@
+basis,rank,region,abstracts,talks,talk_rate,ci_lo,ci_hi,baseline,countries,year
+first,1,Northern America,1926,183,0.09502,0.08271,0.1089,0.08499,United States; Canada,2026
+first,2,Asia,380,20,0.05263,0.03433,0.07989,0.08499,Japan; South Korea; China,2026
+first,3,Europe,379,29,0.07652,0.0538,0.1077,0.08499,United Kingdom; France; Germany,2026
+first,4,Africa,49,6,0.1224,0.05735,0.2424,0.08499,Kenya; Nigeria; Ghana,2026
+first,5,Latin America and the Caribbean,47,3,0.06383,0.02194,0.1716,0.08499,Brazil; Mexico; Chile,2026
+first,6,Oceania,34,3,0.08824,0.03047,0.2296,0.08499,Australia; New Zealand,2026
+senior,1,Northern America,1919,178,0.09276,0.08058,0.1066,0.08499,United States; Canada,2026
+senior,2,Europe,402,34,0.08458,0.06115,0.1159,0.08499,United Kingdom; France; Germany,2026
+senior,3,Asia,367,20,0.0545,0.03555,0.08267,0.08499,Japan; South Korea; China,2026
+senior,4,Latin America and the Caribbean,50,2,0.04,0.01104,0.1346,0.08499,Brazil; Mexico; Chile,2026
+senior,5,Oceania,40,6,0.15,0.07061,0.2907,0.08499,Australia; New Zealand,2026
+senior,6,Africa,38,5,0.1316,0.05754,0.2733,0.08499,Nigeria; South Africa; Ghana,2026

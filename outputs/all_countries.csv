@@ -1,51 +1,51 @@
 basis,rank,country,region,abstracts,talks,talk_rate,ci_lo,ci_hi,baseline,year
-first,1,United States,Northern America,8278,973,0.1175,0.1108,0.1247,0.1045,all
-first,2,United Kingdom,Europe,522,82,0.1571,0.1284,0.1908,0.1045,all
-first,3,Canada,Northern America,516,42,0.0814,0.06078,0.1082,0.1045,all
-first,4,Japan,Asia,321,24,0.07477,0.05075,0.1088,0.1045,all
-first,5,South Korea,Asia,280,15,0.05357,0.03273,0.0865,0.1045,all
-first,6,China,Asia,203,18,0.08867,0.05682,0.1358,0.1045,all
-first,7,India,Asia,172,1,0.005814,0.001027,0.03219,0.1045,all
-first,8,Germany,Europe,136,9,0.06618,0.0352,0.121,0.1045,all
-first,9,Taiwan,Asia,113,6,0.0531,0.02456,0.111,0.1045,all
-first,10,Australia,Oceania,111,15,0.1351,0.08363,0.211,0.1045,all
-first,11,Finland,Europe,110,20,0.1818,0.1209,0.2642,0.1045,all
-first,12,Italy,Europe,101,7,0.06931,0.03397,0.1362,0.1045,all
-first,13,France,Europe,90,13,0.1444,0.0864,0.2316,0.1045,all
-first,14,Switzerland,Europe,83,12,0.1446,0.08468,0.2359,0.1045,all
-first,15,Hong Kong,Asia,71,3,0.04225,0.01447,0.117,0.1045,all
-first,16,Brazil,Latin America and the Caribbean,68,1,0.01471,0.002601,0.07871,0.1045,all
-first,17,Netherlands,Europe,65,9,0.1385,0.07459,0.2427,0.1045,all
-first,18,Pakistan,Asia,65,1,0.01538,0.002721,0.08213,0.1045,all
-first,19,Denmark,Europe,58,9,0.1552,0.08384,0.2693,0.1045,all
-first,20,Qatar,Asia,58,2,0.03448,0.009508,0.1173,0.1045,all
-first,21,Mexico,Latin America and the Caribbean,54,0,0,6.478e-18,0.06642,0.1045,all
-first,22,Singapore,Asia,53,2,0.03774,0.01041,0.1275,0.1045,all
-first,23,United Arab Emirates,Asia,43,5,0.1163,0.0507,0.2448,0.1045,all
-first,24,Belgium,Europe,41,1,0.02439,0.004318,0.126,0.1045,all
-first,25,Sweden,Europe,39,4,0.1026,0.04061,0.2358,0.1045,all
-senior,1,United States,Northern America,8262,952,0.1152,0.1085,0.1223,0.1045,all
-senior,2,United Kingdom,Europe,561,86,0.1533,0.1259,0.1855,0.1045,all
-senior,3,Canada,Northern America,520,41,0.07885,0.05865,0.1052,0.1045,all
-senior,4,Japan,Asia,308,25,0.08117,0.05558,0.1171,0.1045,all
-senior,5,South Korea,Asia,276,14,0.05072,0.03045,0.08333,0.1045,all
-senior,6,China,Asia,200,14,0.07,0.04215,0.1141,0.1045,all
-senior,7,India,Asia,158,1,0.006329,0.001118,0.03498,0.1045,all
-senior,8,Germany,Europe,151,14,0.09272,0.05603,0.1496,0.1045,all
-senior,9,Australia,Oceania,118,15,0.1271,0.07857,0.1992,0.1045,all
-senior,10,Finland,Europe,110,19,0.1727,0.1135,0.2541,0.1045,all
-senior,11,Taiwan,Asia,106,6,0.0566,0.0262,0.118,0.1045,all
-senior,12,Italy,Europe,100,5,0.05,0.02154,0.1118,0.1045,all
-senior,13,France,Europe,94,13,0.1383,0.08264,0.2224,0.1045,all
-senior,14,Switzerland,Europe,79,11,0.1392,0.07956,0.2324,0.1045,all
-senior,15,Netherlands,Europe,76,11,0.1447,0.08278,0.2409,0.1045,all
-senior,16,Hong Kong,Asia,64,4,0.0625,0.02457,0.15,0.1045,all
-senior,17,Brazil,Latin America and the Caribbean,62,0,0,0,0.05835,0.1045,all
-senior,18,Denmark,Europe,53,10,0.1887,0.1059,0.3136,0.1045,all
-senior,19,Mexico,Latin America and the Caribbean,53,2,0.03774,0.01041,0.1275,0.1045,all
-senior,20,Singapore,Asia,52,2,0.03846,0.01061,0.1298,0.1045,all
-senior,21,Sweden,Europe,51,4,0.07843,0.03092,0.185,0.1045,all
-senior,22,Pakistan,Asia,48,1,0.02083,0.003687,0.109,0.1045,all
-senior,23,Qatar,Asia,48,1,0.02083,0.003687,0.109,0.1045,all
-senior,24,Belgium,Europe,44,2,0.04545,0.01255,0.1514,0.1045,all
-senior,25,United Arab Emirates,Asia,41,4,0.09756,0.0386,0.2255,0.1045,all
+first,1,United States,Northern America,9809,1140,0.1162,0.11,0.1227,0.1007,all
+first,2,Canada,Northern America,915,59,0.06448,0.05032,0.08229,0.1007,all
+first,3,United Kingdom,Europe,681,94,0.138,0.1141,0.166,0.1007,all
+first,4,Japan,Asia,409,27,0.06601,0.04576,0.09434,0.1007,all
+first,5,South Korea,Asia,352,19,0.05398,0.03482,0.08276,0.1007,all
+first,6,China,Asia,267,24,0.08989,0.06115,0.1303,0.1007,all
+first,7,India,Asia,197,1,0.005076,0.0008966,0.02819,0.1007,all
+first,8,Germany,Europe,172,11,0.06395,0.03608,0.1109,0.1007,all
+first,9,Taiwan,Asia,152,7,0.04605,0.02248,0.092,0.1007,all
+first,10,Australia,Oceania,143,18,0.1259,0.08112,0.1902,0.1007,all
+first,11,Finland,Europe,135,23,0.1704,0.1163,0.2427,0.1007,all
+first,12,France,Europe,126,17,0.1349,0.08597,0.2055,0.1007,all
+first,13,Italy,Europe,122,9,0.07377,0.03929,0.1343,0.1007,all
+first,14,Switzerland,Europe,95,14,0.1474,0.08986,0.2323,0.1007,all
+first,15,Brazil,Latin America and the Caribbean,92,2,0.02174,0.005982,0.07584,0.1007,all
+first,16,Hong Kong,Asia,81,3,0.03704,0.01267,0.1033,0.1007,all
+first,17,Pakistan,Asia,79,1,0.01266,0.002238,0.06828,0.1007,all
+first,18,Singapore,Asia,76,4,0.05263,0.02066,0.1277,0.1007,all
+first,19,Netherlands,Europe,75,10,0.1333,0.07407,0.2283,0.1007,all
+first,20,Denmark,Europe,71,10,0.1408,0.07834,0.2402,0.1007,all
+first,21,Qatar,Asia,70,4,0.05714,0.02244,0.1379,0.1007,all
+first,22,Mexico,Latin America and the Caribbean,70,2,0.02857,0.00787,0.09832,0.1007,all
+first,23,United Arab Emirates,Asia,52,5,0.09615,0.04177,0.2061,0.1007,all
+first,24,Belgium,Europe,50,1,0.02,0.003539,0.105,0.1007,all
+first,25,Spain,Europe,48,2,0.04167,0.0115,0.1398,0.1007,all
+senior,1,United States,Northern America,9810,1119,0.1141,0.1079,0.1205,0.1007,all
+senior,2,Canada,Northern America,901,53,0.05882,0.04525,0.07614,0.1007,all
+senior,3,United Kingdom,Europe,735,101,0.1374,0.1144,0.1642,0.1007,all
+senior,4,Japan,Asia,394,29,0.0736,0.05173,0.1037,0.1007,all
+senior,5,South Korea,Asia,347,19,0.05476,0.03533,0.08393,0.1007,all
+senior,6,China,Asia,263,19,0.07224,0.04673,0.1101,0.1007,all
+senior,7,Germany,Europe,186,16,0.08602,0.05364,0.1352,0.1007,all
+senior,8,India,Asia,184,1,0.005435,0.00096,0.03014,0.1007,all
+senior,9,Australia,Oceania,156,21,0.1346,0.08976,0.197,0.1007,all
+senior,10,Taiwan,Asia,141,6,0.04255,0.01965,0.08973,0.1007,all
+senior,11,Finland,Europe,134,23,0.1716,0.1172,0.2444,0.1007,all
+senior,12,France,Europe,132,18,0.1364,0.08803,0.2053,0.1007,all
+senior,13,Italy,Europe,117,6,0.05128,0.02371,0.1074,0.1007,all
+senior,14,Netherlands,Europe,90,12,0.1333,0.07795,0.2187,0.1007,all
+senior,15,Switzerland,Europe,88,13,0.1477,0.08841,0.2365,0.1007,all
+senior,16,Brazil,Latin America and the Caribbean,87,0,0,0,0.04229,0.1007,all
+senior,17,Hong Kong,Asia,74,4,0.05405,0.02122,0.1309,0.1007,all
+senior,18,Singapore,Asia,74,4,0.05405,0.02122,0.1309,0.1007,all
+senior,19,Denmark,Europe,71,11,0.1549,0.08877,0.2565,0.1007,all
+senior,20,Mexico,Latin America and the Caribbean,69,4,0.05797,0.02277,0.1398,0.1007,all
+senior,21,Sweden,Europe,62,6,0.09677,0.04511,0.1955,0.1007,all
+senior,22,Pakistan,Asia,61,1,0.01639,0.0029,0.08719,0.1007,all
+senior,23,Qatar,Asia,56,3,0.05357,0.01839,0.1461,0.1007,all
+senior,24,Belgium,Europe,52,2,0.03846,0.01061,0.1298,0.1007,all
+senior,25,United Arab Emirates,Asia,50,4,0.08,0.03155,0.1884,0.1007,all

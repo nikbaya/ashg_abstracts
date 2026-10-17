@@ -36,17 +36,6 @@
   apply();
 })();
 
-// Filter box: hides table rows whose text doesn't contain the query.
-document.querySelectorAll("[data-filter]").forEach(input => input.addEventListener("input", () => {
-  const q = input.value.trim().toLowerCase();
-  document.querySelectorAll("table.filterable").forEach(table => {
-    let shown = 0;
-    [...table.tBodies[0].rows].forEach(r => { r.hidden = q && !r.textContent.toLowerCase().includes(q); shown += !r.hidden; });
-    const note = table.parentElement.querySelector(".empty");
-    if (note) note.hidden = shown > 0;
-  });
-}));
-
 // Sortable tables: click a header; cells keep the raw value in data-v so numbers sort numerically.
 document.querySelectorAll("table.sortable").forEach(table => {
   table.querySelectorAll("th").forEach((th, col) => th.addEventListener("click", () => {
@@ -72,18 +61,40 @@ document.querySelectorAll("table.sortable").forEach(table => {
   let year = "all";
   const node = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
   const pct = v => (100 * v).toFixed(v < 0.1 ? 1 : 0) + "%";
-  const byPhrase = Object.fromEntries(data.phrases.map(p => [p.phrase, p]));
+  const x2 = v => v.toFixed(v < 10 ? 1 : 0) + "×";
+  // 95% CIs. rateRatio: (a/n1) ÷ (c/n2), Katz log interval, +0.5 to a zero count.
+  // wilson: proportion k/n, the interval the site uses for talk rates.
+  const rateRatio = (a, n1, c, n2) => {
+    const r = (a / n1) / (c / n2), [aa, cc] = [a || 0.5, c || 0.5];
+    const se = Math.sqrt(1 / aa - 1 / n1 + 1 / cc - 1 / n2), lr = Math.log((aa / n1) / (cc / n2));
+    return [r, a ? Math.exp(lr - 1.96 * se) : 0, Math.exp(lr + 1.96 * se)];
+  };
+  const wilson = (k, n, z = 1.96) => {
+    const p = k / n, d = 1 + z * z / n, c = (p + z * z / (2 * n)) / d;
+    const h = z * Math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d;
+    return [Math.max(0, c - h), Math.min(1, c + h)];
+  };
+  // every other phrase in 5+ talks, searchable but without the institution/metro breakdown:
+  // [phrase, [talks, posters] per year flattened, or, lo, hi], most-mentioned first
+  const MORE = "More phrases (abstract text only)", MORE_MAX = 150;
+  const more = (data.more || []).map(([phrase, flat, ...or]) =>
+    ({ phrase, group: MORE, counts: data.years.map((_, i) => [flat[2 * i], flat[2 * i + 1]]), or }));
+  const byPhrase = Object.fromEntries([...data.phrases, ...more].map(p => [p.phrase, p]));
 
   function fillOptions(q) {
     const keep = phraseSel.value;
     phraseSel.replaceChildren();
     const groups = {};
     data.phrases.filter(p => !q || p.phrase.toLowerCase().includes(q)).forEach(p => (groups[p.group] ??= []).push(p.phrase));
+    const extra = q ? more.filter(p => p.phrase.toLowerCase().includes(q)) : [];
+    if (extra.length) groups[MORE] = extra.slice(0, MORE_MAX).map(p => p.phrase);
     Object.entries(groups).forEach(([g, ps]) => {
       const og = document.createElement("optgroup"); og.label = g;
       ps.forEach(p => { const o = node("option", null, p); o.value = p; og.appendChild(o); });
       phraseSel.appendChild(og);
     });
+    if (extra.length > MORE_MAX)
+      phraseSel.lastChild.appendChild(node("option", null, `…${extra.length - MORE_MAX} more; keep typing`)).disabled = true;
     if (!phraseSel.options.length) phraseSel.appendChild(node("option", null, "No matching phrase")).disabled = true;
     else if ([...phraseSel.options].some(o => o.value === keep)) phraseSel.value = keep;
   }
@@ -100,30 +111,59 @@ document.querySelectorAll("table.sortable").forEach(table => {
     if (text != null) n.textContent = text;
     return n;
   };
+  let mode = "abs";  // "abs": share of talks and of posters (two lines); "rel": talk share ÷ poster share (one line)
+  const modeSeg = document.getElementById("drv-mode");
+  modeSeg?.addEventListener("click", ev => {
+    const b = ev.target.closest("button");
+    if (!b) return;
+    mode = b.dataset.mode;
+    modeSeg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    if (byPhrase[phraseSel.value]) drawChart(byPhrase[phraseSel.value]);
+  });
+
   function drawChart(p) {
-    // share of talks and of posters mentioning the phrase, per year
     const W = 360, H = 150, L = 40, R = 18, T = 12, B = 24;
-    const series = [["talk", 0], ["poster", 1]].map(([k, i]) =>
-      [k, p.counts.map((c, y) => c[i] / data.totals[y][i])]);
-    const top = Math.max(...series.flatMap(([, v]) => v)) * 1.15 || 0.01;
-    const step = [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2].find(s => top / s <= 4) ?? 0.25;
+    const shares = [0, 1].map(i => p.counts.map((c, y) => c[i] / data.totals[y][i]));
+    // in "rel" mode a year with no poster mentions has no ratio and is skipped
+    const ci = p.counts.map(([a, c], y) => (c ? rateRatio(a, data.totals[y][0], c, data.totals[y][1]) : null));
+    const series = mode === "abs" ? [["talk", shares[0]], ["poster", shares[1]]] : [["ratio", ci.map(r => r && r[0])]];
+    const vals = series.flatMap(([, v]) => v).filter(v => v != null);
+    // intervals set the scale, but an extreme one is cut off rather than flattening the line
+    const his = mode === "rel" ? ci.filter(Boolean).map(r => Math.min(r[2], 3 * Math.max(...vals, 1))) : [];
+    const top = Math.max(...vals, ...his, mode === "rel" ? 1 : 0) * 1.1 || 0.01;
+    const steps = mode === "abs" ? [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2] : [0.1, 0.2, 0.25, 0.5, 1, 2, 5, 10];
+    const step = steps.find(s => top / s <= 4) ?? steps[steps.length - 1] * 2;
+    const tick = v => mode === "abs" ? (100 * v).toFixed(step < 0.01 ? 1 : 0) + "%" : +v.toFixed(2) + "×";
     const x = i => L + (W - L - R) * (data.years.length > 1 ? i / (data.years.length - 1) : 0.5);
     const y = v => T + (H - T - B) * (1 - v / top);
     chart.replaceChildren();
     for (let v = 0; v <= top + 1e-9; v += step) {
       chart.appendChild(svg("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), class: "grid" }));
-      chart.appendChild(svg("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end", class: "axis" }, (100 * v).toFixed(step < 0.01 ? 1 : 0) + "%"));
+      chart.appendChild(svg("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end", class: "axis" }, tick(v)));
+    }
+    if (mode === "rel") {
+      chart.appendChild(svg("line", { x1: L, x2: W - R, y1: y(1), y2: y(1), class: "ref" }));
+      ci.forEach((r, i) => r && chart.appendChild(svg("line", { x1: x(i), x2: x(i), y1: y(r[1]), y2: y(Math.min(r[2], top)), class: "ci" })));
     }
     data.years.forEach((yr, i) => chart.appendChild(svg("text", { x: x(i), y: H - 6, "text-anchor": "middle", class: "axis" }, yr)));
     series.forEach(([k, v]) => {
-      chart.appendChild(svg("polyline", { points: v.map((s, i) => `${x(i)},${y(s)}`).join(" "), class: "line " + k }));
-      v.forEach((s, i) => {
+      const pts = v.map((s, i) => [i, s]).filter(([, s]) => s != null);
+      chart.appendChild(svg("polyline", { points: pts.map(([i, s]) => `${x(i)},${y(s)}`).join(" "), class: "line " + k }));
+      pts.forEach(([i, s]) => {
         const dot = svg("circle", { cx: x(i), cy: y(s), r: 4, class: "dot " + k });
-        dot.appendChild(svg("title", {}, `${data.years[i]}: ${pct(s)} of ${k}s (${p.counts[i][k === "talk" ? 0 : 1]})`));
+        const [t, q] = p.counts[i];
+        dot.appendChild(svg("title", {}, k === "ratio"
+          ? `${data.years[i]}: ${s.toFixed(2)}× (95% CI ${ci[i][1].toFixed(2)}–${ci[i][2].toFixed(2)}; ` +
+            `${pct(shares[0][i])} of talks vs ${pct(shares[1][i])} of posters)`
+          : `${data.years[i]}: ${pct(s)} of ${k}s (${k === "talk" ? t : q})`));
         chart.appendChild(dot);
       });
     });
-    chart.setAttribute("aria-label", `Share of talks and of posters mentioning “${p.phrase}”, by year`);
+    document.getElementById("drv-legend").hidden = mode !== "abs";
+    document.getElementById("drv-ratio-note").hidden = mode !== "rel";
+    chart.setAttribute("aria-label", mode === "abs"
+      ? `Share of talks and of posters mentioning “${p.phrase}”, by year`
+      : `Share of talks divided by share of posters mentioning “${p.phrase}”, by year`);
     const [or, lo, hi] = p.or, f = v => v.toFixed(2);
     const or_ = document.getElementById("drv-or");
     or_.replaceChildren(node("strong", null, `${f(or)}×`),
@@ -137,7 +177,19 @@ document.querySelectorAll("table.sortable").forEach(table => {
   });
   phraseSel.addEventListener("change", render);
 
-  function showTip(ev, row, phrase) {
+  // "abs": bars count abstracts mentioning the phrase, split talk/poster; "rel": each entity's mention rate
+  // ÷ the mention rate over all abstracts in the period (1× = average)
+  let barMode = "abs";
+  const barSeg = document.getElementById("drv-bar-mode");
+  barSeg?.addEventListener("click", ev => {
+    const b = ev.target.closest("button");
+    if (!b) return;
+    barMode = b.dataset.mode;
+    barSeg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    render();
+  });
+
+  function showTip(ev, row, phrase, base) {
     const [name, talks, posters, total] = row, n = talks + posters;
     tip.replaceChildren();
     tip.appendChild(node("strong", null, `${n} abstract${n === 1 ? "" : "s"}`));
@@ -147,41 +199,83 @@ document.querySelectorAll("table.sortable").forEach(table => {
       d.append(key, `${v} ${label}`); tip.appendChild(d);
     });
     tip.appendChild(node("div", null, `${pct(n / total)} of its ${total} abstracts${year === "all" ? "" : " in " + year}`));
+    const [lo, hi] = wilson(n, total).map(v => v / base);
+    tip.appendChild(node("div", null, `${(n / total / base).toFixed(1)}× the rate over all abstracts (${pct(base)}); ` +
+      `95% CI ${lo.toFixed(1)}–${hi.toFixed(1)}×`));
     tip.hidden = false;
     const r = ev.type === "focus" ? ev.target.getBoundingClientRect() : { left: ev.clientX, bottom: ev.clientY };
     tip.style.left = Math.min(r.left + 12, innerWidth - tip.offsetWidth - 8) + "px";
     tip.style.top = Math.min(r.bottom + 12, innerHeight - tip.offsetHeight - 8) + "px";
   }
 
-  function list(container, rows, phrase) {
+  function list(container, rows, phrase, base) {
     container.replaceChildren();
     if (!rows.length) { container.appendChild(node("p", "empty", "None with a talk mentioning it.")); return; }
+    const ratio = r => (r[1] + r[2]) / r[3] / base;
+    const ci = r => wilson(r[1] + r[2], r[3]).map(v => v / base);  // the overall rate is treated as fixed
+    const rel = barMode === "rel";
+    if (rel) rows = [...rows].sort((a, b) => ratio(b) - ratio(a));
     const max = Math.max(...rows.map(r => r[1] + r[2]));
+    // "rel" is a forest plot on a log scale spanning every interval and 1×; rows have a talk mentioning
+    // the phrase, so every lower bound is above 0
+    const lo0 = Math.min(1, ...rows.map(r => ci(r)[0])) / 1.15, hi0 = Math.max(1, ...rows.map(r => ci(r)[1])) * 1.15;
+    const pos = v => 100 * Math.log(v / lo0) / Math.log(hi0 / lo0) + "%";
     rows.forEach(row => {
       const [name, talks, posters] = row, n = talks + posters;
       const r = node("div", "bar-row"); r.tabIndex = 0;
       r.appendChild(node("span", "name", name));
-      const track = node("span", "track"); track.style.width = (100 * n / max) + "%";
-      [["seg-talk", talks], ["seg-poster", posters]].forEach(([cls, v]) => {
-        if (v) { const seg = node("span", cls); seg.style.flex = String(v); track.appendChild(seg); }
-      });
-      const cell = node("span"); cell.appendChild(track); r.appendChild(cell);
-      r.appendChild(node("span", "val", `${n} (${talks} talk${talks === 1 ? "" : "s"})`));
-      r.addEventListener("pointermove", ev => showTip(ev, row, phrase));
-      r.addEventListener("focus", ev => showTip(ev, row, phrase));
+      const cell = node("span", "cell");
+      if (rel) {
+        const [lo, hi] = ci(row), ref = node("span", "ref"), line = node("span", "ci"), dot = node("span", "pt");
+        ref.style.left = pos(1);
+        line.style.left = pos(lo); line.style.width = `calc(${pos(hi)} - ${pos(lo)})`;
+        dot.style.left = pos(ratio(row));
+        cell.append(ref, line, dot);
+      } else {
+        const track = node("span", "track");
+        track.style.width = (100 * n / max) + "%";
+        [["seg-talk", talks], ["seg-poster", posters]].forEach(([cls, v]) => {
+          if (v) { const seg = node("span", cls); seg.style.flex = String(v); track.appendChild(seg); }
+        });
+        cell.appendChild(track);
+      }
+      r.appendChild(cell);
+      r.appendChild(node("span", "val", rel ? `${x2(ratio(row))} (${ci(row).map(v => v.toFixed(1)).join("–")})`
+        : `${n} (${talks} talk${talks === 1 ? "" : "s"})`));
+      r.addEventListener("pointermove", ev => showTip(ev, row, phrase, base));
+      r.addEventListener("focus", ev => showTip(ev, row, phrase, base));
       ["pointerleave", "blur"].forEach(t => r.addEventListener(t, () => { tip.hidden = true; }));
       container.appendChild(r);
     });
+    if (!rel) return;
+    // tick axis under the forest plot, aligned with the plot column
+    const axis = node("div", "bar-row axis"), cell = node("span", "cell");
+    [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50].filter(v => v >= lo0 && v <= hi0).forEach(v => {
+      const t = node("span", "tick", v + "×"); t.style.left = pos(v); cell.appendChild(t);
+    });
+    axis.append(node("span"), cell, node("span"));
+    container.appendChild(axis);
   }
 
   function render() {
-    const phrase = phraseSel.value, d = data.drivers[phrase][year], n = d.talks + d.posters;
-    drawChart(byPhrase[phrase]);
+    const phrase = phraseSel.value, p = byPhrase[phrase];
+    if (!p) return;
+    drawChart(p);
+    const who = document.getElementById("drv-who"), none = document.getElementById("drv-none");
+    who.hidden = !data.drivers[phrase];
+    none.hidden = !who.hidden;
+    if (who.hidden) return;
+    const d = data.drivers[phrase][year], n = d.talks + d.posters;
     document.getElementById("drv-summary").textContent =
       `${n} abstracts mention “${phrase}” ${year === "all" ? "across all years" : "in " + year} ` +
       `(${d.talks} talks, ${d.posters} posters); ${d.unmatched} have no matched first-author institution.`;
-    list(document.getElementById("drv-institutes"), d.institutes, phrase);
-    list(document.getElementById("drv-metros"), d.metros, phrase);
+    // mention rate over every complete abstract in the period: the 1× of the ratio bars
+    const totals = year === "all" ? data.totals : [data.totals[data.years.indexOf(+year)]];
+    const base = n / totals.reduce((s, [t, q]) => s + t + q, 0);
+    document.getElementById("drv-bar-legend").hidden = barMode !== "abs";
+    document.getElementById("drv-bar-note").hidden = barMode !== "rel";
+    list(document.getElementById("drv-institutes"), d.institutes, phrase, base);
+    list(document.getElementById("drv-metros"), d.metros, phrase, base);
   }
   render();
 })();

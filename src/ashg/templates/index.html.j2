@@ -2,6 +2,7 @@
 {% import "macros.html.j2" as m %}
 {% block content %}
 {% set latest = years[-1] %}
+{% set p = pooled or latest %}
 <h1>{{ page.title }}</h1>
 <p class="lede">Every year the American Society of Human Genetics picks a few hundred of its several thousand accepted
 abstracts for a talk; the rest become posters. This site parses the published abstract booklets
@@ -10,155 +11,44 @@ abstracts for a talk; the rest become posters. This site parses the published ab
 can ask for a poster. "Talk rate" is the fraction of accepted abstracts presented as a talk, not an acceptance
 rate or a quality score. Every number here is an association.</p>
 
-<div class="stats">
-{% for y in years %}
-  <a class="stat" href="phrases.html#{{ y.year }}">
-    <div class="where">ASHG {{ y.year }}{% if y.host %} · {{ y.host }}{% endif %}</div>
-    <div class="big">{{ "%.1f"|format(100 * y.summary.talk_rate) }}%</div>
-    <div class="small">talk rate: {{ "{:,}".format(y.summary.talks) }} talks of {{ "{:,}".format(y.summary.abstracts) }} abstracts</div>
-  </a>
-{% endfor %}
-{% if pooled %}
-  <a class="stat" href="#all-years">
-    <div class="where">All years · {{ pooled.label }}</div>
-    <div class="big">{{ "%.1f"|format(100 * pooled.summary.talk_rate) }}%</div>
-    <div class="small">talk rate: {{ "{:,}".format(pooled.summary.talks) }} talks of {{ "{:,}".format(pooled.summary.abstracts) }} abstracts</div>
-  </a>
-{% endif %}
-</div>
+{{ m.figure("img/%s_headline.png" % ("all" if pooled else latest.year), "Dot plot of the phrases most over-represented in ASHG %s talks versus posters, with odds ratios and 95%% confidence intervals." % p.label) }}
+<p>{% if pooled %}Over all {{ years | length }} meetings ({{ "{:,}".format(p.summary.abstracts) }} abstracts,
+{{ "{:,}".format(p.summary.talks) }} talks), {% endif %}talks over-index on
+“{{ p.top_phrases.talk | join("”, “") }}”; posters on “{{ p.top_phrases.poster | join("”, “") }}”.
+<a href="phrases.html">Each year, phrase trends and a phrase lookup →</a></p>
 
-{% if pooled %}
-{% set p = pooled %}
-<h2 id="all-years">All years, {{ p.label }}</h2>
-<p>Every meeting pooled: {{ "{:,}".format(p.summary.abstracts) }} abstracts, {{ "{:,}".format(p.summary.talks) }} of
-them talks. Talk rates are pooled counts (talks ÷ abstracts over all years), compared with the pooled baseline of
-{{ "%.1f"|format(100 * p.summary.talk_rate) }}%; the baseline itself ranges from
+{% if "trends_talk_rate" in trends %}
+<h2 id="talk-rate">Talk rate by year</h2>
+<p>The share of accepted abstracts presented as a talk ranges from
 {{ "%.1f"|format(100 * (years | map(attribute="summary.talk_rate") | min)) }}% to
-{{ "%.1f"|format(100 * (years | map(attribute="summary.talk_rate") | max)) }}% by year. Per-year versions of everything
-here are on the topic pages.</p>
-<nav class="toc" aria-label="All years">
-<a href="#all-phrases">Phrases</a>
-{% if "trends_phrases" in trends %}<a href="#phrase-trends">Phrase trends</a>{% endif %}
-{% if drivers_json %}<a href="#explorer">Look up a phrase</a>{% endif %}
-<a href="#all-institutions">Institutions</a>
-<a href="#all-regions">World regions</a>
-<a href="#all-metros">Metro areas</a>
-<a href="#all-countries">Countries</a>
-<a href="#all-authors">Senior authors</a>
-<a href="#by-year">By year</a>
-</nav>
-{{ m.toolbar(basis=True, filter="Institution, country or metro…") }}
-
-<h3 id="all-phrases">Phrases that predict a talk</h3>
-<p>Odds ratios are combined across years (Mantel–Haenszel, stratified by year), so a phrase that rose or fell
-over time isn't credited with each year's different baseline. {{ "{:,}".format(p.summary.truncated) }} abstracts cut off
-in a booklet are left out of the phrase counts.</p>
-{{ m.figure("img/all_headline.png", "Dot plot of the phrases most over-represented in ASHG %s talks versus posters, with odds ratios and 95%% confidence intervals." % p.label) }}
-{% call m.details("Top 30 phrases each way") %}
-<div class="cols">
-{% for dir, label in [("talk", "More common in talks"), ("poster", "More common in posters")] %}
-<div class="scroll"><p class="table-title"><span class="key" style="background: var(--{{ dir }})"></span>{{ label }}</p>
-{{ p.premium[dir] }}</div>
-{% endfor %}
-</div>
-{% endcall %}
-
-{% if "trends_phrases" in trends %}
-<h3 id="phrase-trends">Phrase trends</h3>
-{{ m.figure("img/trends_phrases.png", "For selected phrases, the share of talks and of posters mentioning each one, per year.") }}
+{{ "%.1f"|format(100 * (years | map(attribute="summary.talk_rate") | max)) }}% by year. Every talk rate on this site is
+compared with its own year's rate, or with the pooled rate for all years.</p>
+{{ m.figure("img/trends_talk_rate.png", "Talk rate per year: the share of accepted abstracts presented as a talk, with each year's talk and abstract counts and host city.") }}
 {% endif %}
 
-{% if drivers_json %}
-<section class="explorer">
-<h3 id="explorer">Look up a phrase</h3>
-<p>The phrases above plus the top 50 each way across all years. See how often talks and posters mention a phrase
-each year, then which first-author institutions and metro areas write about it (among those with at least one
-talk mentioning it; an abstract counts for each of its institutions). Hover or focus a row for that institution's
-own mention rate.</p>
-<div class="filters">
-  <label>Find <input type="search" id="drv-search" placeholder="e.g. enhancer" autocomplete="off"></label>
-  <label>Phrase <select id="drv-phrase"></select></label>
-</div>
-<div class="drv-trend">
-  <svg id="drv-chart" role="img" viewBox="0 0 360 150"></svg>
-  <div><p id="drv-or"></p>
-  <div class="legend"><span><i style="background: var(--talk)"></i>share of talks</span><span><i style="background: var(--poster)"></i>share of posters</span></div></div>
-</div>
-<div class="filters"><span class="lbl">Who writes about it</span><span class="seg" id="drv-year" role="group" aria-label="Year"></span></div>
-<p id="drv-summary"></p>
-<div class="legend"><span><i style="background: var(--talk)"></i>talks</span><span><i style="background: var(--poster)"></i>posters</span></div>
-<div class="cols bars">
-  <div><h4>Institutions</h4><div id="drv-institutes"></div></div>
-  <div><h4>Metro areas</h4><div id="drv-metros"></div></div>
-</div>
-<div class="tip" id="drv-tip" role="tooltip" hidden></div>
-<script type="application/json" id="drv-data">{{ drivers_json }}</script>
-</section>
-{% endif %}
-
-<h3 id="all-institutions">Institutions with the highest talk rate</h3>
-<p>The 20 highest talk rates among the 50 institutions with the most abstracts over all years. Credit goes to every
-institution of the first author, or, with the toggle, of the senior (last) author.</p>
-{{ m.basis_figures("all", "institutions", "the 20 institutions with the highest talk rate among the 50 largest", p.label) }}
-{% call m.details("All 50 institutions") %}{{ m.by_basis(p.institutions) }}{% endcall %}
-
-<h3 id="all-regions">World regions</h3>
-<p>Country of the author's affiliations, grouped into UN regions; an abstract counts once per region.
-{% for y in years if y.summary.first_country_coverage < 0.95 %}In {{ y.year }} only
-{{ "{:.0%}".format(y.summary.first_country_coverage) }} of abstracts could be placed, and the misses lean non-US.
-{% endfor %}</p>
-{{ m.basis_figures("all", "regions", "each world region", p.label) }}
-{% if "trends_regions" in trends %}
-{{ m.figure("img/trends_regions.png", "Talk rate per year for each world region, with 95% intervals.", "Year by year, first author.") }}
-{% endif %}
-{% call m.details("Regions table") %}{{ m.by_basis(p.regions) }}{% endcall %}
-
-<h3 id="all-metros">Metro areas</h3>
-<p>Institutions grouped by metro area; an abstract counts once per metro. Multi-metro institutions are left out
-({{ "{:.0%}".format(p.summary.first_metro_coverage) }} of abstracts have a first-author metro). The figure shows the
-20 metro areas with the most accepted abstracts over all years. Each meeting's host city tends to bring extra
-posters that year.</p>
-{{ m.basis_figures("all", "metros", "the 20 metro areas with the most accepted abstracts", p.label) }}
-{% if "trends_metros" in trends %}
-{{ m.figure("img/trends_metros.png", "Abstracts and talk rate per year for the largest metro areas, with each year's host city marked.", "Year by year, first author.") }}
-{% endif %}
-{% call m.details("Top 30 metro areas") %}{{ m.by_basis(p.metros) }}{% endcall %}
-
-<h3 id="all-countries">Countries</h3>
-<p>The 25 countries with the most abstracts over all years.</p>
-{% call m.details("Top 25 countries") %}{{ m.by_basis(p.countries) }}{% endcall %}
-
-<h3 id="all-authors">Senior authors with the highest talk rate</h3>
-<p>Senior (last) authors with at least {{ p.min_abstracts }} abstracts over all years, ranked by the lower end of the
-95% Wilson interval. The 2022–2024 booklets give only initials, so across years the same person is the same first
-initial + last name; for common surnames they must also share an institution, and two different spelled-out first
-names (2025) are kept apart.</p>
-{{ m.figure("img/all_senior_authors.png", "Talk rate with 95%% intervals for the top senior authors at ASHG %s." % p.label) }}
-<div class="scroll">{{ p.senior_authors }}</div>
-{% endif %}
-
-<h2 id="by-year">By year</h2>
+<h2 id="explore">Explore</h2>
+<p>Each page has a year toggle: all years pooled, or one meeting at a time.</p>
 <div class="cards">
   <a class="card" href="phrases.html">
-    <img src="img/{{ latest.year }}_headline.png" alt="" loading="lazy">
+    <img src="img/trends_phrases.png" alt="" loading="lazy">
     <div class="body"><h3>Phrases</h3>
-    <p>In {{ latest.year }}, talks over-index on “{{ latest.top_phrases.talk | join("”, “") }}”; posters on
-    “{{ latest.top_phrases.poster | join("”, “") }}”.</p><span class="more">Phrases that predict a talk →</span></div>
+    <p>Phrases that predict a talk, how they trend year to year, a lookup for any phrase, and sample sizes in talks
+    versus posters.</p><span class="more">Phrases →</span></div>
   </a>
   <a class="card" href="institutions.html">
-    <img src="img/{{ latest.year }}_institutions.png" alt="" loading="lazy">
+    <img src="img/{{ 'all' if pooled else latest.year }}_institutions.png" alt="" loading="lazy">
     <div class="body"><h3>Institutions</h3>
-    <p>Which of the largest institutions have the highest talk rate, crediting the first or the senior author. Search for your own.</p>
+    <p>Which of the largest institutions have the highest talk rate, crediting the first author.</p>
     <span class="more">Institutions →</span></div>
   </a>
   <a class="card" href="geography.html">
-    <img src="img/{{ latest.year }}_regions.png" alt="" loading="lazy">
+    <img src="img/{{ 'all' if pooled else latest.year }}_regions.png" alt="" loading="lazy">
     <div class="body"><h3>Geography</h3>
     <p>Talk rate by world region, country and metro area, including the host-city effect.</p>
     <span class="more">Regions, countries and metros →</span></div>
   </a>
   <a class="card" href="authors.html">
-    <img src="img/{{ latest.year }}_senior_authors.png" alt="" loading="lazy">
+    <img src="img/{{ 'all' if pooled else latest.year }}_senior_authors.png" alt="" loading="lazy">
     <div class="body"><h3>Senior authors</h3>
     <p>Senior authors with the most consistent record of talks, ranked by the lower end of a 95% interval.</p>
     <span class="more">Senior authors →</span></div>

@@ -30,9 +30,9 @@ PAGES = [  # (file, nav label, page title)
     ("authors.html", "Senior authors", "Senior authors with the highest talk rate"),
     ("methods.html", "Methods", "Methods and caveats"),
 ]
-YEAR_FIGURES = ("headline", "institutions", "institutions_senior", "metros", "metros_senior", "regions",
-                "regions_senior", "senior_authors")
-TREND_FIGURES = ("trends_phrases", "trends_regions", "trends_metros")
+YEAR_FIGURES = ("headline", "institutions", "metros", "regions", "senior_authors")
+TREND_FIGURES = ("trends_talk_rate", "trends_phrases", "trends_shift", "trends_sample_size", "trends_regions",
+                 "trends_metros")
 EXPLORER_ROWS = 10
 
 
@@ -45,7 +45,7 @@ def with_talks(df):
     return df[df.talks > 0]
 
 
-def table(df, columns, sorted_by=None, filterable=False):
+def table(df, columns, sorted_by=None):
     """columns: [(header, column, formatter or None, kind)] -> sortable HTML table. kind is "num",
     "text", or "html" (pre-escaped markup, sorted by the column `{column}_sort`). Cells keep the raw
     value in data-v so sorting is numeric."""
@@ -66,9 +66,7 @@ def table(df, columns, sorted_by=None, filterable=False):
             cls = "" if kind == "num" else "text"
             cells.append(f'<td class="{cls}" data-v="{html.escape(str(v))}">{html.escape(str(shown))}</td>')
         rows.append("<tr>" + "".join(cells) + "</tr>")
-    cls = "sortable filterable" if filterable else "sortable"
-    out = f'<table class="{cls}"><thead><tr>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table>'
-    return out + ('<p class="empty" hidden>No matches.</p>' if filterable else "")
+    return f'<table class="sortable"><thead><tr>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table>'
 
 
 def ci(r):
@@ -79,9 +77,10 @@ SHARE_COLS = [("Abstracts", "abstracts", None, "num"), ("Talks", "talks", None, 
               ("Talk rate", "talk_rate", pct, "num"), ("95% CI", "ci", None, "num")]
 
 
-def by_basis(df, columns, **kw):
-    df = df.assign(ci=df.apply(ci, axis=1))
-    return {b: table(df[df.basis == b], columns, sorted_by="abstracts", **kw) for b in ("first", "senior")}
+def first_author(df, columns):
+    """Table of first-author credit (the outputs CSVs also hold senior-author rows, not shown on the site)."""
+    df = df[df.basis == "first"]
+    return table(df.assign(ci=df.apply(ci, axis=1)), columns, sorted_by="abstracts")
 
 
 def phrase_cell(r):
@@ -124,14 +123,13 @@ def year_context(out, year, label=None):
         "summary": summary,
         "top_phrases": top,
         "premium": {d: table(premium[premium.direction == d], prem_cols) for d in ("talk", "poster")},
-        "institutions": by_basis(inst, [("Institution", "institute", None, "text")] + SHARE_COLS, filterable=True),
-        "metros": by_basis(metros, [("Metro area", "metro", None, "text"),
-                                    ("Largest institutions", "institutes", None, "text")] + SHARE_COLS,
-                           filterable=True),
-        "regions": by_basis(regions, [("Region", "region", None, "text"),
-                                      ("Largest countries", "countries", None, "text")] + SHARE_COLS),
-        "countries": by_basis(countries, [("Country", "country", None, "text"), ("Region", "region", None, "text")]
-                              + SHARE_COLS, filterable=True),
+        "institutions": first_author(inst, [("Institution", "institute", None, "text")] + SHARE_COLS),
+        "metros": first_author(metros, [("Metro area", "metro", None, "text"),
+                                        ("Largest institutions", "institutes", None, "text")] + SHARE_COLS),
+        "regions": first_author(regions, [("Region", "region", None, "text"),
+                                          ("Largest countries", "countries", None, "text")] + SHARE_COLS),
+        "countries": first_author(countries, [("Country", "country", None, "text"),
+                                              ("Region", "region", None, "text")] + SHARE_COLS),
         "senior_authors": table(authors, [("#", "rank", None, "num"), ("Senior author", "name", None, "text"),
                                           ("Main institution", "institute", None, "text")] + SHARE_COLS),
         "min_abstracts": int(authors.min_abstracts.iloc[0]) if len(authors) else 5,
@@ -174,6 +172,8 @@ def main():
             shutil.copy(out / f"all_{fig}.png", docs / "img" / f"all_{fig}.png")
     stale = docs / "trends.html"  # merged into the overview
     stale.unlink(missing_ok=True)
+    for f in (docs / "img").glob("*_senior.png"):  # senior-author credit figures are no longer on the site
+        f.unlink()
     for f in (TEMPLATES / "static").iterdir():
         shutil.copy(f, docs / "assets" / f.name)
     drivers = out / "trends_drivers.json"

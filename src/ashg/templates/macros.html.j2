@@ -1,18 +1,10 @@
-{% macro toolbar(years=None, basis=False, filter=None) %}
+{% macro toolbar(years, pooled=None) %}
 <div class="toolbar">
-  {% if years %}
   <span class="lbl">Year</span>
-  <span class="seg" role="group" aria-label="Year" data-control="year" data-default="{{ years[-1].year }}">
+  <span class="seg" role="group" aria-label="Year" data-control="year" data-default="{{ 'all' if pooled else years[-1].year }}">
+  {% if pooled %}<button type="button" data-value="all">All years</button>{% endif %}
   {% for y in years %}<button type="button" data-value="{{ y.year }}">{{ y.year }}</button>{% endfor %}
   </span>
-  {% endif %}
-  {% if basis %}
-  <span class="lbl">Credit</span>
-  <span class="seg" role="group" aria-label="Credit" data-control="basis">
-    <button type="button" data-value="first">First author</button><button type="button" data-value="senior">Senior author</button>
-  </span>
-  {% endif %}
-  {% if filter %}<label>Find <input type="search" data-filter placeholder="{{ filter }}"></label>{% endif %}
 </div>
 {% endmacro %}
 
@@ -23,21 +15,16 @@
 </figure>
 {% endmacro %}
 
-{% macro by_basis(tables) %}
-<div class="scroll" data-show-basis="first"><p class="table-title">By first author</p>{{ tables.first }}</div>
-<div class="scroll" data-show-basis="senior"><p class="table-title">By senior author</p>{{ tables.senior }}</div>
+{% macro first_author_table(table) %}
+<div class="scroll"><p class="table-title">By first author</p>{{ table }}</div>
 {% endmacro %}
 
 {% macro year_heading(y) %}
 <h2>ASHG {{ y.year }}{% if y.host %} <span class="sub">· {{ y.host }}</span>{% endif %}</h2>
 {% endmacro %}
 
-{% macro basis_figures(year, name, what, label=None) %}
-{% for basis, role, suffix in [("first", "first author", ""), ("senior", "senior author", "_senior")] %}
-<div data-show-basis="{{ basis }}">
-{{ figure("img/%s_%s%s.png" % (year, name, suffix), "Talk rate with 95%% intervals for %s by %s, ASHG %s." % (what, role, label or year)) }}
-</div>
-{% endfor %}
+{% macro first_author_figure(year, name, what, label=None) %}
+{{ figure("img/%s_%s.png" % (year, name), "Talk rate with 95%% intervals for %s by first author, ASHG %s." % (what, label or year)) }}
 {% endmacro %}
 
 {% macro details(summary) %}

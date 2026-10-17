@@ -1,0 +1,61 @@
+basis,rank,metro,abstracts,talks,talk_rate,ci_lo,ci_hi,baseline,institutes,year
+first,1,Boston,177,25,0.1412,0.09753,0.2002,0.08499,Broad Institute; Harvard Medical School; Massachusetts General Hospital,2026
+first,2,Montreal,150,7,0.04667,0.02279,0.09319,0.08499,McGill University; Université de Montréal; Montreal Heart Institute,2026
+first,3,"Washington, DC",98,13,0.1327,0.07919,0.2138,0.08499,NIH; GeneDx; Vanda Pharmaceuticals,2026
+first,4,New York,88,12,0.1364,0.07976,0.2234,0.08499,Icahn School of Medicine at Mount Sinai; Columbia University; New York Genome Center,2026
+first,5,Toronto,88,4,0.04545,0.01782,0.1111,0.08499,University of Toronto; The Hospital for Sick Children; Ontario Institute for Cancer Research,2026
+first,6,SF Bay Area,79,12,0.1519,0.08908,0.247,0.08499,Stanford University; UC San Francisco; Helix,2026
+first,7,Los Angeles,60,8,0.1333,0.06914,0.2417,0.08499,UCLA; University of Southern California; UC Irvine,2026
+first,8,Houston,59,6,0.1017,0.04745,0.2046,0.08499,Baylor College of Medicine; Texas Children's Hospital; UTHealth Houston,2026
+first,9,Philadelphia,49,5,0.102,0.04438,0.2176,0.08499,University of Pennsylvania; Children's Hospital of Philadelphia,2026
+first,10,Research Triangle,45,4,0.08889,0.03511,0.2073,0.08499,University of North Carolina at Chapel Hill; Duke University; RTI International,2026
+first,11,Chicago,44,9,0.2045,0.1115,0.345,0.08499,University of Chicago; Northwestern University,2026
+first,12,Seattle,39,7,0.1795,0.08977,0.3267,0.08499,University of Washington; Fred Hutchinson Cancer Center; Pacific Northwest Research Institute,2026
+first,13,Nashville,38,2,0.05263,0.01455,0.1729,0.08499,Vanderbilt University; Vanderbilt University Medical Center,2026
+first,14,Salt Lake City,35,4,0.1143,0.04535,0.2595,0.08499,University of Utah; Myriad Genetics,2026
+first,15,San Diego,35,3,0.08571,0.02958,0.2238,0.08499,UC San Diego; Illumina; Empirico,2026
+first,16,New Haven,32,0,0,0,0.1072,0.08499,Yale University,2026
+first,17,Ann Arbor,31,3,0.09677,0.03346,0.249,0.08499,University of Michigan,2026
+first,18,"Cambridge, UK",30,4,0.1333,0.0531,0.2968,0.08499,University of Cambridge; Wellcome Sanger Institute,2026
+first,19,Baltimore,28,8,0.2857,0.1525,0.4706,0.08499,Johns Hopkins University; University of Maryland,2026
+first,20,Oxford,25,1,0.04,0.007096,0.1954,0.08499,University of Oxford,2026
+first,21,Tokyo,24,3,0.125,0.04344,0.31,0.08499,University of Tokyo; RIKEN; Kanagawa Children's Medical Center,2026
+first,22,Vancouver,24,1,0.04167,0.007393,0.2024,0.08499,University of British Columbia,2026
+first,23,Atlanta,23,2,0.08696,0.02418,0.268,0.08499,Emory University; Georgia Institute of Technology,2026
+first,24,Seoul,23,0,0,0,0.1431,0.08499,Seoul National University; Sungkyunkwan University; The Catholic University of Korea,2026
+first,25,Cleveland,22,2,0.09091,0.02529,0.2782,0.08499,Case Western Reserve University; Cleveland Clinic,2026
+first,26,Helsinki,21,2,0.09524,0.02652,0.2891,0.08499,University of Helsinki,2026
+first,27,Taipei,21,1,0.04762,0.008456,0.2267,0.08499,National Taiwan University; Academia Sinica,2026
+first,28,London,20,2,0.1,0.02787,0.301,0.08499,King's College London; University College London; Queen Mary University of London,2026
+first,29,Denver,20,0,0,0,0.1611,0.08499,University of Colorado,2026
+first,30,St. Louis,19,3,0.1579,0.0552,0.3757,0.08499,Washington University in St. Louis,2026
+senior,1,Boston,188,28,0.1489,0.1051,0.2068,0.08499,Broad Institute; Harvard Medical School; Massachusetts General Hospital,2026
+senior,2,Montreal,157,6,0.03822,0.01763,0.08086,0.08499,McGill University; Université de Montréal; Montreal Heart Institute,2026
+senior,3,"Washington, DC",102,11,0.1078,0.06129,0.1829,0.08499,NIH; GeneDx; Vanda Pharmaceuticals,2026
+senior,4,New York,93,9,0.09677,0.05175,0.1738,0.08499,Icahn School of Medicine at Mount Sinai; Columbia University; Regeneron,2026
+senior,5,Toronto,89,2,0.02247,0.006184,0.07828,0.08499,University of Toronto; The Hospital for Sick Children; Ontario Institute for Cancer Research,2026
+senior,6,SF Bay Area,81,13,0.1605,0.09626,0.2555,0.08499,Stanford University; UC San Francisco; Helix,2026
+senior,7,Houston,60,6,0.1,0.04664,0.2015,0.08499,Baylor College of Medicine; Texas Children's Hospital; MD Anderson Cancer Center,2026
+senior,8,Los Angeles,58,6,0.1034,0.04828,0.2079,0.08499,University of Southern California; UCLA; UC Irvine,2026
+senior,9,Philadelphia,51,6,0.1176,0.05505,0.2338,0.08499,University of Pennsylvania; Children's Hospital of Philadelphia,2026
+senior,10,Seattle,46,8,0.1739,0.09086,0.3072,0.08499,University of Washington; Fred Hutchinson Cancer Center; Pacific Northwest Research Institute,2026
+senior,11,Research Triangle,45,5,0.1111,0.0484,0.235,0.08499,University of North Carolina at Chapel Hill; Duke University; RTI International,2026
+senior,12,Chicago,43,9,0.2093,0.1142,0.3521,0.08499,University of Chicago; Northwestern University,2026
+senior,13,Nashville,38,3,0.07895,0.02721,0.208,0.08499,Vanderbilt University Medical Center; Vanderbilt University,2026
+senior,14,San Diego,34,4,0.1176,0.04671,0.2662,0.08499,UC San Diego; Illumina; Empirico,2026
+senior,15,Ann Arbor,34,3,0.08824,0.03047,0.2296,0.08499,University of Michigan,2026
+senior,16,London,33,2,0.06061,0.01678,0.1961,0.08499,King's College London; Imperial College London; Queen Mary University of London,2026
+senior,17,Salt Lake City,33,2,0.06061,0.01678,0.1961,0.08499,University of Utah; Myriad Genetics,2026
+senior,18,"Cambridge, UK",29,4,0.1379,0.05497,0.3056,0.08499,University of Cambridge; Wellcome Sanger Institute,2026
+senior,19,New Haven,29,0,0,0,0.117,0.08499,Yale University,2026
+senior,20,Tokyo,28,3,0.1071,0.03712,0.272,0.08499,University of Tokyo; RIKEN; Kanagawa Children's Medical Center,2026
+senior,21,Oxford,28,2,0.07143,0.01981,0.2265,0.08499,University of Oxford,2026
+senior,22,Baltimore,25,8,0.32,0.172,0.5159,0.08499,Johns Hopkins University; University of Maryland,2026
+senior,23,Vancouver,23,1,0.04348,0.007716,0.2099,0.08499,University of British Columbia,2026
+senior,24,Cleveland,21,2,0.09524,0.02652,0.2891,0.08499,Case Western Reserve University; Cleveland Clinic,2026
+senior,25,Denver,21,2,0.09524,0.02652,0.2891,0.08499,University of Colorado,2026
+senior,26,Helsinki,19,3,0.1579,0.0552,0.3757,0.08499,University of Helsinki,2026
+senior,27,Atlanta,19,2,0.1053,0.02936,0.3139,0.08499,Emory University; Georgia Institute of Technology,2026
+senior,28,Seoul,18,0,0,0,0.1759,0.08499,Seoul National University; Sungkyunkwan University; The Catholic University of Korea,2026
+senior,29,Taipei,18,0,0,0,0.1759,0.08499,National Taiwan University; Academia Sinica,2026
+senior,30,St. Louis,17,3,0.1765,0.06191,0.4103,0.08499,Washington University in St. Louis,2026

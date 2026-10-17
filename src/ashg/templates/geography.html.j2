@@ -3,12 +3,26 @@
 {% block content %}
 <h1>{{ page.title }}</h1>
 <p class="lede">Talk rate by where the authors are: world region, country and metro area.</p>
-<nav class="toc" aria-label="On this page"><a href="#regions">World regions</a><a href="#countries">Countries</a><a href="#metros">Metro areas</a>{% if pooled %}<a href="index.html#all-regions">All years →</a>{% endif %}</nav>
-{{ m.toolbar(years, basis=True, filter="Country or metro…") }}
+<nav class="toc" aria-label="On this page"><a href="#regions">World regions</a><a href="#countries">Countries</a><a href="#metros">Metro areas</a></nav>
+{{ m.toolbar(years, pooled) }}
+{% set p = pooled %}
 
 <h2 id="regions">World regions</h2>
-<p>The country of the author's affiliations, grouped into UN regions (the Americas split into Northern America and
-Latin America and the Caribbean). An abstract counts once per region.</p>
+<p>The country of the first author's affiliations, grouped into UN regions (the Americas split into Northern America
+and Latin America and the Caribbean). An abstract counts once per region.</p>
+{% if p %}
+<section data-show-year="all">
+<p>All years, {{ p.label }}.
+{% for y in years if y.summary.first_country_coverage < 0.95 %}In {{ y.year }} only
+{{ "{:.0%}".format(y.summary.first_country_coverage) }} of abstracts could be placed, and the misses lean non-US.
+{% endfor %}</p>
+{{ m.first_author_figure("all", "regions", "each world region", p.label) }}
+{% if "trends_regions" in trends %}
+{{ m.figure("img/trends_regions.png", "Talk rate per year for each world region, with 95% intervals.", "Year by year, first author.") }}
+{% endif %}
+{{ m.first_author_table(p.regions) }}
+</section>
+{% endif %}
 {% for y in years %}
 <section data-show-year="{{ y.year }}">
 {% if y.summary.first_country_coverage < 0.95 %}
@@ -19,30 +33,45 @@ have a lower talk rate, so read {{ y.year }} regions with care.</p>
 {% else %}
 <p>ASHG {{ y.year }}: countries read from the affiliation's location for {{ "{:.1%}".format(y.summary.first_country_coverage) }} of abstracts.</p>
 {% endif %}
-{{ m.basis_figures(y.year, "regions", "each world region") }}
-{{ m.by_basis(y.regions) }}
+{{ m.first_author_figure(y.year, "regions", "each world region") }}
+{{ m.first_author_table(y.regions) }}
 </section>
 {% endfor %}
 
 <h2 id="countries">Countries</h2>
-<p>The 25 countries with the most abstracts each year; any without a talk that year are not listed.</p>
+<p>The 25 countries with the most abstracts; any without a talk are not listed.</p>
+{% if p %}
+<section data-show-year="all">
+{{ m.first_author_table(p.countries) }}
+</section>
+{% endif %}
 {% for y in years %}
 <section data-show-year="{{ y.year }}">
-{{ m.by_basis(y.countries) }}
+{{ m.first_author_table(y.countries) }}
 </section>
 {% endfor %}
 
 <h2 id="metros">Metro areas</h2>
 <p>Institutions grouped by metro area: an abstract counts once per metro, however many of its institutions are there.
-Institutions with sites in several metros (e.g. Mayo Clinic, Penn State) are left out, as are metros without a talk
-that year. The figure shows the 20 metro areas with the most accepted abstracts. Local groups tend to bring
+Institutions with sites in several metros (e.g. Mayo Clinic, Penn State) are left out, as are metros without a talk.
+The figure shows the 20 metro areas with the most accepted abstracts. Local groups tend to bring
 extra posters to a home meeting.</p>
+{% if p %}
+<section data-show-year="all">
+<p>All years, {{ p.label }}: {{ "{:.0%}".format(p.summary.first_metro_coverage) }} of abstracts have a first-author metro.</p>
+{{ m.first_author_figure("all", "metros", "the 20 metro areas with the most accepted abstracts", p.label) }}
+{% if "trends_metros" in trends %}
+{{ m.figure("img/trends_metros.png", "Abstracts and talk rate per year for the largest metro areas, with each year's host city marked.", "Year by year, first author.") }}
+{% endif %}
+{{ m.first_author_table(p.metros) }}
+</section>
+{% endif %}
 {% for y in years %}
 <section data-show-year="{{ y.year }}">
 <p>ASHG {{ y.year }}{% if y.host %} was held in {{ y.host }}{% endif %}; {{ "{:.0%}".format(y.summary.first_metro_coverage) }}
 of abstracts have a first-author metro.</p>
-{{ m.basis_figures(y.year, "metros", "the 20 metro areas with the most accepted abstracts") }}
-{{ m.by_basis(y.metros) }}
+{{ m.first_author_figure(y.year, "metros", "the 20 metro areas with the most accepted abstracts") }}
+{{ m.first_author_table(y.metros) }}
 </section>
 {% endfor %}
 {% endblock %}

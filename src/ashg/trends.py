@@ -16,7 +16,7 @@ way from the pooled ranking (features.py all; related phrases grouped as in all_
 A phrase spec is "label" or "label|alternative|..."; the last word of each may also take a
 plural "s". Abstracts cut off in a booklet are left out of the phrase counts.
 
-Usage: python src/ashg/trends.py [--years 2022 2023 2024 2025] [--phrases SPEC ...] [--n-metros 12]
+Usage: python src/ashg/trends.py [--years 2022 2023 2024 2025 2026] [--phrases SPEC ...] [--n-metros 12]
                                 [--explorer-top 50]
 """
 
@@ -28,23 +28,34 @@ import textwrap
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy import sparse
+from scipy.stats import norm
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
-from matplotlib.ticker import MaxNLocator, PercentFormatter
+from matplotlib.ticker import FuncFormatter, LogLocator, MaxNLocator, NullLocator, PercentFormatter
 
 from analysis import ROOT, load_metros, premium_table
 from features import mantel_haenszel, tokenize
-from figures import GRID, HOST_METRO, INK, INK_2, POSTER, SURFACE, TALK, header, new_figure
+from figures import GRID, HOST_METRO, INK, INK_2, POSTER, SURFACE, TALK, header, new_figure, short_number
 from geography import REGION_OF
 
 PHRASES = {
     "Consistently more common in talks": ["chromatin", "CRISPR", "cell type-specific", "largest",
                                           "MPRA|massively parallel reporter", "colocalization"],
-    "Consistently more common in posters": ["patients", "next-generation sequencing", "panel", "likely pathogenic",
-                                            "literature", "diagnosed"],
-    "Topics to watch": ["long-read|long read", "single-cell|single cell", "machine learning",
-                        "language model|large language model", "polygenic score|polygenic risk score",
-                        "spatial transcriptomics|spatial transcriptomic"],
+    "Consistently more common in posters": ["panel", "literature", "diagnosed", "Sanger sequencing", "microarray",
+                                            "symptoms"],
+    # rising share of abstracts 2022-2026 (trend z >= 4); reviewed with 2026 in: machine learning and polygenic
+    # score were flat and spatial transcriptomics had 5 talks in 2026, so they gave way to the fastest risers
+    "Topics to watch": ["long-read|long read", "single-cell|single cell", "language model|large language model",
+                        "proteomics|proteomic", "multi-ancestry|multi-ancestral", "pangenome|pan-genome"],
+}
+# Clinical terms that leaned toward posters through 2025 but not in 2026 (trends_shift.png). The first group was
+# in the posters group above before 2026; the second came from scanning every phrase for the largest 2026 shift,
+# so its p-values are optimistic. No single shift survives an FDR correction over all phrases.
+SHIFT = {
+    "Poster-leaning through 2025 (pre-specified)": ["patients", "likely pathogenic", "next-generation sequencing"],
+    "Largest 2026 shifts among clinical terms (found by scanning every phrase)": [
+        "idiopathic", "genetic disease", "therapy"],
 }
 TOP_DRIVERS = 50  # rows kept per list; the site shows the top 10 with at least one talk
 EXPLORER_TOP = 50  # pooled top phrases each way added to the explorer
@@ -117,6 +128,35 @@ def phrase_entry(phrase, group, rows):
     return {"phrase": phrase, "group": group, "counts": np.c_[a, c].tolist(), "or": [round(float(v), 3) for v in ci]}
 
 
+def more_phrases(data, years, taken):
+    """Every pooled n-gram from features.py (in >= 5 talks over all years) not already in `taken`, as compact
+    explorer rows [label, [talks, posters] per year flattened, or, or_lo, or_hi], most-mentioned first.
+    Counts come from the pooled doc-term matrix, so unlike the curated phrases they are exact n-grams in
+    the abstract text (no titles, no plurals); the OR is the same Mantel-Haenszel one as the phrase pages."""
+    X = sparse.load_npz(data / "features/doc_term_all.npz").tocsc()
+    vocab = pd.read_parquet(data / "features/vocab_all.parquet").ngram.to_numpy()
+    # rows are features.py's: every data/abstracts/*.parquet in glob order, cut-off abstracts dropped
+    meta = pd.concat([pd.read_parquet(p, columns=["year", "pres_type", "truncated"])
+                      for p in sorted((data / "abstracts").glob("*.parquet"))], ignore_index=True)
+    meta = meta[~meta.truncated]
+    if len(meta) != X.shape[0]:
+        raise ValueError("doc_term_all.npz is stale: rerun `make pooled`")
+    talk, year = (meta.pres_type != "poster").to_numpy(), meta.year.to_numpy()
+    counts = np.stack([np.asarray(X[m].sum(axis=0)).ravel() for y in years for m in (talk & (year == y),
+                                                                                      ~talk & (year == y))], 1)
+    prem = pd.read_parquet(data / "features/premium_all.parquet").set_index("ngram")
+    seen = {" ".join(tokenize(s.split("|")[-1])) for s in taken}
+    rows = []
+    for j in np.argsort(-counts.sum(1), kind="stable"):
+        g = vocab[j]
+        label = g.replace("<num>", "N")
+        if g in seen or label in seen or g.replace("<num>", "0") in seen or g not in prem.index:
+            continue
+        r = prem.loc[g]
+        rows.append([label, counts[j].tolist(), *(round(float(r[k]), 3) for k in ("or", "or_lo", "or_hi"))])
+    return rows
+
+
 def wilson(k, n, z=1.96):
     p = k / n
     centre, half = p + z * z / (2 * n), z * np.sqrt(p * (1 - p) / n + z * z / (4 * n * n))
@@ -178,7 +218,8 @@ def drivers(hits, credit, phrases, years):
 
 # --- figures: years run left to right, one small panel per phrase / metro ------------------
 
-def panel_style(ax, years):
+def panel_style(ax, years, short_years=False):
+    """short_years: "’22" labels for narrow panels, where five full years run together."""
     ax.set_facecolor(SURFACE)
     ax.grid(axis="y", color=GRID, lw=1)
     ax.set_axisbelow(True)
@@ -186,7 +227,7 @@ def panel_style(ax, years):
         ax.spines[side].set_visible(False)
     ax.spines["bottom"].set_color(GRID)
     ax.tick_params(colors=INK_2, length=0, labelsize=8.5)
-    ax.set_xticks(range(len(years)), [str(y) for y in years])
+    ax.set_xticks(range(len(years)), [f"’{y % 100:02d}" if short_years else str(y) for y in years])
     ax.set_xlim(-0.35, len(years) - 0.65)
     ax.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
     ax.yaxis.set_major_locator(MaxNLocator(3, steps=[1, 2, 5, 10], min_n_ticks=3))  # whole-% ticks, no "2.5%"
@@ -201,23 +242,44 @@ def panel_title(ax, text, width=22):
     ax.set_title(textwrap.fill(text, width), loc="left", fontsize=10.5, fontweight="bold", color=INK, pad=6)
 
 
-def phrases_figure(t, years, path):
-    groups = [(g, [p.split("|")[0] for p in specs]) for g, specs in PHRASES.items()]
+def shift_table(t, phrases, years):
+    """Last year vs the earlier years pooled, per phrase: Mantel-Haenszel log OR of a talk over the earlier
+    years, the last year's log OR, and a two-sided z-test of the difference."""
+    rows = []
+    for p in phrases:
+        r = t[t.phrase == p].set_index("year").loc[years]
+        a, c, n1, n2 = (r[k].to_numpy() for k in ("talk_docs", "poster_docs", "talks", "posters"))
+        cells = [x[:, None] for x in (a, n1 - a, c, n2 - c)]
+        (lp,), (sp,) = mantel_haenszel(*(x[:-1] for x in cells))
+        (ll,), (sl,) = mantel_haenszel(*(x[-1:] for x in cells))
+        z = (ll - lp) / np.hypot(sl, sp)
+        rows.append({"phrase": p, "or_before": np.exp(lp), "or_last": np.exp(ll), "z": z,
+                     "p": 2 * norm.sf(abs(z)), "talks_last": int(a[-1]), "posters_last": int(c[-1])})
+    return pd.DataFrame(rows)
+
+
+def phrases_figure(t, years, path, groups=None, title=None, subtitle=None, notes=None):
+    """One small panel per phrase, a row per group ({group: [spec]}; default PHRASES); notes = {phrase: text}
+    shown under the panel's year axis."""
+    groups = [(g, [p.split("|")[0] for p in specs]) for g, specs in (groups or PHRASES).items()]
     groups = [(g, [p for p in ps if p in set(t.phrase)]) for g, ps in groups if ps]
     ncols = max(len(ps) for _, ps in groups)
-    w, h = max(10, 2 * ncols), 1.6 + 2.45 * len(groups)
-    fig, gs = new_figure((w, h), nrows=len(groups), ncols=ncols, hspace=1.05, wspace=0.32,
-                         left=0.06, right=0.98, top=1 - 1.75 / h, bottom=0.55 / h)
+    extra = 0.4 if notes else 0  # room for the notes under each row
+    w, h = max(10, 2 * ncols), 1.6 + (2.45 + extra) * len(groups)
+    fig, gs = new_figure((w, h), nrows=len(groups), ncols=ncols, hspace=1.05 + extra, wspace=0.32,
+                         left=0.06, right=0.98, top=1 - 1.75 / h, bottom=(0.55 + extra) / h)
     xs = np.arange(len(years))
     for row, (g, ps) in enumerate(groups):
         for col, p in enumerate(ps):
             ax = fig.add_subplot(gs[row, col])
             r = t[t.phrase == p].set_index("year").loc[years]
-            panel_style(ax, years)
+            panel_style(ax, years, short_years=True)
             series(ax, xs, r.poster_share, POSTER)
             series(ax, xs, r.talk_share, TALK)
             ax.set_ylim(0, max(r.talk_share.max(), r.poster_share.max()) * 1.25)
             panel_title(ax, SHORT.get(p, p), width=19)  # wrapped titles must stay clear of the group label
+            if notes and p in notes:
+                ax.set_xlabel(notes[p], color=INK_2, fontsize=8.5, labelpad=4)
             if col == 0:  # group label above the row, aligned with the figure margin
                 ax.annotate(g, (0.06, 1), xycoords=("figure fraction", "axes fraction"), xytext=(0, 24),
                             textcoords="offset points", ha="left", va="bottom", color=INK_2, fontsize=9.5)
@@ -225,10 +287,10 @@ def phrases_figure(t, years, path):
               Line2D([], [], color=POSTER, lw=2, marker="o", ms=6, markeredgecolor=SURFACE, label="share of posters")]
     fig.legend(handles=legend, loc="upper left", bbox_to_anchor=(0.02, 1 - 0.85 / h), ncol=2, frameon=False,
                fontsize=9, labelcolor=INK_2, handlelength=1.8)
-    header(fig, f"Selected phrases, ASHG {years[0]}–{years[-1]}",
-           "Share of talks and of posters mentioning each phrase (title or abstract text). The gap between the lines "
-           "is the talk premium.",
-           "Source: ASHG abstract booklets (plurals count). Each panel has its own scale. Accepted abstracts only: "
+    header(fig, title or f"Selected phrases, ASHG {years[0]}–{years[-1]}",
+           subtitle or "Share of talks and of posters mentioning each phrase (title or abstract text). The gap "
+           "between the lines is the talk premium.",
+           "Source: ASHG abstracts (plurals count). Each panel has its own scale. Accepted abstracts only: "
            "association, not acceptance odds.", top=1 - 0.2 / h)
     fig.savefig(path, dpi=200, facecolor=SURFACE)
     plt.close(fig)
@@ -280,7 +342,7 @@ def metros_figure(m, years, path):
         m, "metro", years, path, f"Talk rate in the largest metro areas, ASHG {years[0]}–{years[-1]}",
         "First-author metro; the metros with the most accepted abstracts over all years, plus each host city; "
         f"n = abstracts that year.\nMeetings: {meetings}. Local groups tend to bring extra posters to a home meeting.",
-        "Source: ASHG abstract booklets. Hand-made institution-to-metro map; an abstract counts once per metro. "
+        "Source: ASHG abstracts. Hand-made institution-to-metro map; an abstract counts once per metro. "
         "Accepted abstracts only: association, not acceptance odds.", hosts=HOST_METRO)
 
 
@@ -312,13 +374,79 @@ def regions_figure(m, years, path):
     share_panels(
         m, "region", years, path, f"Talk rate by world region, ASHG {years[0]}–{years[-1]}",
         f"Country of the first author, grouped into UN regions; n = abstracts that year.\n{gap}",
-        "Source: ASHG abstract booklets. Countries from affiliation locations, else the resolved institution, place "
+        "Source: ASHG abstracts. Countries from affiliation locations, else the resolved institution, place "
         "names or a hand-checked list. Accepted abstracts only: association, not acceptance odds.", ncols=3)
+
+
+def talk_rate_figure(summary, pooled_rate, years, path):
+    """Talk rate (talks / accepted abstracts) per year, direct-labelled, with the pooled rate as a reference."""
+    h = 3.9
+    fig, gs = new_figure((10, h), left=0.07, right=0.98, top=1 - 1.15 / h, bottom=1.0 / h)
+    ax = fig.add_subplot(gs[0])
+    s = summary.set_index("year").loc[years]
+    xs = np.arange(len(years))
+    panel_style(ax, years)
+    ax.axhline(pooled_rate, color=INK_2, lw=1, ls=(0, (2, 2)), zorder=1)
+    ax.annotate(f"all years {pooled_rate:.1%}", (-0.4, pooled_rate), xytext=(0, -4), textcoords="offset points",
+                ha="left", va="top", color=INK_2, fontsize=8.5)
+    series(ax, xs, s.talk_rate, TALK)
+    for x, v in zip(xs, s.talk_rate):  # label on the side away from the reference line
+        above = v >= pooled_rate
+        ax.annotate(f"{v:.1%}", (x, v), xytext=(0, 9 if above else -9), textcoords="offset points", ha="center",
+                    va="bottom" if above else "top", color=INK, fontsize=10, fontweight="bold")
+    ax.set_xticks(xs, [f"{y}{' · ' + HOST_METRO[y] if y in HOST_METRO else ''}\n{int(r.talks):,} talks / "
+                       f"{int(r.abstracts):,} abstracts" for y, r in s.iterrows()])
+    ax.set_ylim(0, s.talk_rate.max() * 1.35)
+    ax.set_xlim(-0.45, len(years) - 0.55)
+    header(fig, f"Talk rate, ASHG {years[0]}–{years[-1]}",
+           "Share of accepted abstracts presented as a talk (platform or plenary) each year; the rest are posters.",
+           "Source: ASHG abstracts. Accepted abstracts only, and authors can opt for a poster, so this is not an "
+           "acceptance rate.", top=1 - 0.2 / h)
+    fig.savefig(path, dpi=200, facecolor=SURFACE)
+    plt.close(fig)
+
+
+def sample_size_figure(ss, years, path):
+    """Median (IQR band) of the largest stated sample size per abstract, talks vs posters, and the share of
+    abstracts stating one; ss = the stacked per-year {year}_sample_size.csv tables."""
+    h = 4.6
+    fig, gs = new_figure((10, h), ncols=2, width_ratios=[1.6, 1], wspace=0.22,
+                         left=0.07, right=0.98, top=1 - 1.45 / h, bottom=0.75 / h)
+    xs = np.arange(len(years))
+    ax_n, ax_cov = fig.add_subplot(gs[0]), fig.add_subplot(gs[1])
+    for t, color, dx in (("poster", POSTER, 0.09), ("talk", TALK, -0.09)):  # IQR bars side by side, not overlapping
+        r = ss[ss.type == t].set_index("year").reindex(years)
+        ax_n.vlines(xs + dx, r.q25, r.q75, color=color, lw=2, alpha=0.35, zorder=1)
+        series(ax_n, xs + dx, r.median_max_n, color)
+        series(ax_cov, xs, r.coverage, color)
+    panel_style(ax_n, years)
+    ax_n.set_yscale("log")
+    ax_n.yaxis.set_major_locator(LogLocator(base=10))
+    ax_n.yaxis.set_minor_locator(NullLocator())
+    ax_n.yaxis.set_major_formatter(FuncFormatter(lambda v, _: short_number(v)))
+    ax_n.set_ylim(ss.q25.min() / 1.6, ss.q75.max() * 1.6)
+    panel_title(ax_n, "Largest stated sample size per abstract", width=60)
+    panel_style(ax_cov, years)
+    ax_cov.set_ylim(0, 1)
+    ax_cov.yaxis.set_major_locator(MaxNLocator(5, steps=[1, 2, 5, 10]))
+    panel_title(ax_cov, "Abstracts stating a sample size", width=60)
+    legend = [Line2D([], [], color=TALK, lw=2, marker="o", ms=6, markeredgecolor=SURFACE, label="talks"),
+              Line2D([], [], color=POSTER, lw=2, marker="o", ms=6, markeredgecolor=SURFACE, label="posters"),
+              Line2D([], [], color=INK_2, lw=2, alpha=0.35, label="middle half (25th–75th percentile)")]
+    fig.legend(handles=legend, loc="upper left", bbox_to_anchor=(0.02, 1 - 0.8 / h), ncol=3, frameon=False,
+               fontsize=9, labelcolor=INK_2, handlelength=1.8)
+    header(fig, f"Sample size in talks and posters, ASHG {years[0]}–{years[-1]}",
+           "Median of the largest human-subject N stated in each abstract (\"12,000 individuals\", \"N = 450\"), "
+           "among abstracts that state one.",
+           "Source: ASHG abstracts. Log scale at left. Accepted abstracts only: association, not acceptance odds.",
+           top=1 - 0.2 / h)
+    fig.savefig(path, dpi=200, facecolor=SURFACE)
+    plt.close(fig)
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--years", type=int, nargs="+", default=[2022, 2023, 2024, 2025])
+    ap.add_argument("--years", type=int, nargs="+", default=[2022, 2023, 2024, 2025, 2026])
     ap.add_argument("--phrases", nargs="+", help="override the default phrase list (one group)")
     ap.add_argument("--n-metros", type=int, default=12)
     ap.add_argument("--explorer-top", type=int, default=EXPLORER_TOP)
@@ -330,7 +458,8 @@ def main():
     if args.phrases:
         PHRASES.clear()
         PHRASES["Selected phrases"] = args.phrases
-    groups = {**PHRASES, **explorer_specs(data, args.explorer_top, [p for ps in PHRASES.values() for p in ps])}
+    curated = {**PHRASES, **SHIFT}
+    groups = {**curated, **explorer_specs(data, args.explorer_top, [p for ps in curated.values() for p in ps])}
     specs = [p for ps in groups.values() for p in ps]
     labels = [s.split("|")[0] for s in specs]
     group_of = {s.split("|")[0]: g for g, ps in groups.items() for s in ps}
@@ -341,6 +470,17 @@ def main():
     t.to_csv(out / "trends_phrases.csv", index=False, float_format="%.4g")
     phrases_figure(t, years, out / "trends_phrases.png")
 
+    shift = shift_table(t, [s.split("|")[0] for ps in SHIFT.values() for s in ps], years)
+    shift.to_csv(out / "trends_shift.csv", index=False, float_format="%.4g")
+    before = f"{years[0]}–{str(years[-2])[2:]}"
+    notes = {r.phrase: f"OR {before} {r.or_before:.2f} → {years[-1]} {r.or_last:.2f}\n"
+                       + ("change p < 0.001" if r.p < 0.001 else f"change p = {r.p:.2g}")
+             for r in shift.itertuples()}
+    phrases_figure(t, years, out / "trends_shift.png", SHIFT, notes=notes,
+                   title=f"What changed in {years[-1]}: clinical terms in talks",
+                   subtitle="Share of talks and of posters mentioning each phrase. Below each panel: odds ratio of a "
+                            "talk and p for the change.")
+
     insts, credit = first_credit(data, years, load_metros(args.metros).set_index("institute").metro)
     m = metro_table(insts, credit, years, args.n_metros)
     m.to_csv(out / "trends_metros.csv", index=False, float_format="%.4g")
@@ -350,13 +490,22 @@ def main():
     regions.to_csv(out / "trends_regions.csv", index=False, float_format="%.4g")
     regions_figure(regions, years, out / "trends_regions.png")
 
+    ss = pd.concat([pd.read_csv(out / f"{y}_sample_size.csv") for y in years], ignore_index=True)
+    ss.to_csv(out / "trends_sample_size.csv", index=False, float_format="%.4g")
+    sample_size_figure(ss, years, out / "trends_sample_size.png")
+
+    summary = pd.concat([pd.read_csv(out / f"{y}_summary.csv") for y in years], ignore_index=True)
+    talk_rate_figure(summary, summary.talks.sum() / summary.abstracts.sum(), years, out / "trends_talk_rate.png")
+
     totals = t.drop_duplicates("year").set_index("year").loc[years]
     payload = {"years": years, "totals": totals[["talks", "posters"]].values.tolist(),
                "phrases": [phrase_entry(p, group_of[p], t[t.phrase == p].set_index("year").loc[years]) for p in labels],
-               "drivers": drivers(hits, credit, labels, years)}
+               "drivers": drivers(hits, credit, labels, years),
+               "more": more_phrases(data, years, specs)}
     (out / "trends_drivers.json").write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
     print(f"wrote trends_phrases.csv/.png ({len(labels)} phrases, {sum(map(len, PHRASES.values()))} in the figure), trends_metros.csv/.png "
-          f"({m.metro.nunique()} metros), trends_regions.csv/.png, trends_drivers.json to {out}/")
+          f"({m.metro.nunique()} metros), trends_regions.csv/.png, trends_sample_size.csv/.png, trends_talk_rate.png, trends_drivers.json "
+          f"to {out}/")
 
 
 if __name__ == "__main__":

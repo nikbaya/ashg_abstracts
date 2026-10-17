@@ -28,7 +28,8 @@ SURFACE, INK, INK_2, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#e4e3df"
 CAVEAT = "Accepted abstracts only, and authors can opt for a poster, so this is association, not acceptance odds."
 CAVEAT_2LINE = "Accepted abstracts only, and authors can opt for a poster,\nso this is association, not acceptance odds."
 
-HOST_METRO = {2022: "Los Angeles", 2023: "Washington, DC", 2024: "Denver", 2025: "Boston"}  # where each meeting was held
+HOST_METRO = {2022: "Los Angeles", 2023: "Washington, DC", 2024: "Denver", 2025: "Boston",
+              2026: "Montreal"}  # where each meeting was held
 
 plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 10})
 
@@ -123,15 +124,20 @@ def sample_size_panel(ax, ss):
 
 
 def headline(premium, summary, ss, year, k, path, pooled=False):
-    fig, gs = new_figure((8, 12), nrows=2, height_ratios=[15, 1.5], hspace=0.3,
-                         left=0.3, right=0.97, top=0.875, bottom=0.085)
+    """Phrase dot plot, plus a talk-vs-poster sample-size panel for a single year (the overview page shows
+    sample size per year in its own figure, trends_sample_size.png, so the pooled version has none)."""
+    if pooled:
+        fig, gs = new_figure((8, 10.8), nrows=1, left=0.3, right=0.97, top=0.86, bottom=0.11)
+    else:
+        fig, gs = new_figure((8, 12), nrows=2, height_ratios=[15, 1.5], hspace=0.3,
+                             left=0.3, right=0.97, top=0.875, bottom=0.085)
+        sample_size_panel(fig.add_subplot(gs[1]), ss)
     phrases_panel(fig.add_subplot(gs[0]), premium, k)
-    sample_size_panel(fig.add_subplot(gs[1]), ss)
     s = summary.iloc[0]
     header(fig, f"What gets an ASHG {year} abstract a talk?",
            f"Phrases most over-represented in talks vs posters: {int(s.text_talks):,} talks (platform + plenary) "
            f"vs {int(s.text_abstracts - s.text_talks):,}\nposters with complete text. {CAVEAT_2LINE}",
-           f"Source: ASHG {year} abstract booklets. Phrases: 1–3-word n-grams in abstract text, ranked by "
+           f"Source: ASHG {year} abstracts. Phrases: 1–3-word n-grams in abstract text, ranked by "
            + ("z-score of the\nodds ratio combined across years (Mantel–Haenszel); " if pooled else "z-score; ")
            + "nested duplicates removed.")
     fig.savefig(path, dpi=200, facecolor=SURFACE)
@@ -187,7 +193,7 @@ def institutions_figure(inst, summary, year, n_inst, path, basis="first"):
         f"Institutions with the highest talk rate, ASHG {year}",
         f"Top {len(rows)} by talk rate among the {len(pool)} institutions with the most abstracts.\n"
         f"Institutions of the {ROLE[basis]}; an abstract counts for each of them.\n{CAVEAT}",
-        f"Source: ASHG {year} abstract booklets. Institutions resolved with a hand-curated alias list; "
+        f"Source: ASHG {year} abstracts. Institutions resolved with a hand-curated alias list; "
         "schools fold into their university (except HMS).", path, left=0.44)
 
 
@@ -209,7 +215,7 @@ def metros_figure(metros, summary, year, n_metros, path, basis="first", hosts=No
         f"The {n_metros} metro areas with the most accepted abstracts, by the {ROLE[basis]}'s institutions.\n"
         f"An abstract counts once per metro.{note}\n"
         + (host_note if hosts else "") + CAVEAT,
-        f"Source: ASHG {year} abstract booklets. Hand-made institution-to-metro map; multi-metro institutions "
+        f"Source: ASHG {year} abstracts. Hand-made institution-to-metro map; multi-metro institutions "
         f"left out ({summary.iloc[0][f'{basis}_metro_coverage']:.0%} of abstracts placed).",
         path, left=0.3)
 
@@ -225,7 +231,7 @@ def regions_figure(regions, summary, year, path, basis="first"):
         f"Talk rate by world region, ASHG {year}",
         f"Country of the {ROLE[basis]}'s affiliations, grouped into UN regions; an abstract counts once per "
         f"region.\n{gap}{CAVEAT}",
-        f"Source: ASHG {year} abstract booklets. Countries from affiliation locations, else the resolved institution "
+        f"Source: ASHG {year} abstracts. Countries from affiliation locations, else the resolved institution "
         "or place names, or a hand-checked list.", path, left=0.36)
 
 
@@ -238,7 +244,7 @@ def senior_authors_figure(authors, summary, year, path, pooled=False):
         f"Senior authors with the highest talk rate, ASHG {year}",
         f"Senior (last) authors with ≥{int(authors.min_abstracts.iloc[0])} abstracts, ranked by the lower end of "
         f"the 95% interval (so 5 of 6 beats 2 of 2).\n{CAVEAT}",
-        f"Source: ASHG {year} abstract booklets. Same person = same "
+        f"Source: ASHG {year} abstracts. Same person = same "
         + ("first initial + last name across years\n(plus a shared institution for common surnames; different "
            "spelled-out first names kept apart)." if pooled else
            "first + last name (plus a shared institution for common surnames)."), path, row_h=0.62)

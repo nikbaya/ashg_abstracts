@@ -73,11 +73,6 @@ tbody tr:hover { background: var(--surface-2); }
 .empty { font-size: 14px; }
 
 /* overview */
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin: 20px 0 8px; }
-.stat { background: var(--surface-2); border-radius: 8px; padding: 14px 16px; }
-.stat .where { font-size: 13px; color: var(--text-secondary); }
-.stat .big { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.stat .small { font-size: 13px; color: var(--text-secondary); }
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; margin-top: 16px; }
 .card { display: flex; flex-direction: column; border: 1px solid var(--rule); border-radius: 10px; overflow: hidden;
   color: inherit; text-decoration: none; background: var(--surface-1); transition: border-color .15s, transform .15s; }
@@ -113,6 +108,20 @@ footer p { margin: 4px 0; }
 .bar-row .track { display: flex; gap: 2px; height: 12px; }
 .bar-row .seg-talk { background: var(--talk); }
 .bar-row .seg-poster { background: var(--poster); }
+/* forest plot (ratio mode): dot + 95% CI line per row on a log scale, dashed 1× line through every row */
+.bar-row .cell { position: relative; min-height: 12px; }
+.bar-row .ref { position: absolute; top: -6px; bottom: -6px; border-left: 1px dashed var(--text-secondary); }
+.bar-row .ci { position: absolute; top: calc(50% - 3px); height: 6px; box-sizing: border-box;
+  border-left: 1.5px solid var(--text-primary); border-right: 1.5px solid var(--text-primary);
+  background: linear-gradient(var(--text-primary), var(--text-primary)) center / 100% 1.5px no-repeat; }
+.bar-row .pt { position: absolute; top: calc(50% - 5.5px); width: 11px; height: 11px; margin-left: -5.5px;
+  box-sizing: border-box; border-radius: 50%; background: var(--text-primary); border: 2px solid var(--surface-1); }
+.bar-row:hover .pt, .bar-row:focus-visible .pt { border-color: var(--surface-2); }
+.bar-row.axis { cursor: default; padding-top: 0; }
+.bar-row.axis:hover { background: none; }
+.bar-row .tick { position: absolute; top: 0; transform: translateX(-50%); font-size: 11px; color: var(--text-secondary);
+  font-variant-numeric: tabular-nums; }
+#drv-chart .ci { stroke: var(--text-primary); stroke-width: 1.5; opacity: 0.45; }
 .bar-row .track > span:first-child { border-radius: 4px 0 0 4px; }
 .bar-row .track > span:last-child { border-radius: 0 4px 4px 0; }
 .bar-row .track > span:only-child { border-radius: 4px; }
@@ -123,14 +132,12 @@ footer p { margin: 4px 0; }
 .tip strong { color: var(--text-primary); font-size: 14px; }
 .tip .k { display: inline-block; width: 12px; height: 2px; margin-right: 6px; vertical-align: 3px; }
 
-/* additions: phrase groups, in-page contents, card + stat links */
+/* additions: phrase groups, in-page contents, card links */
 .related { display: block; font-size: 12px; color: var(--text-secondary); white-space: normal; }
 h2 .sub { font-weight: 400; color: var(--text-secondary); }
 .toc { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; margin: 4px 0 8px; }
 .toc a { text-decoration: none; }
 .toc a:hover { text-decoration: underline; }
-a.stat { color: inherit; text-decoration: none; border: 1px solid transparent; transition: border-color .15s; }
-a.stat:hover, a.stat:focus-visible { border-color: var(--text-secondary); }
 .card.text-only .body { padding-top: 18px; }
 h2[id], h3[id] { scroll-margin-top: 64px; }  /* clear the sticky toolbar */
 @media (max-width: 600px) {
@@ -154,6 +161,9 @@ details.table > summary { cursor: pointer; color: var(--talk); font-size: 14px; 
 #drv-chart .dot { stroke: var(--surface-1); stroke-width: 2; }
 #drv-chart .dot.talk { fill: var(--talk); }
 #drv-chart .dot.poster { fill: var(--poster); }
+#drv-chart .line.ratio { stroke: var(--text-primary); }
+#drv-chart .dot.ratio { fill: var(--text-primary); }
+#drv-chart .ref { stroke: var(--text-secondary); stroke-dasharray: 3 3; }
 .filters input { font: inherit; font-size: 14px; color: var(--text-primary); background: var(--surface-1);
   border: 1px solid var(--rule); border-radius: 6px; padding: 4px 10px; }
 .filters .lbl { font-size: 13px; color: var(--text-secondary); }
