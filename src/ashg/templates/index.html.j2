@@ -86,13 +86,15 @@ institutions have wide intervals. In {{ h.latest }} alone, {{ h.latest_top | joi
 <section class="vignette" id="authors">
 <h2><span class="num">3</span>Senior authors with the highest talk rate</h2>
 {% set most = h.author_most %}
-<p class="lead">Ranked by the lower end of a 95% interval, so a rate over many abstracts outranks the same rate over a few (at least
+<p class="lead">Sorted by the lower end of a 95% interval, so a rate over many abstracts comes before the same rate over a few (at least
 {{ h.author_min }} abstracts as senior author, {{ p.label }}). {{ most.name }} ({{ most.institute }}) has the most talks:
 {{ most.talks }} of {{ most.abstracts }}.</p>
 {{ rate_table(h.authors, "Senior author", "institute") }}
-<p class="table-note">Last listed author; dashed line = all abstracts. The {{ years[0].year }}–2024 abstracts give only
-initials, so across years one person is first initial + last name (common surnames also need a shared institution).</p>
-<p class="more-link"><a href="authors.html">The full ranking, year by year →</a></p>
+<p class="table-note">Last listed author; dashed line = all abstracts. This is how often a group's abstracts became
+talks, not a measure of anyone's work, and the intervals overlap too much for the order to mean much. The
+{{ years[0].year }}–2024 abstracts give only initials, so across years one person is first initial + last name (common
+surnames also need a shared institution); names matched this way can merge two people or split one.</p>
+<p class="more-link"><a href="authors.html">The full list, year by year →</a></p>
 </section>
 
 {% if h.center %}
@@ -137,7 +139,7 @@ center of mass of North American abstracts moves {{ "{:,}".format(pulls[0].km) }
   <a class="card" href="authors.html">
     <img src="img/{{ 'all' if pooled else latest.year }}_senior_authors.png" alt="" loading="lazy">
     <div class="body"><h3>Senior authors</h3>
-    <p>Senior authors whose abstracts most often became talks, ranked by the lower end of a 95% interval.</p>
+    <p>Senior authors whose abstracts most often became talks, sorted by the lower end of a 95% interval.</p>
     <span class="more">Senior authors →</span></div>
   </a>
   <a class="card text-only" href="methods.html">

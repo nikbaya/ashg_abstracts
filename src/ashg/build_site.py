@@ -26,7 +26,7 @@ from figures import HOST_METRO
 
 TEMPLATES = pathlib.Path(__file__).resolve().parent / "templates"
 PAGES = [  # (file, nav label, page title)
-    ("index.html", "Overview", "Who and what gets a talk at ASHG?"),
+    ("index.html", "Overview", "Talks vs posters at ASHG"),
     ("phrases.html", "Phrases", "Phrases that predict a talk"),
     ("institutions.html", "Institutions", "Institutions"),
     ("geography.html", "Geography", "Regions, countries and metro areas"),
@@ -116,7 +116,7 @@ def year_context(out, year, label=None):
     regions["countries"] = regions.countries.str.replace("; ", ", ")
     countries = with_talks(pd.read_csv(out / f"{year}_countries.csv"))
     authors = with_talks(pd.read_csv(out / f"{year}_senior_authors.csv"))
-    authors = authors.assign(rank=range(1, len(authors) + 1), ci=authors.apply(ci, axis=1))
+    authors = authors.assign(ci=authors.apply(ci, axis=1))  # no rank column: the intervals overlap too much to rank people
 
     top = {d: list(premium[premium.direction == d].ngram.head(3)) for d in ("talk", "poster")}
     return {
@@ -133,7 +133,7 @@ def year_context(out, year, label=None):
                                           ("Largest countries", "countries", None, "text")] + SHARE_COLS),
         "countries": first_author(countries, [("Country", "country", None, "text"),
                                               ("Region", "region", None, "text")] + SHARE_COLS),
-        "senior_authors": table(authors, [("#", "rank", None, "num"), ("Senior author", "name", None, "text"),
+        "senior_authors": table(authors, [("Senior author", "name", None, "text"),
                                           ("Main institution", "institute", None, "text")] + SHARE_COLS),
         "min_abstracts": int(authors.min_abstracts.iloc[0]) if len(authors) else 5,
     }

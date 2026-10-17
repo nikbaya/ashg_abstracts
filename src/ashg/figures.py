@@ -168,6 +168,11 @@ def share_figure(rows, labels, counts, baseline, title, subtitle, source, path, 
     ax.set_yticks(y, labels)
     ax.set_ylim(-0.7, n + 0.4)
     ax.set_xlabel("Talk rate (talks / accepted abstracts) · 95% Wilson CI", color=INK_2, labelpad=8)
+    fig.canvas.draw()  # widen the left margin if a long label would run off the edge (in line with the title)
+    x0 = min(t.get_window_extent().x0 for t in ax.get_yticklabels())
+    if x0 < 0.02 * fig.bbox.width:
+        gs.update(left=left + (0.02 * fig.bbox.width - x0) / fig.bbox.width)
+        ax.set_position(gs[0].get_position(fig))
     header(fig, title, subtitle, source, top=1 - 0.2 / fig.get_figheight())
     fig.savefig(path, dpi=200, facecolor=SURFACE)
     plt.close(fig)
@@ -242,8 +247,8 @@ def senior_authors_figure(authors, summary, year, path, pooled=False):
         authors, labels, [f"{r.talks} / {r.abstracts}" for r in authors.itertuples()],
         summary.iloc[0].talk_rate,
         f"Senior authors with the highest talk rate, ASHG {year}",
-        f"Senior (last) authors with ≥{int(authors.min_abstracts.iloc[0])} abstracts, ranked by the lower end of "
-        f"the 95% interval (so 5 of 6 beats 2 of 2).\n{CAVEAT}",
+        f"Senior (last) authors with ≥{int(authors.min_abstracts.iloc[0])} abstracts, sorted by the lower end of "
+        f"the 95% interval (so 5 of 6 comes before 2 of 2).\n{CAVEAT}",
         f"Source: ASHG {year} abstracts. Same person = same "
         + ("first initial + last name across years\n(plus a shared institution for common surnames; different "
            "spelled-out first names kept apart)." if pooled else

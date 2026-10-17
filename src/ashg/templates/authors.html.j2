@@ -3,8 +3,13 @@
 {% block content %}
 <h1>{{ page.title }}</h1>
 <p class="lede">Senior (last) authors whose abstracts most consistently became talks.</p>
-<p>Ranked by the lower end of the 95% Wilson interval, so 5 of 6 outranks 2 of 2. Within a year the same
+<p>Sorted by the lower end of the 95% Wilson interval, so 5 of 6 comes before 2 of 2. Within a year the same
 person is the same first + last name (plus a shared institution for common surnames).</p>
+<p class="caveat"><strong>Not a measure of anyone's work.</strong> This is how often abstracts with a given last author
+became talks. The last author is usually, but not always, the senior author (co-senior authors, consortia and field
+conventions differ), and the rate reflects a group's submissions and poster requests. Names are matched
+automatically, so one person can be split in two or two people merged. The intervals overlap heavily, so the order
+within a list means little.</p>
 {{ m.toolbar(years, pooled) }}
 {% if pooled %}
 {% set p = pooled %}

@@ -8,7 +8,7 @@
 <meta name="description" content="Which phrases, institutions and places are over-represented among talks (vs posters) at the ASHG annual meeting, {{ years[0].year }}–{{ years[-1].year }}.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="{{ page.title }} · ASHG abstracts">
-<meta property="og:description" content="Who and what gets a talk at ASHG, from the published abstracts.">
+<meta property="og:description" content="Which phrases, institutions and places are more common in talks than in posters at ASHG, from the published abstracts.">
 <meta property="og:image" content="{{ site_url }}img/{{ years[-1].year }}_headline.png">
 <meta property="og:url" content="{{ site_url }}{{ '' if page.file == 'index.html' else page.file }}">
 <meta name="twitter:card" content="summary_large_image">
@@ -17,7 +17,7 @@
 </head>
 <body>
 <header class="site-header"><div class="wrap">
-  <a class="brand" href="index.html">ASHG abstracts <span>who and what gets a talk</span></a>
+  <a class="brand" href="index.html">ASHG abstracts <span>talks vs posters</span></a>
   <nav class="site-nav" aria-label="Sections">
   {% for p in pages %}
     <a href="{{ p.file }}"{% if p.file == page.file %} aria-current="page"{% endif %}>{{ p.label }}</a>
@@ -32,9 +32,10 @@
 </nav>
 </main>
 <footer><div class="wrap">
-  <p>Parsed from the ASHG annual meeting abstracts ({{ years[0].year }}–{{ years[-1].year }}). Abstracts © ASHG; only aggregate results are published here.</p>
+  <p>Parsed from the ASHG annual meeting abstracts ({{ years[0].year }}–{{ years[-1].year }}). Abstracts © ASHG; no abstract text is reproduced here, only counts and rates.</p>
   <p>Code and full aggregate tables: <a href="{{ repo_url }}">{{ repo_url | replace("https://", "") }}</a> · <a href="methods.html">Methods and caveats</a></p>
 </div></footer>
 <script src="assets/site.js?v={{ asset_v }}"></script>
+<script data-goatcounter="https://ashg-abstracts.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
