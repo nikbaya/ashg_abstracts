@@ -41,7 +41,48 @@ said.</li>
 <li><strong>What is not shown.</strong> The site never names an institution, country, metro area or person for having
 no talks: those rows are left out of the tables and figures here. World regions are shown in full. The complete
 aggregate tables are in the <a href="https://github.com/nikbaya/ashg_abstracts/tree/main/outputs">repository</a>.</li>
+<li><strong>Not every abstract is matched.</strong> Institution, metro and country tables only count abstracts whose
+affiliations could be matched; see below.</li>
 </ul>
+
+<h2 id="match-rates">Match rates</h2>
+<p>The share of abstracts whose author could be placed. An abstract counts as matched if at least one of the author's
+affiliations resolves to one of the 213 listed institutions (or a metro area, or a country). Unmatched
+abstracts still count toward the totals, the talk rate and the phrases, but drop out of the institution, metro and
+country tables. The institution list was built from the institutions with the most abstracts, so unmatched abstracts
+come mostly from institutions with fewer: rankings describe the listed institutions, not everyone. In 2026 fewer affiliations
+matched (63% of first authors), so its institution and metro
+tables cover fewer abstracts. Senior-author rates are over abstracts not cut off in the booklet.</p>
+<div class="scroll"><table class="match">
+<thead><tr><th class="text" rowspan="2">Year</th><th rowspan="2">Abstracts</th><th colspan="3" class="group">First author</th>
+<th colspan="3" class="group">Senior author</th></tr>
+<tr><th>Institution</th><th>Metro</th><th>Country</th><th>Institution</th><th>Metro</th><th>Country</th></tr></thead>
+<tbody>
+<tr><td class="text">2022</td><td>2,928</td>
+<td>69%</td><td>66%</td><td>100%</td>
+<td>69%</td><td>66%</td><td>99%</td></tr>
+<tr><td class="text">2023</td><td>3,330</td>
+<td>71%</td><td>67%</td><td>100%</td>
+<td>70%</td><td>66%</td><td>100%</td></tr>
+<tr><td class="text">2024</td><td>2,950</td>
+<td>72%</td><td>68%</td><td>100%</td>
+<td>72%</td><td>68%</td><td>100%</td></tr>
+<tr><td class="text">2025</td><td>3,154</td>
+<td>70%</td><td>67%</td><td>93%</td>
+<td>71%</td><td>67%</td><td>93%</td></tr>
+<tr><td class="text">2026</td><td>2,965</td>
+<td>63%</td><td>61%</td><td>94%</td>
+<td>64%</td><td>61%</td><td>94%</td></tr>
+<tr class="total"><td class="text">All years</td><td>15,327</td>
+<td>69%</td><td>66%</td><td>97%</td>
+<td>69%</td><td>66%</td><td>97%</td></tr></tbody></table></div>
+
+<h2 id="talk-rate">Talk rate by year</h2>
+<p>The share of accepted abstracts presented as a talk ranges from
+8.3% to
+11.9% by year. Every talk rate on this site is
+compared with its own year's rate, or with the pooled rate for all years.</p>
+<figure class="fig"><a href="img/trends_talk_rate.png"><img src="img/trends_talk_rate.png" alt="Talk rate per year: the share of accepted abstracts presented as a talk, with each year's talk and abstract counts and host city." loading="lazy"></a></figure>
 
 <h2>How it's built</h2>
 <ul>

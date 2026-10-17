@@ -2,8 +2,48 @@
 {% import "macros.html.j2" as m %}
 {% block content %}
 <h1>{{ page.title }}</h1>
-<p class="lede">Talk rate by where the authors are: world region, country and metro area.</p>
-<nav class="toc" aria-label="On this page"><a href="#regions">World regions</a><a href="#countries">Countries</a><a href="#metros">Metro areas</a>{% if center_json %}<a href="#center">Center of mass</a>{% endif %}</nav>
+<p class="lede">Where the meeting's first authors are, and talk rate by world region, country and metro area.</p>
+<nav class="toc" aria-label="On this page">{% if center_json %}<a href="#center">Center of mass</a>{% endif %}<a href="#regions">World regions</a><a href="#countries">Countries</a><a href="#metros">Metro areas</a></nav>
+{% if center_json %}
+<h2 id="center">Center of mass</h2>
+<p>Where the first authors are, on average: the geographic midpoint of every first author's metro area, year by year
+(an abstract with first authors in several metros counts a fraction in each). It spans every year, so the year
+toggle below applies only to the sections after it. The center follows the meeting: local groups bring extra abstracts to a home meeting.</p>
+{% if "trends_center_na" in trends %}
+{{ m.figure("img/trends_center_na.png", "Map of North America and a zoom on Illinois and Indiana, with the yearly center of US and Canadian first authors' metro areas moving toward each year's host city.", "North America (US and Canada), all accepted abstracts.") }}
+{% endif %}
+{% if "trends_center_world" in trends %}
+{{ m.figure("img/trends_center_world.png", "World map and a zoom on northern Ontario and Quebec, with the yearly worldwide center of first authors.", "Worldwide, all accepted abstracts.") }}
+{% endif %}
+<h3>Explore: talks, host city, North America</h3>
+<div id="com" class="com" hidden>
+  <div class="filters">
+    <span class="lbl">Map</span>
+    <span class="seg" role="group" aria-label="Map" data-com="map"><button type="button" data-value="na">North America</button><button type="button" data-value="world">Worldwide</button></span>
+    <span class="lbl">Show</span>
+    <span class="seg" role="group" aria-label="Show" data-com="group"><button type="button" data-value="abstracts">All abstracts</button><button type="button" data-value="talks">Talks</button></span>
+  </div>
+  <div class="filters">
+    <span class="lbl">Host-city first authors</span>
+    <span class="seg" role="group" aria-label="Host-city first authors" data-com="host"><button type="button" data-value="with">Included</button><button type="button" data-value="without">Removed</button></span>
+    <span id="com-na-ctl"><span class="lbl">North American first authors</span>
+    <span class="seg" role="group" aria-label="North American first authors" data-com="na"><button type="button" data-value="with">Included</button><button type="button" data-value="without">Removed</button></span></span>
+  </div>
+  <svg id="com-map" class="com-map" role="img"></svg>
+  <div class="legend"><span><i class="com-key dot"></i><span id="com-dot-key">center of mass, each year</span></span>
+    <span id="com-ghost-key"><i class="com-key ghost"></i>with host-city first authors</span></div>
+  <p id="com-note"></p>
+  <details class="table"><summary>Table</summary>
+  <div class="scroll"><table id="com-table"><thead><tr><th class="text">Year</th><th class="text">Host city</th>
+  <th class="text">Center</th><th id="com-n-head">Abstracts</th><th>From host city</th><th>Moved by host city</th></tr></thead><tbody></tbody></table></div>
+  </details>
+  <div id="com-tip" class="tip" hidden></div>
+</div>
+<noscript><p>The interactive map needs JavaScript; the figures above show all accepted abstracts. Every variant is in
+<a href="{{ repo_url }}/blob/main/outputs/trends_center.csv">trends_center.csv</a>.</p></noscript>
+<script type="application/json" id="com-data">{{ center_json }}</script>
+{% endif %}
+
 {{ m.toolbar(years, pooled) }}
 {% set p = pooled %}
 
@@ -74,44 +114,4 @@ of abstracts have a first-author metro.</p>
 {{ m.first_author_table(y.metros) }}
 </section>
 {% endfor %}
-
-{% if center_json %}
-<h2 id="center">Center of mass</h2>
-<p>Where the first authors are, on average: the geographic midpoint of every first author's metro area, year by year
-(an abstract with first authors in several metros counts a fraction in each). This spans every year, so the year
-buttons above don't change it. The center follows the meeting: local groups bring extra abstracts to a home meeting.</p>
-{% if "trends_center_na" in trends %}
-{{ m.figure("img/trends_center_na.png", "Map of North America and a zoom on Illinois and Indiana, with the yearly center of US and Canadian first authors' metro areas moving toward each year's host city.", "North America (US and Canada), all accepted abstracts.") }}
-{% endif %}
-{% if "trends_center_world" in trends %}
-{{ m.figure("img/trends_center_world.png", "World map and a zoom on northern Ontario and Quebec, with the yearly worldwide center of first authors.", "Worldwide, all accepted abstracts.") }}
-{% endif %}
-<h3>Explore: talks, host city, North America</h3>
-<div id="com" class="com" hidden>
-  <div class="filters">
-    <span class="lbl">Map</span>
-    <span class="seg" role="group" aria-label="Map" data-com="map"><button type="button" data-value="na">North America</button><button type="button" data-value="world">Worldwide</button></span>
-    <span class="lbl">Show</span>
-    <span class="seg" role="group" aria-label="Show" data-com="group"><button type="button" data-value="abstracts">All abstracts</button><button type="button" data-value="talks">Talks</button></span>
-  </div>
-  <div class="filters">
-    <span class="lbl">Host-city first authors</span>
-    <span class="seg" role="group" aria-label="Host-city first authors" data-com="host"><button type="button" data-value="with">Included</button><button type="button" data-value="without">Removed</button></span>
-    <span id="com-na-ctl"><span class="lbl">North American first authors</span>
-    <span class="seg" role="group" aria-label="North American first authors" data-com="na"><button type="button" data-value="with">Included</button><button type="button" data-value="without">Removed</button></span></span>
-  </div>
-  <svg id="com-map" class="com-map" role="img"></svg>
-  <div class="legend"><span><i class="com-key dot"></i><span id="com-dot-key">center of mass, each year</span></span>
-    <span id="com-ghost-key"><i class="com-key ghost"></i>with host-city first authors</span></div>
-  <p id="com-note"></p>
-  <details class="table"><summary>Table</summary>
-  <div class="scroll"><table id="com-table"><thead><tr><th class="text">Year</th><th class="text">Host city</th>
-  <th class="text">Center</th><th id="com-n-head">Abstracts</th><th>From host city</th><th>Moved by host city</th></tr></thead><tbody></tbody></table></div>
-  </details>
-  <div id="com-tip" class="tip" hidden></div>
-</div>
-<noscript><p>The interactive map needs JavaScript; the figures above show all accepted abstracts. Every variant is in
-<a href="{{ repo_url }}/blob/main/outputs/trends_center.csv">trends_center.csv</a>.</p></noscript>
-<script type="application/json" id="com-data">{{ center_json }}</script>
-{% endif %}
 {% endblock %}

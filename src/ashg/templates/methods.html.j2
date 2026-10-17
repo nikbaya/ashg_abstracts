@@ -14,7 +14,41 @@ said.</li>
 <li><strong>What is not shown.</strong> The site never names an institution, country, metro area or person for having
 no talks: those rows are left out of the tables and figures here. World regions are shown in full. The complete
 aggregate tables are in the <a href="{{ repo_url }}/tree/main/outputs">repository</a>.</li>
+<li><strong>Not every abstract is matched.</strong> Institution, metro and country tables only count abstracts whose
+affiliations could be matched; see below.</li>
 </ul>
+
+{% macro pct(v) %}{{ "%.0f"|format(100 * v) }}%{% endmacro %}
+<h2 id="match-rates">Match rates</h2>
+<p>The share of abstracts whose author could be placed. An abstract counts as matched if at least one of the author's
+affiliations resolves to one of the {{ n_institutes }} listed institutions (or a metro area, or a country). Unmatched
+abstracts still count toward the totals, the talk rate and the phrases, but drop out of the institution, metro and
+country tables. The institution list was built from the institutions with the most abstracts, so unmatched abstracts
+come mostly from institutions with fewer: rankings describe the listed institutions, not everyone.{% if years[-1].summary.first_inst_coverage < 0.68 %} In {{ years[-1].year }} fewer affiliations
+matched ({{ pct(years[-1].summary.first_inst_coverage) }} of first authors), so its institution and metro
+tables cover fewer abstracts.{% endif %} Senior-author rates are over abstracts not cut off in the booklet.</p>
+<div class="scroll"><table class="match">
+<thead><tr><th class="text" rowspan="2">Year</th><th rowspan="2">Abstracts</th><th colspan="3" class="group">First author</th>
+<th colspan="3" class="group">Senior author</th></tr>
+<tr><th>Institution</th><th>Metro</th><th>Country</th><th>Institution</th><th>Metro</th><th>Country</th></tr></thead>
+<tbody>
+{% for y in years %}{% set s = y.summary %}<tr><td class="text">{{ y.year }}</td><td>{{ "{:,}".format(s.abstracts) }}</td>
+<td>{{ pct(s.first_inst_coverage) }}</td><td>{{ pct(s.first_metro_coverage) }}</td><td>{{ pct(s.first_country_coverage) }}</td>
+<td>{{ pct(s.senior_inst_coverage) }}</td><td>{{ pct(s.senior_metro_coverage) }}</td><td>{{ pct(s.senior_country_coverage) }}</td></tr>
+{% endfor %}
+{% if pooled %}{% set s = pooled.summary %}<tr class="total"><td class="text">All years</td><td>{{ "{:,}".format(s.abstracts) }}</td>
+<td>{{ pct(s.first_inst_coverage) }}</td><td>{{ pct(s.first_metro_coverage) }}</td><td>{{ pct(s.first_country_coverage) }}</td>
+<td>{{ pct(s.senior_inst_coverage) }}</td><td>{{ pct(s.senior_metro_coverage) }}</td><td>{{ pct(s.senior_country_coverage) }}</td></tr>{% endif %}
+</tbody></table></div>
+
+{% if "trends_talk_rate" in trends %}
+<h2 id="talk-rate">Talk rate by year</h2>
+<p>The share of accepted abstracts presented as a talk ranges from
+{{ "%.1f"|format(100 * (years | map(attribute="summary.talk_rate") | min)) }}% to
+{{ "%.1f"|format(100 * (years | map(attribute="summary.talk_rate") | max)) }}% by year. Every talk rate on this site is
+compared with its own year's rate, or with the pooled rate for all years.</p>
+<figure class="fig"><a href="img/trends_talk_rate.png"><img src="img/trends_talk_rate.png" alt="Talk rate per year: the share of accepted abstracts presented as a talk, with each year's talk and abstract counts and host city." loading="lazy"></a></figure>
+{% endif %}
 
 <h2>How it's built</h2>
 <ul>

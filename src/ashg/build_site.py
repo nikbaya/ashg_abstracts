@@ -19,6 +19,7 @@ import shutil
 import jinja2
 import pandas as pd
 
+from center import great_circle_km
 from figures import HOST_METRO
 
 TEMPLATES = pathlib.Path(__file__).resolve().parent / "templates"
@@ -136,6 +137,68 @@ def year_context(out, year, label=None):
     }
 
 
+def sparkline(values, w=96, h=24, pad=3):
+    """Inline SVG line of yearly values from 0 (bottom) to the series max, last point dotted."""
+    top = max(values) or 1
+    pts = [(pad + (w - 2 * pad) * i / (len(values) - 1), h - pad - (h - 2 * pad) * v / top)
+           for i, v in enumerate(values)]
+    line = " ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+    return (f'<svg class="spark" viewBox="0 0 {w} {h}" width="{w}" height="{h}" aria-hidden="true">'
+            f'<polyline points="{line}"/><circle cx="{pts[-1][0]:.1f}" cy="{pts[-1][1]:.1f}" r="2.5"/></svg>')
+
+
+def highlights(out, years, n_rising=6, n_hot=4, min_hot_talks=10, n_rows=6):
+    """Numbers for the overview's vignettes: rising topics and 2026's talk-leaning phrases, the clinical
+    shift, the institutions and senior authors with the highest pooled talk rate, and the host-city pull on the
+    center of mass."""
+    latest = years[-1]
+    t = pd.read_csv(out / "trends_phrases.csv")
+    rising = []
+    for phrase, g in t[t.group == "Topics to watch"].groupby("phrase", sort=False):
+        g = g.set_index("year").loc[years]
+        rising.append({"phrase": phrase, "first": g.share.iloc[0], "last": g.share.iloc[-1],
+                       "spark": sparkline(list(g.share)), "talks_last": int(g.talk_docs.iloc[-1])})
+    rising.sort(key=lambda r: r["last"] - r["first"], reverse=True)  # biggest gain first
+
+    prem = pd.read_csv(out / f"{latest}_premium.csv")
+    hot = prem[(prem.direction == "talk") & (prem.talk_docs >= min_hot_talks)].head(n_hot)
+    shift = pd.read_csv(out / "trends_shift.csv")
+    prespecified = set(t[t.group.str.startswith("Poster-leaning")].phrase)
+    shift = shift[shift.phrase.isin(prespecified) & (shift.p < 0.05)]
+
+    inst = pd.read_csv(out / "all_institutions.csv")
+    pool = inst[inst.basis == "first"]
+    top = pool[pool.talks > 0].sort_values(["talk_rate", "abstracts"], ascending=False).head(n_rows)
+    authors = pd.read_csv(out / "all_senior_authors.csv")
+    authors = authors[authors.talks > 0]
+    most = authors.sort_values(["talks", "talk_rate"], ascending=False).iloc[0]
+    latest_inst = pd.read_csv(out / f"{latest}_institutions.csv")
+    latest_inst = latest_inst[(latest_inst.basis == "first") & (latest_inst.talks > 0)]
+    latest_top = list(latest_inst.sort_values(["talk_rate", "abstracts"], ascending=False).head(3).institute)
+
+    center = None
+    if (out / "trends_center.csv").exists():
+        c = pd.read_csv(out / "trends_center.csv")
+        c = c[(c.view == "na") & (c.group == "abstracts")].pivot(index="year", columns="host_city",
+                                                                    values=["lat", "lon"])
+        km = great_circle_km(c.lat["with"], c.lon["with"], c.lat["without"], c.lon["without"])
+        center = [{"year": int(y), "host": HOST_METRO.get(int(y)), "km": round(float(k))} for y, k in zip(c.index, km)]
+    baseline = pool.baseline.iloc[0]
+    return {"rising": rising[:n_rising], "hot": hot.to_dict("records"), "shift": shift.to_dict("records"),
+            "inst": rate_rows(top, "institute", baseline), "inst_pool": len(pool), "baseline": baseline,
+            "latest_top": latest_top, "authors": rate_rows(authors.head(n_rows), "name", authors.baseline.iloc[0]),
+            "author_min": int(authors.min_abstracts.iloc[0]), "author_most": most.to_dict(),
+            "center": center, "latest": latest}
+
+
+def rate_rows(df, key, baseline):
+    """Rows for an overview talk-rate table: bar, 95% CI and the all-abstracts line, as % of the widest interval."""
+    scale = df.ci_hi.max()
+    rows = [{**r, "label": r[key], "bar": 100 * r["talk_rate"] / scale, "ci_left": 100 * r["ci_lo"] / scale,
+             "ci_width": 100 * (r["ci_hi"] - r["ci_lo"]) / scale} for r in df.to_dict("records")]
+    return {"rows": rows, "base": 100 * baseline / scale}
+
+
 def explorer_json(path):
     """Phrase-explorer data with zero-talk rows dropped and lists cut to EXPLORER_ROWS; embedded in a
     <script type="application/json">, so "</" must not close the tag."""
@@ -186,6 +249,7 @@ def main():
               "pooled": year_context(out, "all", f"{years[0]}–{years[-1]}") if pooled else None,
               "drivers_json": explorer_json(drivers) if drivers.exists() else None,
               "center_json": center.read_text().replace("</", "<\\/") if center.exists() else None,
+              "highlights": highlights(out, years) if pooled and (out / "trends_phrases.csv").exists() else None,
               "repo_url": args.repo_url, "site_url": args.site_url,
               "n_institutes": pd.read_csv(args.aliases, comment="#").institute.nunique()}
     for i, page in enumerate(pages):

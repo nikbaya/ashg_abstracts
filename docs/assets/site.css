@@ -198,3 +198,29 @@ details.table > summary { cursor: pointer; color: var(--talk); font-size: 14px; 
 #com-note { font-size: 14px; }
 .com[data-group="talks"] .com-key.dot { background: var(--talk); }
 .com[data-group="talks"] .com-key.ghost { border-color: var(--talk); }
+
+/* overview vignettes */
+.vignette { border-top: 1px solid var(--rule); margin-top: 36px; padding-top: 4px; }
+.vignette h2 { display: flex; align-items: baseline; gap: 10px; margin-top: 20px; }
+.vignette h2 .num { display: inline-grid; place-items: center; flex: none; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--surface-2); color: var(--text-secondary); font-size: 14px; font-weight: 700; }
+.vignette .lead { font-size: 16px; color: var(--text-primary); }
+.vignette .more-link { font-weight: 600; }
+.vignette .more-link a { text-decoration: none; }
+.vignette .more-link a:hover { text-decoration: underline; }
+.table-note { font-size: 13px; margin-top: 4px; }
+.hl-table { width: auto; min-width: min(100%, 560px); }
+.hl-table td, .hl-table th { font-variant-numeric: tabular-nums; }
+.hl-table .spark-col { padding-top: 2px; padding-bottom: 2px; }
+.spark { display: block; }
+.spark polyline { fill: none; stroke: var(--text-primary); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+.spark circle { fill: var(--text-primary); }
+.rates .rate { display: flex; align-items: center; gap: 10px; }
+.rates .track { position: relative; width: 220px; height: 12px; flex: none; }
+.rates .ci { position: absolute; top: 5px; height: 2px; background: var(--talk); border-radius: 1px; }
+.rates .pt { position: absolute; top: 0; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%;
+  background: var(--talk); border: 2px solid var(--surface-1); box-sizing: border-box; }
+.rates .base { position: absolute; top: -3px; bottom: -3px; border-left: 1px dashed var(--text-secondary); }
+.rates .val { min-width: 3.5em; text-align: right; }
+@media (max-width: 600px) { .rates .track { width: 110px; } }
+table.match th.group { text-align: center; border-bottom: 1px solid var(--rule); }
