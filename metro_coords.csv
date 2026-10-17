@@ -1,0 +1,110 @@
+metro,country,lat,lon
+# One row per metro in metros.csv: the main city's coordinates (Natural Earth populated places, a few set by hand), for the centre-of-mass maps.,,,
+Abu Dhabi,United Arab Emirates,24.47,54.37
+Ann Arbor,United States,42.3,-83.72
+"Athens, GA",United States,33.96,-83.38
+Atlanta,United States,33.83,-84.4
+Austin,United States,30.27,-97.74
+Baltimore,United States,39.3,-76.62
+Beijing,China,39.93,116.39
+Birmingham,United States,33.53,-86.82
+Boston,United States,42.33,-71.07
+Brisbane,Australia,-27.45,153.03
+Bristol,United Kingdom,51.45,-2.58
+Calgary,Canada,51.08,-114.08
+"Cambridge, UK",United Kingdom,52.2,0.12
+Changsha,China,28.2,112.97
+Charlottesville,United States,38.03,-78.48
+Chengdu,China,30.67,104.07
+Cheongju,South Korea,36.64,127.5
+Chicago,United States,41.83,-87.75
+Cincinnati,United States,39.16,-84.46
+Cleveland,United States,41.47,-81.7
+Columbus,United States,39.98,-82.99
+Copenhagen,Denmark,55.68,12.57
+Dallas,United States,32.82,-96.84
+"Danville, PA",United States,40.96,-76.61
+Denver,United States,39.74,-104.99
+Doha,Qatar,25.29,51.53
+Dubai,United Arab Emirates,25.23,55.28
+Edinburgh,United Kingdom,55.95,-3.22
+Exeter,United Kingdom,50.7,-3.53
+Gainesville,United States,29.65,-82.33
+Hangzhou,China,30.25,120.17
+Helsinki,Finland,60.18,24.93
+Hong Kong,Hong Kong,22.31,114.18
+Houston,United States,29.82,-95.34
+Huntsville,United States,34.72,-86.61
+Indianapolis,United States,39.75,-86.17
+Iowa City,United States,41.66,-91.53
+Johannesburg,South Africa,-26.17,28.03
+Kansas City,United States,39.11,-94.61
+Karachi,Pakistan,24.87,66.99
+Kolkata,India,22.5,88.32
+Lafayette,United States,40.42,-86.88
+Lansing,United States,42.73,-84.55
+Lausanne,Switzerland,46.53,6.65
+Leicester,United Kingdom,52.63,-1.13
+Leiden,Netherlands,52.16,4.5
+London,United Kingdom,51.5,-0.12
+Los Angeles,United States,33.99,-118.18
+Madison,United States,43.07,-89.4
+Melbourne,Australia,-37.82,144.97
+Memphis,United States,35.12,-90.0
+Miami,United States,25.79,-80.23
+Milwaukee,United States,43.05,-87.92
+Minneapolis,United States,44.98,-93.25
+Montreal,Canada,45.5,-73.59
+Munich,Germany,48.13,11.57
+Nagoya,Japan,35.16,136.91
+Nanchang,China,28.68,115.88
+Nashville,United States,36.17,-86.78
+New Haven,United States,41.33,-72.9
+New Orleans,United States,30.0,-90.04
+New York,United States,40.75,-73.98
+Nijmegen,Netherlands,51.84,5.85
+Oklahoma City,United States,35.47,-97.52
+Osaka,Japan,34.75,135.46
+Oxford,United Kingdom,51.77,-1.25
+Paris,France,48.87,2.33
+Philadelphia,United States,40.0,-75.17
+Phoenix,United States,33.54,-112.07
+Pittsburgh,United States,40.43,-80.0
+Ponce,Puerto Rico,18.0,-66.62
+Princeton,United States,40.36,-74.67
+Providence,United States,41.82,-71.42
+Provo,United States,40.25,-111.64
+Research Triangle,United States,35.99,-78.9
+Reykjavik,Iceland,64.15,-21.95
+Richmond,United States,37.55,-77.45
+Riverside,United States,33.94,-117.4
+SF Bay Area,United States,37.77,-122.42
+Sacramento,United States,38.58,-121.47
+Saguenay,Canada,48.43,-71.07
+Salt Lake City,United States,40.78,-111.93
+San Diego,United States,32.82,-117.18
+San Juan,Puerto Rico,18.44,-66.13
+Santa Cruz,United States,36.97,-122.03
+Seattle,United States,47.57,-122.34
+Seoul,South Korea,37.57,127.0
+Shanghai,China,31.22,121.43
+Shenzhen,China,22.55,114.12
+Singapore,Singapore,1.29,103.85
+St. Louis,United States,38.64,-90.24
+Stockholm,Sweden,59.35,18.1
+Sydney,Australia,-33.92,151.18
+Syracuse,United States,43.05,-76.15
+São Paulo,Brazil,-23.56,-46.63
+Taichung,Taiwan,24.15,120.68
+Taipei,Taiwan,25.04,121.57
+Tartu,Estonia,58.38,26.71
+Tokyo,Japan,35.69,139.75
+Toronto,Canada,43.7,-79.42
+Tucson,United States,32.21,-110.89
+Ulsan,South Korea,35.55,129.32
+Uppsala,Sweden,59.86,17.64
+Vancouver,Canada,49.28,-123.12
+Waco,United States,31.55,-97.15
+"Washington, DC",United States,38.91,-77.04
+Winston-Salem,United States,36.11,-80.26
+Worcester,United States,42.27,-71.8

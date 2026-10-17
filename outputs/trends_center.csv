@@ -1,0 +1,61 @@
+year,view,host_city,group,host,lat,lon,abstracts,host_km,sd_east_km,sd_north_km
+2022,na,with,abstracts,Los Angeles,39.996,-89.522,1634,2618.8,38.862,13.681
+2022,na,with,talks,Los Angeles,40.261,-90.182,238,2566.3,106.18,36.245
+2022,world,with,abstracts,Los Angeles,51.732,-78.953,2924,3692.3,57.686,59.611
+2022,world,with,talks,Los Angeles,48.817,-81.945,348,3397.9,143.82,122.23
+2022,world_no_na,with,abstracts,Los Angeles,53.405,39.467,832,10061,191.52,102.7
+2022,world_no_na,with,talks,Los Angeles,58.957,22.647,74,9064.3,395.63,231.33
+2022,na,without,abstracts,Los Angeles,40.182,-86.56,1490,2871.7,36.057,14.339
+2022,na,without,talks,Los Angeles,40.51,-86.948,215,2841.5,96.065,38.858
+2022,world,without,abstracts,Los Angeles,52.254,-74.838,2780,3979.3,59.541,62.152
+2022,world,without,talks,Los Angeles,49.394,-77.895,325,3699.5,146.5,123.39
+2022,world_no_na,without,abstracts,Los Angeles,53.405,39.467,832,10061,201.11,101.18
+2022,world_no_na,without,talks,Los Angeles,58.957,22.647,74,9064.3,392.33,230.97
+2023,na,with,abstracts,"Washington, DC",39.902,-87.091,1848,870.13,32.505,12.246
+2023,na,with,talks,"Washington, DC",39.987,-88.426,244,984.25,99.455,33.762
+2023,world,with,abstracts,"Washington, DC",54.165,-78.117,3330,1698.3,54.078,61.175
+2023,world,with,talks,"Washington, DC",48.45,-84.49,341,1217,138.92,135.25
+2023,world_no_na,with,abstracts,"Washington, DC",54.108,57.541,999,8798.5,183.64,94.966
+2023,world_no_na,with,talks,"Washington, DC",58.422,61.182,66,8520.9,736.72,285.62
+2023,na,without,abstracts,"Washington, DC",39.96,-88.273,1660,971.11,36.923,13.542
+2023,na,without,talks,"Washington, DC",40.028,-89.43,225,1069.9,106.92,37.824
+2023,world,without,abstracts,"Washington, DC",55.398,-78.571,3142,1836.9,58.639,68.595
+2023,world,without,talks,"Washington, DC",49.128,-85.307,322,1312.7,147.26,145.68
+2023,world_no_na,without,abstracts,"Washington, DC",54.108,57.541,999,8798.5,181.55,93.806
+2023,world_no_na,without,talks,"Washington, DC",58.422,61.182,66,8520.9,733.51,290.42
+2024,na,with,abstracts,Denver,40.243,-88.423,1747,1410.4,35.059,12.897
+2024,na,with,talks,Denver,40.682,-88.549,233,1398,103.01,30.862
+2024,world,with,abstracts,Denver,52.322,-82.61,2949,2207.3,51.309,61.28
+2024,world,with,talks,Denver,49.709,-80.466,339,2217.4,145.57,130.71
+2024,world_no_na,with,abstracts,Denver,54.072,63.011,756,9520.7,219.63,111.48
+2024,world_no_na,with,talks,Denver,55.495,34.713,73,8759.7,512.44,302.21
+2024,na,without,abstracts,Denver,40.214,-87.768,1682,1466.1,34.185,13.332
+2024,na,without,talks,Denver,40.678,-88.252,229,1423,105.78,31.269
+2024,world,without,abstracts,Denver,52.595,-81.632,2884,2279.8,53.138,63.46
+2024,world,without,talks,Denver,49.798,-79.963,335,2254.7,152.9,125.72
+2024,world_no_na,without,abstracts,Denver,54.072,63.011,756,9520.7,218.74,112.24
+2024,world_no_na,without,talks,Denver,55.495,34.713,73,8759.7,522.61,310.91
+2025,na,with,abstracts,Boston,40.421,-85.854,1819,1250,33.405,12.045
+2025,na,with,talks,Boston,40.55,-85.043,175,1180,107.47,37.76
+2025,world,with,abstracts,Boston,52.534,-81.134,2943,1361.1,49.294,60.369
+2025,world,with,talks,Boston,50.157,-81.988,253,1206.9,150.83,174.45
+2025,world_no_na,with,abstracts,Boston,55.244,70.488,744,8573.7,218.46,108.76
+2025,world_no_na,with,talks,Boston,56.235,73.509,51,8561.9,827.13,413.91
+2025,na,without,abstracts,Boston,39.556,-89.825,1421,1601.7,37.92,14.669
+2025,na,without,talks,Boston,39.739,-88.795,136,1511.4,124.26,47.711
+2025,world,without,abstracts,Boston,54.311,-84.854,2545,1671.1,59.804,76.154
+2025,world,without,talks,Boston,51.562,-85.717,214,1508.2,186.43,210.53
+2025,world_no_na,without,abstracts,Boston,55.244,70.488,744,8573.7,224.3,102.67
+2025,world_no_na,without,talks,Boston,56.235,73.509,51,8561.9,821.98,417.06
+2026,na,with,abstracts,Montreal,41.332,-87.277,1481,1196.7,37.735,14.467
+2026,na,with,talks,Montreal,41.326,-89.26,151,1345.4,129.79,40.438
+2026,world,with,abstracts,Montreal,55.671,-79.282,2787,1199.2,58.466,68.471
+2026,world,with,talks,Montreal,51.662,-81.308,243,888.84,188.33,175.54
+2026,world_no_na,with,abstracts,Montreal,55.845,61.659,858,7994.3,218.16,101.24
+2026,world_no_na,with,talks,Montreal,54.053,47.974,60,7647.4,738.41,417.81
+2026,na,without,abstracts,Montreal,40.753,-88.735,1331,1334.9,39.483,15.341
+2026,na,without,talks,Montreal,41.074,-89.996,144,1413,134.02,41.178
+2026,world,without,abstracts,Montreal,56.491,-80.473,2637,1312.1,63.07,73.706
+2026,world,without,talks,Montreal,51.91,-81.882,236,936,195.34,189.4
+2026,world_no_na,without,abstracts,Montreal,55.845,61.659,858,7994.3,210.56,102.62
+2026,world_no_na,without,talks,Montreal,54.053,47.974,60,7647.4,731.21,414.45

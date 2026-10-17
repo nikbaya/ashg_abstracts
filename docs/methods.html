@@ -67,6 +67,14 @@ disagreements checked) but not yet reviewed by hand. “Hong Kong, China” coun
 <li><strong>Metro areas.</strong> Each institution is mapped by hand to a metro (US Census metropolitan areas, with
 San Francisco + San Jose combined as the SF Bay Area and Durham–Chapel Hill + Raleigh as the Research Triangle).
 Institutions with sites in several metros are left out.</li>
+<li><strong>Center of mass.</strong> Each abstract sits at its first author's metro area (coordinates of the main
+city; an abstract with first authors in k metros counts 1/k in each). The center is the geographic midpoint: the mean
+of those points as 3D unit vectors, projected back to the surface. North America counts US and Canadian metros only
+(about four in five US and Canadian abstracts have one). Worldwide, an abstract with a country but no metro sits at the
+center of that country's placed abstracts that year, so every country keeps its full weight. North America is the UN
+region (US, Canada, Bermuda; Mexico counts as Latin America). Removing host-city first authors drops abstracts with
+any first author in the host metro; local groups at institutions without a metro stay in. The 95% ranges are from
+2,000 bootstrap resamples of abstracts.</li>
 <li><strong>Senior authors.</strong> The last listed person (consortium names skipped). Within a year, the same
 person = same first + last name, and for common surnames (seen with 5+ different first names) also a shared
 institution. Across years the 2022–2024 booklets give only initials, so the same person = same first initial + last

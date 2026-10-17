@@ -6,7 +6,7 @@ TYPES := platform plenary poster
 PY := PYTHONPATH=src/ashg mamba run -n ashg python
 ABSTRACTS = $(foreach t,$(TYPES),data/abstracts/$(YEAR)_$(t).parquet)
 
-.PHONY: year spans abstracts validate institutions people geography features analysis figures pooled trends writing site test review
+.PHONY: year spans abstracts validate institutions people geography features analysis figures pooled trends center naturalearth writing site test review
 year: validate institutions people geography features analysis figures
 
 spans:
@@ -60,8 +60,19 @@ pooled:
 	$(PY) src/ashg/analysis.py all
 	$(PY) src/ashg/figures.py all
 
-trends: pooled
+trends: pooled center
 	$(PY) src/ashg/trends.py
+
+# center of mass of first authors per year (maps; Natural Earth basemaps, public domain)
+NE_URL := https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson
+NE_FILES := ne_110m_admin_0_countries ne_50m_admin_0_countries ne_50m_admin_1_states_provinces_lakes ne_50m_lakes
+naturalearth:
+	@mkdir -p data/raw/naturalearth
+	@for f in $(NE_FILES); do test -s data/raw/naturalearth/$$f.geojson || \
+	  curl -sSfL -o data/raw/naturalearth/$$f.geojson $(NE_URL)/$$f.geojson || exit 1; done
+
+center: naturalearth
+	$(PY) src/ashg/center.py
 
 writing:
 	$(PY) src/ashg/writing.py data/abstracts/*.parquet

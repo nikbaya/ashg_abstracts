@@ -167,3 +167,34 @@ details.table > summary { cursor: pointer; color: var(--talk); font-size: 14px; 
 .filters input { font: inherit; font-size: 14px; color: var(--text-primary); background: var(--surface-1);
   border: 1px solid var(--rule); border-radius: 6px; padding: 4px 10px; }
 .filters .lbl { font-size: 13px; color: var(--text-secondary); }
+
+/* center-of-mass map (geography page) */
+.com-map { display: block; width: 100%; max-width: 780px; height: auto; border: 1px solid var(--rule); border-radius: 6px;
+  margin-top: 4px; }
+.com-map .water { fill: var(--surface-1); }
+.com-map .land { fill: var(--surface-2); }
+.com-map .land.outlined, .com-map .border { stroke: var(--rule); stroke-width: 1; stroke-linejoin: round; }
+.com-map .border { fill: none; }
+.com-map circle.place { fill: var(--text-secondary); }
+.com-map text.place { fill: var(--text-secondary); font-size: 11px; }
+.com-map text.sea { fill: var(--text-secondary); font-size: 11px; font-style: italic; }
+.com-map { --com: var(--text-primary); }
+.com-map[data-group="talks"] { --com: var(--talk); }
+.com-map .path { fill: none; stroke: var(--com); stroke-width: 1.5; opacity: 0.45; }
+.com-map .pull { stroke: var(--com); stroke-width: 1; stroke-dasharray: 2 2; opacity: 0.6; }
+.com-map .ghost { fill: none; stroke: var(--com); stroke-width: 1.5; opacity: 0.6; }
+.com-map .pt { transition: transform .45s ease; outline: none; }
+.com-map .pt .hit { fill: transparent; }
+.com-map .pt .dot { fill: var(--com); stroke: var(--surface-1); stroke-width: 2; }
+.com-map .pt:hover .dot, .com-map .pt:focus-visible .dot { stroke: var(--text-primary); }
+.com-map .pt .yr { fill: var(--text-primary); font-size: 12px; font-weight: 700; paint-order: stroke;
+  stroke: var(--surface-2); stroke-width: 3px; stroke-linejoin: round; }
+@media (prefers-reduced-motion: reduce) { .com-map .pt { transition: none; } }
+.com-key { display: inline-block; width: 11px !important; height: 11px !important; border-radius: 50% !important;
+  margin-right: 6px; vertical-align: -1px; }
+.com-key.dot { background: var(--text-primary); }
+.com-key.ghost { border: 1.5px solid var(--text-primary); }
+.com .seg button:disabled { opacity: 0.45; cursor: not-allowed; }
+#com-note { font-size: 14px; }
+.com[data-group="talks"] .com-key.dot { background: var(--talk); }
+.com[data-group="talks"] .com-key.ghost { border-color: var(--talk); }

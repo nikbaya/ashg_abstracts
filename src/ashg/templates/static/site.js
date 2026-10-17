@@ -279,3 +279,156 @@ document.querySelectorAll("table.sortable").forEach(table => {
   }
   render();
 })();
+
+// Center-of-mass map (geography page): a zoomed basemap from center.py and the yearly centers for the chosen
+// map, group and host-city setting. With host-city first authors removed, rings mark the full-meeting centers.
+(() => {
+  const el = document.getElementById("com-data");
+  if (!el) return;
+  const data = JSON.parse(el.textContent);
+  const root = document.getElementById("com"), map = document.getElementById("com-map");
+  const tip = document.getElementById("com-tip"), tbody = document.querySelector("#com-table tbody");
+  root.hidden = false;
+  const state = { map: "na", group: "abstracts", host: "with", na: "with" };
+  const SHORT = { "Los Angeles": "LA", "Washington, DC": "DC" };
+  const NAMES = { na: "North America (US and Canada)", world: "Worldwide", world_no_na: "Worldwide without North America" };
+  const SVG = "http://www.w3.org/2000/svg";
+  const svg = (tag, attrs = {}, text) => {
+    const n = document.createElementNS(SVG, tag);
+    Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v));
+    if (text != null) n.textContent = text;
+    return n;
+  };
+  const node = (tag, text) => { const n = document.createElement(tag); if (text != null) n.textContent = text; return n; };
+  const num = v => v.toLocaleString("en-US");
+  const deg = (v, pos, neg) => `${Math.abs(v).toFixed(1)}°${v >= 0 ? pos : neg}`;
+  const host = y => data.hosts[y];
+
+  root.querySelectorAll("[data-com]").forEach(seg => seg.addEventListener("click", ev => {
+    const b = ev.target.closest("button");
+    if (!b || b.disabled) return;
+    state[seg.dataset.com] = b.dataset.value;
+    render();
+  }));
+
+  let drawn = null, layer = null;
+  function basemap(key, v) {
+    map.setAttribute("viewBox", `0 0 ${v.width} ${v.height}`);
+    map.setAttribute("aria-label", `Map: ${NAMES[key]}, yearly centers of mass of first authors`);
+    const parts = [svg("rect", { width: v.width, height: v.height, class: "water" }),
+                   svg("path", { d: v.land, class: v.borders == null ? "land outlined" : "land" }),
+                   svg("path", { d: v.lakes, class: "water" })];
+    if (v.borders) parts.push(svg("path", { d: v.borders, class: "border" }));
+    v.places.forEach(([name, x, y]) => parts.push(svg("circle", { cx: x, cy: y, r: 2.5, class: "place" }),
+      svg("text", { x: x + 6, y: y + 4, class: "place" }, name)));
+    v.water.forEach(([name, x, y]) => parts.push(svg("text", { x, y, class: "sea", "text-anchor": "middle" }, name)));
+    layer = svg("g", { class: "overlay" });
+    map.replaceChildren(...parts, layer);
+    drawn = key;
+  }
+
+  // year labels: the first spot clear of every point, place name and earlier label, else the least crowded
+  const SPOTS = [[10, -8, "start"], [-10, -8, "end"], [10, 15, "start"], [-10, 15, "end"], [12, 4, "start"], [-12, 4, "end"]];
+  function placeLabels(rows, v, extra) {
+    const w = v.width, h = v.height;
+    const boxes = [...rows, ...extra].map(r => [r.x - 7, r.y - 7, r.x + 7, r.y + 7])
+      .concat(v.places.map(([name, x, y]) => [x - 3, y - 7, x + 6 + 6.2 * name.length, y + 6]));
+    const hit = (a, b) => a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3];
+    return rows.map(r => {
+      const width = 7.2 * r.label.length;
+      const box = ([dx, dy, anchor]) => {
+        const x0 = anchor === "start" ? r.x + dx : r.x + dx - width;
+        return [x0, r.y + dy - 11, x0 + width, r.y + dy + 3];
+      };
+      const clashes = s => { const b = box(s); return (b[0] > 2 && b[2] < w - 2 && b[1] > 2 && b[3] < h - 2 ? 0 : 99) + boxes.filter(o => hit(b, o)).length; };
+      const spot = SPOTS.reduce((best, s) => (clashes(s) < clashes(best) ? s : best));
+      boxes.push(box(spot));
+      return spot;
+    });
+  }
+
+  function showTip(ev, r, key) {
+    const talks = state.group === "talks", h = host(r.year);
+    tip.replaceChildren(node("strong", `${r.year} · ${h}`),
+      node("div", `Center ${deg(r.lat, "N", "S")}, ${deg(r.lon, "E", "W")}`),
+      node("div", `${num(r.n)} ${talks ? "talks" : "abstracts"}${key === "na" ? " at US or Canadian metros" : ""}`),
+      node("div", `${num(r.host_km)} km from ${h}`));
+    if (key !== "world_no_na")
+      tip.appendChild(node("div", state.host === "with" ? `Host-city first authors move it ${num(r.pull_km)} km`
+        : `${num(r.pull_km)} km from the center with them`));
+    tip.appendChild(node("div", `95% range about ±${num(Math.round(1.96 * r.sd_e))} km east–west, ` +
+      `±${num(Math.round(1.96 * r.sd_n))} km north–south (bootstrap)`));
+    tip.hidden = false;
+    const b = ev.type === "focus" ? ev.target.getBoundingClientRect() : { left: ev.clientX, bottom: ev.clientY };
+    tip.style.left = Math.min(b.left + 12, innerWidth - tip.offsetWidth - 8) + "px";
+    tip.style.top = Math.min(b.bottom + 12, innerHeight - tip.offsetHeight - 8) + "px";
+  }
+
+  function render() {
+    const key = state.map === "world" && state.na === "without" ? "world_no_na" : state.map;
+    const noHosts = key === "world_no_na";  // every host so far is North American: removing them changes nothing
+    root.querySelectorAll("[data-com]").forEach(seg => seg.querySelectorAll("button").forEach(b => {
+      b.setAttribute("aria-pressed", String(state[seg.dataset.com] === b.dataset.value));
+      b.disabled = seg.dataset.com === "host" && noHosts;
+    }));
+    document.getElementById("com-na-ctl").hidden = state.map !== "world";
+    const v = data.views[key], removed = state.host === "without" && !noHosts;
+    const rows = v.variants[`${state.group}|${removed ? "without" : "with"}`]
+      .map(r => ({ ...r, label: `${r.year} · ${SHORT[host(r.year)] ?? host(r.year)}` }));
+    const ghosts = removed ? v.variants[`${state.group}|with`] : [];
+    if (drawn !== key) basemap(key, v);
+    map.dataset.group = root.dataset.group = state.group;
+
+    // points persist across toggles within a map, so a change of setting glides them to their new places
+    const old = Object.fromEntries([...layer.querySelectorAll("g.pt")].map(g => [g.dataset.year, g]));
+    layer.querySelectorAll(":scope > :not(g.pt)").forEach(n => n.remove());
+    const under = svg("g");
+    ghosts.forEach((g, i) => {
+      under.appendChild(svg("line", { x1: g.x, y1: g.y, x2: rows[i].x, y2: rows[i].y, class: "pull" }));
+      under.appendChild(svg("circle", { cx: g.x, cy: g.y, r: 5.5, class: "ghost" }));
+    });
+    if (!removed)  // with the pull lines drawn, the path between years is one line too many
+      under.appendChild(svg("polyline", { points: rows.map(r => `${r.x},${r.y}`).join(" "), class: "path" }));
+    layer.prepend(under);
+    const spots = placeLabels(rows, v, ghosts);
+    rows.forEach((r, i) => {
+      let g = old[r.year];
+      if (!g) {
+        g = svg("g", { class: "pt", tabindex: 0, "data-year": r.year });
+        g.append(svg("circle", { r: 14, class: "hit" }), svg("circle", { r: 6, class: "dot" }), svg("text", { class: "yr" }));
+        ["pointerleave", "blur"].forEach(t => g.addEventListener(t, () => { tip.hidden = true; }));
+        layer.appendChild(g);
+      }
+      g.onpointermove = g.onfocus = ev => showTip(ev, r, key);
+      g.style.transform = `translate(${r.x}px, ${r.y}px)`;
+      const [dx, dy, anchor] = spots[i], t = g.querySelector("text");
+      t.textContent = r.label;
+      Object.entries({ x: dx, y: dy, "text-anchor": anchor }).forEach(([k, val]) => t.setAttribute(k, val));
+      g.setAttribute("aria-label", `${r.label}: ${deg(r.lat, "N", "S")}, ${deg(r.lon, "E", "W")}`);
+    });
+    document.getElementById("com-ghost-key").hidden = !removed;
+    document.getElementById("com-dot-key").textContent = removed ? "center of mass, each year"
+      : "center of mass, each year (line joins the years in order)";
+
+    const talks = state.group === "talks", ns = rows.map(r => r.n);
+    const span = `${num(Math.min(...ns))}–${num(Math.max(...ns))} ${talks ? "talks" : "abstracts"} a year`;
+    const what = { na: "First authors at US and Canadian metro areas", world: "First authors worldwide",
+                   world_no_na: "Abstracts with no first author in the US or Canada" }[key];
+    const notes = [`${NAMES[key]}. ${what}, ${span}.`];
+    if (removed) notes.push("Abstracts with a first author in that year's host metro are left out; rings show the centers with them.");
+    if (noHosts) notes.push("Every host city so far is in North America, so removing host-city first authors changes nothing here.");
+    if (talks) notes.push("Talks are few, so their centers move a lot by chance: hover a point for its 95% range.");
+    document.getElementById("com-note").textContent = notes.join(" ");
+
+    document.getElementById("com-n-head").textContent = talks ? "Talks" : "Abstracts";
+    tbody.replaceChildren(...rows.map(r => {
+      const tr = document.createElement("tr");
+      [[r.year, "text"], [host(r.year), "text"], [`${deg(r.lat, "N", "S")}, ${deg(r.lon, "E", "W")}`, "text"],
+       [num(r.n)], [`${num(r.host_km)} km`], [noHosts ? "—" : `${num(r.pull_km)} km`]].forEach(([val, cls]) => {
+        const td = node("td", val); if (cls) td.className = cls; tr.appendChild(td);
+      });
+      return tr;
+    }));
+  }
+  render();
+})();

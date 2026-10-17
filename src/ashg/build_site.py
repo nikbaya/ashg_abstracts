@@ -32,7 +32,7 @@ PAGES = [  # (file, nav label, page title)
 ]
 YEAR_FIGURES = ("headline", "institutions", "metros", "regions", "senior_authors")
 TREND_FIGURES = ("trends_talk_rate", "trends_phrases", "trends_shift", "trends_sample_size", "trends_regions",
-                 "trends_metros")
+                 "trends_metros", "trends_center_na", "trends_center_world")
 EXPLORER_ROWS = 10
 
 
@@ -177,6 +177,7 @@ def main():
     for f in (TEMPLATES / "static").iterdir():
         shutil.copy(f, docs / "assets" / f.name)
     drivers = out / "trends_drivers.json"
+    center = out / "trends_center.json"  # center-of-mass map (geography page), from center.py
 
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATES), autoescape=False,
                              trim_blocks=True, lstrip_blocks=True)
@@ -184,6 +185,7 @@ def main():
     shared = {"years": [year_context(out, y) for y in years], "trends": trends, "pages": pages,
               "pooled": year_context(out, "all", f"{years[0]}–{years[-1]}") if pooled else None,
               "drivers_json": explorer_json(drivers) if drivers.exists() else None,
+              "center_json": center.read_text().replace("</", "<\\/") if center.exists() else None,
               "repo_url": args.repo_url, "site_url": args.site_url,
               "n_institutes": pd.read_csv(args.aliases, comment="#").institute.nunique()}
     for i, page in enumerate(pages):
