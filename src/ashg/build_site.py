@@ -11,12 +11,14 @@ Usage: python src/ashg/build_site.py [--outputs outputs] [--docs docs] [--repo-u
 """
 
 import argparse
+import hashlib
 import html
 import json
 import pathlib
 import shutil
 
 import jinja2
+import numpy as np
 import pandas as pd
 
 from center import great_circle_km
@@ -147,7 +149,19 @@ def sparkline(values, w=96, h=24, pad=3):
             f'<polyline points="{line}"/><circle cx="{pts[-1][0]:.1f}" cy="{pts[-1][1]:.1f}" r="2.5"/></svg>')
 
 
-def highlights(out, years, n_rising=6, n_hot=4, min_hot_talks=10, n_rows=6):
+def sparkline_pair(talks, posters, w=120, h=40, pad=4):
+    """Inline SVG of the yearly share of talks and of posters on one scale from 0 to the larger max."""
+    top = max(talks + posters) or 1
+    svg = f'<svg class="spark pair" viewBox="0 0 {w} {h}" width="{w}" height="{h}" aria-hidden="true">'
+    for cls, values in (("poster", posters), ("talk", talks)):
+        pts = [(pad + (w - 2 * pad) * i / (len(values) - 1), h - pad - (h - 2 * pad) * v / top)
+               for i, v in enumerate(values)]
+        svg += (f'<polyline class="{cls}" points="{" ".join(f"{x:.1f},{y:.1f}" for x, y in pts)}"/>'
+                f'<circle class="{cls}" cx="{pts[-1][0]:.1f}" cy="{pts[-1][1]:.1f}" r="2.5"/>')
+    return svg + "</svg>"
+
+
+def highlights(out, years, n_rising=6, n_hot=6, min_hot_talks=10, n_rows=6):
     """Numbers for the overview's vignettes: rising topics and 2026's talk-leaning phrases, the clinical
     shift, the institutions and senior authors with the highest pooled talk rate, and the host-city pull on the
     center of mass."""
@@ -163,8 +177,11 @@ def highlights(out, years, n_rising=6, n_hot=4, min_hot_talks=10, n_rows=6):
     prem = pd.read_csv(out / f"{latest}_premium.csv")
     hot = prem[(prem.direction == "talk") & (prem.talk_docs >= min_hot_talks)].head(n_hot)
     shift = pd.read_csv(out / "trends_shift.csv")
-    prespecified = set(t[t.group.str.startswith("Poster-leaning")].phrase)
-    shift = shift[shift.phrase.isin(prespecified) & (shift.p < 0.05)]
+    prespecified = set(t[t.group.str.startswith("Poster-leaning")].phrase)  # picked before looking at the latest year
+    shift = shift[shift.phrase.isin(prespecified)].to_dict("records")
+    for r in shift:
+        g = t[t.phrase == r["phrase"]].set_index("year").loc[years]
+        r["spark"] = sparkline_pair(list(g.talk_share), list(g.poster_share))
 
     inst = pd.read_csv(out / "all_institutions.csv")
     pool = inst[inst.basis == "first"]
@@ -184,7 +201,7 @@ def highlights(out, years, n_rising=6, n_hot=4, min_hot_talks=10, n_rows=6):
         km = great_circle_km(c.lat["with"], c.lon["with"], c.lat["without"], c.lon["without"])
         center = [{"year": int(y), "host": HOST_METRO.get(int(y)), "km": round(float(k))} for y, k in zip(c.index, km)]
     baseline = pool.baseline.iloc[0]
-    return {"rising": rising[:n_rising], "hot": hot.to_dict("records"), "shift": shift.to_dict("records"),
+    return {"rising": rising[:n_rising], "hot": odds_rows(hot.sort_values("or", ascending=False)), "shift": shift,
             "inst": rate_rows(top, "institute", baseline), "inst_pool": len(pool), "baseline": baseline,
             "latest_top": latest_top, "authors": rate_rows(authors.head(n_rows), "name", authors.baseline.iloc[0]),
             "author_min": int(authors.min_abstracts.iloc[0]), "author_most": most.to_dict(),
@@ -194,9 +211,20 @@ def highlights(out, years, n_rising=6, n_hot=4, min_hot_talks=10, n_rows=6):
 def rate_rows(df, key, baseline):
     """Rows for an overview talk-rate table: bar, 95% CI and the all-abstracts line, as % of the widest interval."""
     scale = df.ci_hi.max()
-    rows = [{**r, "label": r[key], "bar": 100 * r["talk_rate"] / scale, "ci_left": 100 * r["ci_lo"] / scale,
+    rows = [{**r, "label": r[key], "count": f"{r['talks']} / {r['abstracts']}", "val": f"{100 * r['talk_rate']:.1f}%",
+             "bar": 100 * r["talk_rate"] / scale, "ci_left": 100 * r["ci_lo"] / scale,
              "ci_width": 100 * (r["ci_hi"] - r["ci_lo"]) / scale} for r in df.to_dict("records")]
     return {"rows": rows, "base": 100 * baseline / scale}
+
+
+def odds_rows(df):
+    """Rows for an overview odds-ratio table, like rate_rows but on a log scale with the line at 1×."""
+    lo, hi = np.log(min(df.or_lo.min(), 1) / 1.1), np.log(df.or_hi.max() * 1.05)
+    pos = lambda v: 100 * (np.log(v) - lo) / (hi - lo)
+    rows = [{**r, "label": r["ngram"], "count": f"{r['talk_docs']} / {r['poster_docs']}", "val": f"{r['or']:.1f}×",
+             "bar": pos(r["or"]), "ci_left": pos(r["or_lo"]), "ci_width": pos(r["or_hi"]) - pos(r["or_lo"])}
+            for r in df.to_dict("records")]
+    return {"rows": rows, "base": pos(1)}
 
 
 def explorer_json(path):
@@ -239,6 +267,8 @@ def main():
         f.unlink()
     for f in (TEMPLATES / "static").iterdir():
         shutil.copy(f, docs / "assets" / f.name)
+    # content hash in the asset URLs, so browsers don't pair new HTML with a cached old site.css
+    asset_v = hashlib.sha1(b"".join(f.read_bytes() for f in sorted((TEMPLATES / "static").iterdir()))).hexdigest()[:8]
     drivers = out / "trends_drivers.json"
     center = out / "trends_center.json"  # center-of-mass map (geography page), from center.py
 
@@ -250,7 +280,7 @@ def main():
               "drivers_json": explorer_json(drivers) if drivers.exists() else None,
               "center_json": center.read_text().replace("</", "<\\/") if center.exists() else None,
               "highlights": highlights(out, years) if pooled and (out / "trends_phrases.csv").exists() else None,
-              "repo_url": args.repo_url, "site_url": args.site_url,
+              "repo_url": args.repo_url, "site_url": args.site_url, "asset_v": asset_v,
               "n_institutes": pd.read_csv(args.aliases, comment="#").institute.nunique()}
     for i, page in enumerate(pages):
         html_out = env.get_template(page["file"] + ".j2").render(

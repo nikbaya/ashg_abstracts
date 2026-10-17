@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
 <title>ASHG abstracts</title>
 <meta name="description" content="Which phrases, institutions and places are over-represented among talks (vs posters) at the ASHG annual meeting, 2022–2026.">
 <meta property="og:type" content="website">
@@ -12,7 +13,7 @@
 <meta property="og:url" content="https://nikbaya.github.io/ashg_abstracts/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='5' cy='8' r='4' fill='%232a78d6'/%3E%3Ccircle cx='11' cy='8' r='4' fill='%23e34948' fill-opacity='.85'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/site.css?v=97c515c3">
 </head>
 <body>
 <header class="site-header"><div class="wrap">
@@ -60,13 +61,78 @@ from 4.1% in 2022.</p>
 <td><strong>1.7%</strong></td><td>7</td></tr>
 </tbody></table></div>
 <p class="table-note">Share of each year's accepted abstracts mentioning the topic (title or text; spelling variants count).</p>
-<p><strong>Most talk-leaning in 2026</strong> (phrases in at least 10 talks):
-“resource” 2.7×, “genetic variation” 2.6×, “regulatory” 2.0×, “qtls” 5.2×. (Odds of a talk with versus without
-the phrase.)</p>
+<p><strong>Most talk-leaning in 2026.</strong> Among phrases in at least 10 talks, an abstract mentioning
+“qtls” had 5.2× the odds of a talk of one that didn't.</p>
+<div class="scroll"><table class="hl-table rates">
+<thead><tr><th class="text">Phrase</th><th>Talks / posters</th><th class="text">Odds of a talk · 95% CI</th></tr></thead>
+<tbody>
+<tr><td class="text">qtls</td>
+<td>10 / 22</td>
+<td class="text"><span class="rate"><span class="track">
+<span class="ci" style="left:39.3%;width:58.8%"></span>
+<span class="pt" style="left:68.7%"></span>
+<span class="base" style="left:3.8%"></span></span>
+<span class="val">5.2×</span></span></td></tr>
+<tr><td class="text">arise</td>
+<td>12 / 33</td>
+<td class="text"><span class="rate"><span class="track">
+<span class="ci" style="left:33.9%;width:52.3%"></span>
+<span class="pt" style="left:60.0%"></span>
+<span class="base" style="left:3.8%"></span></span>
+<span class="val">4.2×</span></span></td></tr>
+<tr><td class="text">resource</td>
+<td>34 / 151</td>
+<td class="text"><span class="rate"><span class="track">
+<span class="ci" style="left:27.0%;width:31.2%"></span>
+<span class="pt" style="left:42.6%"></span>
+<span class="base" style="left:3.8%"></span></span>
+<span class="val">2.7×</span></span></td></tr>
+<tr><td class="text">genetic variation</td>
+<td>36 / 166</td>
+<td class="text"><span class="rate"><span class="track">
+<span class="ci" style="left:26.0%;width:30.3%"></span>
+<span class="pt" style="left:41.2%"></span>
+<span class="base" style="left:3.8%"></span></span>
+<span class="val">2.6×</span></span></td></tr>
+<tr><td class="text">regulatory</td>
+<td>64 / 390</td>
+<td class="text"><span class="rate"><span class="track">
+<span class="ci" style="left:19.9%;width:23.9%"></span>
+<span class="pt" style="left:31.8%"></span>
+<span class="base" style="left:3.8%"></span></span>
+<span class="val">2.0×</span></span></td></tr>
+<tr><td class="text">human</td>
+<td>95 / 683</td>
+<td class="text"><span class="rate"><span class="track">
+<span class="ci" style="left:16.4%;width:21.2%"></span>
+<span class="pt" style="left:27.0%"></span>
+<span class="base" style="left:3.8%"></span></span>
+<span class="val">1.8×</span></span></td></tr>
+</tbody></table></div>
+
+<p class="table-note">The 6 phrases with the strongest evidence of leaning toward talks (largest
+z-score), sorted by odds of a talk with versus without the phrase; log scale, dashed line = 1× (as common in talks as
+in posters).</p>
 <p><strong>Clinical work stopped leaning toward posters.</strong> Through 2025,
-“patients” and “likely pathogenic” came up more often in posters
-than in talks; in 2026 they leaned toward talks:
-“patients” 0.69× → 1.10× (p = 0.007), “likely pathogenic” 0.63× → 1.34× (p = 0.010).</p>
+“patients”, “likely pathogenic” and “next-generation sequencing” came up more often in posters than in talks; in 2026 they were at least as common in talks.</p>
+<div class="legend"><span><i style="background: var(--talk)"></i>share of talks</span><span><i style="background: var(--poster)"></i>share of posters</span></div>
+<div class="scroll"><table class="hl-table">
+<thead><tr><th class="text">Phrase</th><th class="text spark-col">2022–2026</th>
+<th>Odds of a talk 2022–25</th><th>2026</th><th>p (change)</th></tr></thead>
+<tbody>
+<tr><td class="text">patients</td><td class="text spark-col"><svg class="spark pair" viewBox="0 0 120 40" width="120" height="40" aria-hidden="true"><polyline class="poster" points="4.0,5.2 32.0,4.0 60.0,7.2 88.0,11.0 116.0,13.3"/><circle class="poster" cx="116.0" cy="13.3" r="2.5"/><polyline class="talk" points="4.0,8.7 32.0,11.4 60.0,15.7 88.0,21.4 116.0,11.6"/><circle class="talk" cx="116.0" cy="11.6" r="2.5"/></svg></td>
+<td>0.69×</td><td><strong>1.10×</strong></td>
+<td>0.007</td></tr>
+<tr><td class="text">likely pathogenic</td><td class="text spark-col"><svg class="spark pair" viewBox="0 0 120 40" width="120" height="40" aria-hidden="true"><polyline class="poster" points="4.0,18.2 32.0,15.2 60.0,16.9 88.0,17.0 116.0,11.2"/><circle class="poster" cx="116.0" cy="11.2" r="2.5"/><polyline class="talk" points="4.0,18.7 32.0,23.0 60.0,28.9 88.0,27.8 116.0,4.0"/><circle class="talk" cx="116.0" cy="4.0" r="2.5"/></svg></td>
+<td>0.63×</td><td><strong>1.34×</strong></td>
+<td>0.010</td></tr>
+<tr><td class="text">next-generation sequencing</td><td class="text spark-col"><svg class="spark pair" viewBox="0 0 120 40" width="120" height="40" aria-hidden="true"><polyline class="poster" points="4.0,10.2 32.0,4.0 60.0,12.8 88.0,7.0 116.0,18.4"/><circle class="poster" cx="116.0" cy="18.4" r="2.5"/><polyline class="talk" points="4.0,22.6 32.0,25.7 60.0,29.1 88.0,31.3 116.0,17.5"/><circle class="talk" cx="116.0" cy="17.5" r="2.5"/></svg></td>
+<td>0.39×</td><td><strong>1.17×</strong></td>
+<td>0.059</td></tr>
+</tbody></table></div>
+<p class="table-note">Each row on its own scale. These phrases were picked before looking at 2026, but across
+every phrase tested no single shift survives a false-discovery-rate correction: <a href="phrases.html#shift">suggestive,
+not established</a>.</p>
 <p class="more-link"><a href="phrases.html">Phrase trends, each year's top phrases and a lookup for any phrase →</a></p>
 </section>
 
@@ -128,8 +194,8 @@ institutions have wide intervals. In 2026 alone, Johns Hopkins University, Unive
 </section>
 
 <section class="vignette" id="authors">
-<h2><span class="num">3</span>Senior authors with the best record</h2>
-<p class="lead">Ranked by the lower end of a 95% interval, so a long record beats a short lucky one (at least
+<h2><span class="num">3</span>Senior authors with the highest talk rate</h2>
+<p class="lead">Ranked by the lower end of a 95% interval, so a rate over many abstracts outranks the same rate over a few (at least
 5 abstracts as senior author, 2022–2026). Michael E. Talkowski (Broad Institute) has the most talks:
 17 of 33.</p>
 <div class="scroll"><table class="hl-table rates">
@@ -223,7 +289,7 @@ Los Angeles 2022 253 km · Washington, DC 2023 101 km · Denver 2024 56 km · Bo
   <a class="card" href="authors.html">
     <img src="img/all_senior_authors.png" alt="" loading="lazy">
     <div class="body"><h3>Senior authors</h3>
-    <p>Senior authors with the most consistent record of talks, ranked by the lower end of a 95% interval.</p>
+    <p>Senior authors whose abstracts most often became talks, ranked by the lower end of a 95% interval.</p>
     <span class="more">Senior authors →</span></div>
   </a>
   <a class="card text-only" href="methods.html">
@@ -239,6 +305,6 @@ Los Angeles 2022 253 km · Washington, DC 2023 101 km · Denver 2024 56 km · Bo
   <p>Parsed from the ASHG annual meeting abstracts (2022–2026). Abstracts © ASHG; only aggregate results are published here.</p>
   <p>Code and full aggregate tables: <a href="https://github.com/nikbaya/ashg_abstracts">github.com/nikbaya/ashg_abstracts</a> · <a href="methods.html">Methods and caveats</a></p>
 </div></footer>
-<script src="assets/site.js"></script>
+<script src="assets/site.js?v=97c515c3"></script>
 </body>
 </html>

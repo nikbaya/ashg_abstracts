@@ -5,18 +5,17 @@
 {% set p = pooled or latest %}
 {% set h = highlights %}
 {% macro pct(v, d=1) %}{{ ("%." ~ d ~ "f")|format(100 * v) }}%{% endmacro %}
-{% macro x(v) %}{{ "%.1f"|format(v) }}×{% endmacro %}
-{% macro rate_table(t, head, sub=None) %}
+{% macro rate_table(t, head, sub=None, count_head="Talks / abstracts", val_head="Talk rate · 95% CI") %}
 <div class="scroll"><table class="hl-table rates">
-<thead><tr><th class="text">{{ head }}</th><th>Talks / abstracts</th><th class="text">Talk rate · 95% CI</th></tr></thead>
+<thead><tr><th class="text">{{ head }}</th><th>{{ count_head }}</th><th class="text">{{ val_head }}</th></tr></thead>
 <tbody>
 {% for r in t.rows %}<tr><td class="text">{{ r.label }}{% if sub %}<span class="related">{{ r[sub] }}</span>{% endif %}</td>
-<td>{{ r.talks }} / {{ r.abstracts }}</td>
+<td>{{ r.count }}</td>
 <td class="text"><span class="rate"><span class="track">
 <span class="ci" style="left:{{ '%.1f'|format(r.ci_left) }}%;width:{{ '%.1f'|format(r.ci_width) }}%"></span>
 <span class="pt" style="left:{{ '%.1f'|format(r.bar) }}%"></span>
 <span class="base" style="left:{{ '%.1f'|format(t.base) }}%"></span></span>
-<span class="val">{{ pct(r.talk_rate) }}</span></span></td></tr>
+<span class="val">{{ r.val }}</span></span></td></tr>
 {% endfor %}
 </tbody></table></div>
 {% endmacro %}
@@ -46,14 +45,28 @@ from {{ pct(r0.first) }} in {{ years[0].year }}.</p>
 {% endfor %}
 </tbody></table></div>
 <p class="table-note">Share of each year's accepted abstracts mentioning the topic (title or text; spelling variants count).</p>
-<p><strong>Most talk-leaning in {{ h.latest }}</strong> (phrases in at least 10 talks):
-{% for r in h.hot %}“{{ r.ngram }}” {{ x(r["or"]) }}{{ ", " if not loop.last else "." }}{% endfor %} (Odds of a talk with versus without
-the phrase.)</p>
+<p><strong>Most talk-leaning in {{ h.latest }}.</strong> Among phrases in at least 10 talks, an abstract mentioning
+“{{ h.hot.rows[0].label }}” had {{ h.hot.rows[0].val }} the odds of a talk of one that didn't.</p>
+{{ rate_table(h.hot, "Phrase", count_head="Talks / posters", val_head="Odds of a talk · 95% CI") }}
+<p class="table-note">The {{ h.hot.rows | length }} phrases with the strongest evidence of leaning toward talks (largest
+z-score), sorted by odds of a talk with versus without the phrase; log scale, dashed line = 1× (as common in talks as
+in posters).</p>
 {% if h.shift %}
 <p><strong>Clinical work stopped leaning toward posters.</strong> Through {{ years[-2].year }},
-{% for r in h.shift %}“{{ r.phrase }}”{{ " and " if not loop.last else "" }}{% endfor %} came up more often in posters
-than in talks; in {{ h.latest }} they leaned toward talks:
-{% for r in h.shift %}“{{ r.phrase }}” {{ "%.2f"|format(r.or_before) }}× → {{ "%.2f"|format(r.or_last) }}× (p = {{ "%.3f"|format(r.p) }}){{ ", " if not loop.last else "." }}{% endfor %}</p>
+{% for r in h.shift %}“{{ r.phrase }}”{{ ", " if loop.revindex > 2 else (" and " if not loop.last else "") }}{% endfor %} came up more often in posters than in talks; in {{ h.latest }} they were at least as common in talks.</p>
+<div class="legend"><span><i style="background: var(--talk)"></i>share of talks</span><span><i style="background: var(--poster)"></i>share of posters</span></div>
+<div class="scroll"><table class="hl-table">
+<thead><tr><th class="text">Phrase</th><th class="text spark-col">{{ years[0].year }}–{{ h.latest }}</th>
+<th>Odds of a talk {{ years[0].year }}–{{ years[-2].year % 100 }}</th><th>{{ h.latest }}</th><th>p (change)</th></tr></thead>
+<tbody>
+{% for r in h.shift %}<tr><td class="text">{{ r.phrase }}</td><td class="text spark-col">{{ r.spark }}</td>
+<td>{{ "%.2f"|format(r.or_before) }}×</td><td><strong>{{ "%.2f"|format(r.or_last) }}×</strong></td>
+<td>{{ "< 0.001" if r.p < 0.001 else "%.3f"|format(r.p) }}</td></tr>
+{% endfor %}
+</tbody></table></div>
+<p class="table-note">Each row on its own scale. These phrases were picked before looking at {{ h.latest }}, but across
+every phrase tested no single shift survives a false-discovery-rate correction: <a href="phrases.html#shift">suggestive,
+not established</a>.</p>
 {% endif %}
 <p class="more-link"><a href="phrases.html">Phrase trends, each year's top phrases and a lookup for any phrase →</a></p>
 </section>
@@ -71,9 +84,9 @@ institutions have wide intervals. In {{ h.latest }} alone, {{ h.latest_top | joi
 </section>
 
 <section class="vignette" id="authors">
-<h2><span class="num">3</span>Senior authors with the best record</h2>
+<h2><span class="num">3</span>Senior authors with the highest talk rate</h2>
 {% set most = h.author_most %}
-<p class="lead">Ranked by the lower end of a 95% interval, so a long record beats a short lucky one (at least
+<p class="lead">Ranked by the lower end of a 95% interval, so a rate over many abstracts outranks the same rate over a few (at least
 {{ h.author_min }} abstracts as senior author, {{ p.label }}). {{ most.name }} ({{ most.institute }}) has the most talks:
 {{ most.talks }} of {{ most.abstracts }}.</p>
 {{ rate_table(h.authors, "Senior author", "institute") }}
@@ -124,7 +137,7 @@ center of mass of North American abstracts moves {{ "{:,}".format(pulls[0].km) }
   <a class="card" href="authors.html">
     <img src="img/{{ 'all' if pooled else latest.year }}_senior_authors.png" alt="" loading="lazy">
     <div class="body"><h3>Senior authors</h3>
-    <p>Senior authors with the most consistent record of talks, ranked by the lower end of a 95% interval.</p>
+    <p>Senior authors whose abstracts most often became talks, ranked by the lower end of a 95% interval.</p>
     <span class="more">Senior authors →</span></div>
   </a>
   <a class="card text-only" href="methods.html">

@@ -4,14 +4,6 @@
   --text-primary: #0b0b0b; --text-secondary: #52514e;
   --talk: #2a78d6; --poster: #e34948;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-    --surface-1: #1a1a19; --surface-2: #2a2a28; --rule: #383835;
-    --text-primary: #f0efec; --text-secondary: #c3c2b7;
-    --talk: #3987e5; --poster: #e66767;
-  }
-}
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--surface-1); color: var(--text-primary);
   font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
@@ -211,10 +203,13 @@ details.table > summary { cursor: pointer; color: var(--talk); font-size: 14px; 
 .table-note { font-size: 13px; margin-top: 4px; }
 .hl-table { width: auto; min-width: min(100%, 560px); }
 .hl-table td, .hl-table th { font-variant-numeric: tabular-nums; }
-.hl-table .spark-col { padding-top: 2px; padding-bottom: 2px; }
-.spark { display: block; }
+.hl-table .spark-col { padding-top: 2px; padding-bottom: 2px; }.spark { display: block; }
 .spark polyline { fill: none; stroke: var(--text-primary); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
 .spark circle { fill: var(--text-primary); }
+.spark.pair polyline.talk { stroke: var(--talk); }
+.spark.pair polyline.poster { stroke: var(--poster); }
+.spark.pair circle.talk { fill: var(--talk); }
+.spark.pair circle.poster { fill: var(--poster); }
 .rates .rate { display: flex; align-items: center; gap: 10px; }
 .rates .track { position: relative; width: 220px; height: 12px; flex: none; }
 .rates .ci { position: absolute; top: 5px; height: 2px; background: var(--talk); border-radius: 1px; }
