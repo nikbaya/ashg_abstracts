@@ -207,3 +207,30 @@ details.table > summary { cursor: pointer; color: var(--talk); font-size: 14px; 
 .rates .val { min-width: 3.5em; text-align: right; }
 @media (max-width: 600px) { .rates .track { width: 110px; } }
 table.match th.group { text-align: center; border-bottom: 1px solid var(--rule); }
+
+/* score page */
+.scorer { margin: 20px 0 8px; }
+.scorer > .lbl { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; }
+.scorer textarea { display: block; width: 100%; max-width: 780px; font: inherit; font-size: 14px; color: var(--text-primary);
+  background: var(--surface-1); border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; resize: vertical; }
+.scorer textarea:focus { outline: 2px solid var(--talk); outline-offset: -1px; }
+.scorer input[type="file"] { font-size: 13px; color: var(--text-secondary); max-width: 100%; }
+.sc-headline { font-size: 18px; color: var(--text-primary); margin: 16px 0 4px; }
+.sc-headline strong { font-size: 22px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; max-width: 780px; }
+.chip { font-size: 13px; color: var(--text-primary); background: var(--surface-2); border-radius: 12px; padding: 2px 10px; }
+#sc-chart { display: block; width: 100%; max-width: 640px; height: auto; }
+#sc-chart .grid { stroke: var(--rule); }
+#sc-chart .axis { fill: var(--text-secondary); font-size: 11px; }
+#sc-chart .bar.talk { fill: var(--talk); }
+#sc-chart .bar.poster { fill: var(--poster); }
+#sc-chart .you { stroke: var(--text-primary); stroke-width: 1.5; }
+#sc-chart .you-label { fill: var(--text-primary); font-size: 12px; font-weight: 700; }
+#sc-chart .hit { fill: transparent; }
+#sc-chart .hit:hover { fill: rgb(0 0 0 / 0.05); }
+
+/* interactive Manhattan plots (phrases page) */
+.mh { position: relative; max-width: 780px; margin: 12px 0 4px; }
+.mh canvas { display: block; touch-action: pan-y; }
+.mh .mh-title { margin: 0 0 2px; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.mh .mh-fallback { display: block; width: 100%; height: auto; border: 1px solid var(--rule); border-radius: 6px; }

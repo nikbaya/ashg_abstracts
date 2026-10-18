@@ -61,13 +61,12 @@ document.querySelectorAll("table.sortable").forEach(table => {
   let year = "all";
   const node = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
   const pct = v => (100 * v).toFixed(v < 0.1 ? 1 : 0) + "%";
-  const x2 = v => v.toFixed(v < 10 ? 1 : 0) + "×";
-  // 95% CIs. rateRatio: (a/n1) ÷ (c/n2), Katz log interval, +0.5 to a zero count.
+  // 95% CIs. oddsRatio: (a/b) ÷ (c/d), Woolf log interval, +0.5 to every cell if any is zero.
   // wilson: proportion k/n, the interval the site uses for talk rates.
-  const rateRatio = (a, n1, c, n2) => {
-    const r = (a / n1) / (c / n2), [aa, cc] = [a || 0.5, c || 0.5];
-    const se = Math.sqrt(1 / aa - 1 / n1 + 1 / cc - 1 / n2), lr = Math.log((aa / n1) / (cc / n2));
-    return [r, a ? Math.exp(lr - 1.96 * se) : 0, Math.exp(lr + 1.96 * se)];
+  const oddsRatio = (a, b, c, d) => {
+    if (!(a && b && c && d)) [a, b, c, d] = [a + 0.5, b + 0.5, c + 0.5, d + 0.5];
+    const lr = Math.log(a * d / (b * c)), se = Math.sqrt(1 / a + 1 / b + 1 / c + 1 / d);
+    return [Math.exp(lr), Math.exp(lr - 1.96 * se), Math.exp(lr + 1.96 * se)];
   };
   const wilson = (k, n, z = 1.96) => {
     const p = k / n, d = 1 + z * z / n, c = (p + z * z / (2 * n)) / d;
@@ -77,7 +76,9 @@ document.querySelectorAll("table.sortable").forEach(table => {
   // every other phrase in 5+ talks, searchable but without the institution/metro breakdown:
   // [phrase, [talks, posters] per year flattened, or, lo, hi], most-mentioned first
   const MORE = "More phrases (abstract text only)", MORE_MAX = 150;
-  const more = (data.more || []).map(([phrase, flat, ...or]) =>
+  // a phrase in both lists keeps its listed entry (titles and plurals counted)
+  const listed = new Set(data.phrases.map(p => p.phrase));
+  const more = (data.more || []).filter(([phrase]) => !listed.has(phrase)).map(([phrase, flat, ...or]) =>
     ({ phrase, group: MORE, counts: data.years.map((_, i) => [flat[2 * i], flat[2 * i + 1]]), or }));
   const byPhrase = Object.fromEntries([...data.phrases, ...more].map(p => [p.phrase, p]));
 
@@ -111,7 +112,7 @@ document.querySelectorAll("table.sortable").forEach(table => {
     if (text != null) n.textContent = text;
     return n;
   };
-  let mode = "abs";  // "abs": share of talks and of posters (two lines); "rel": talk share ÷ poster share (one line)
+  let mode = "abs";  // "abs": share of talks and of posters (two lines); "rel": odds of a talk with vs without (one line)
   const modeSeg = document.getElementById("drv-mode");
   modeSeg?.addEventListener("click", ev => {
     const b = ev.target.closest("button");
@@ -124,8 +125,11 @@ document.querySelectorAll("table.sortable").forEach(table => {
   function drawChart(p) {
     const W = 360, H = 150, L = 40, R = 18, T = 12, B = 24;
     const shares = [0, 1].map(i => p.counts.map((c, y) => c[i] / data.totals[y][i]));
-    // in "rel" mode a year with no poster mentions has no ratio and is skipped
-    const ci = p.counts.map(([a, c], y) => (c ? rateRatio(a, data.totals[y][0], c, data.totals[y][1]) : null));
+    // in "rel" mode a year with no poster mentions has no odds ratio and is skipped
+    const ci = p.counts.map(([a, c], y) => {
+      const [nt, np] = data.totals[y];
+      return c ? oddsRatio(a, c, nt - a, np - c) : null;
+    });
     const series = mode === "abs" ? [["talk", shares[0]], ["poster", shares[1]]] : [["ratio", ci.map(r => r && r[0])]];
     const vals = series.flatMap(([, v]) => v).filter(v => v != null);
     // intervals set the scale, but an extreme one is cut off rather than flattening the line
@@ -153,7 +157,7 @@ document.querySelectorAll("table.sortable").forEach(table => {
         const dot = svg("circle", { cx: x(i), cy: y(s), r: 4, class: "dot " + k });
         const [t, q] = p.counts[i];
         dot.appendChild(svg("title", {}, k === "ratio"
-          ? `${data.years[i]}: ${s.toFixed(2)}× (95% CI ${ci[i][1].toFixed(2)}–${ci[i][2].toFixed(2)}; ` +
+          ? `${data.years[i]}: ${s.toFixed(2)}× odds of a talk (95% CI ${ci[i][1].toFixed(2)}–${ci[i][2].toFixed(2)}; ` +
             `${pct(shares[0][i])} of talks vs ${pct(shares[1][i])} of posters)`
           : `${data.years[i]}: ${pct(s)} of ${k}s (${k === "talk" ? t : q})`));
         chart.appendChild(dot);
@@ -163,7 +167,7 @@ document.querySelectorAll("table.sortable").forEach(table => {
     document.getElementById("drv-ratio-note").hidden = mode !== "rel";
     chart.setAttribute("aria-label", mode === "abs"
       ? `Share of talks and of posters mentioning “${p.phrase}”, by year`
-      : `Share of talks divided by share of posters mentioning “${p.phrase}”, by year`);
+      : `Odds of a talk with vs without “${p.phrase}”, by year`);
     const [or, lo, hi] = p.or, f = v => v.toFixed(2);
     const or_ = document.getElementById("drv-or");
     or_.replaceChildren(node("strong", null, `${f(or)}×`),
@@ -177,8 +181,11 @@ document.querySelectorAll("table.sortable").forEach(table => {
   });
   phraseSel.addEventListener("change", render);
 
-  // "abs": bars count abstracts mentioning the phrase, split talk/poster; "rel": each entity's mention rate
-  // ÷ the mention rate over all abstracts in the period (1× = average)
+  // "abs": bars count abstracts mentioning the phrase, split talk/poster; "rel": odds of a talk for each
+  // entity's abstracts with vs without the phrase, like the phrase's own odds ratio above
+  // row: [name, talks, posters, entity abstracts, entity talks] for the period
+  const entityOR = ([, a, b, n, t]) => oddsRatio(a, b, t - a, n - t - b);
+  const fx = v => v.toFixed(v < 1 ? 2 : 1);
   let barMode = "abs";
   const barSeg = document.getElementById("drv-bar-mode");
   barSeg?.addEventListener("click", ev => {
@@ -202,6 +209,9 @@ document.querySelectorAll("table.sortable").forEach(table => {
     const [lo, hi] = wilson(n, total).map(v => v / base);
     tip.appendChild(node("div", null, `${(n / total / base).toFixed(1)}× the rate over all abstracts (${pct(base)}); ` +
       `95% CI ${lo.toFixed(1)}–${hi.toFixed(1)}×`));
+    const [or, orLo, orHi] = entityOR(row);
+    tip.appendChild(node("div", null, `${fx(or)}× odds of a talk with vs without it (95% CI ${fx(orLo)}–${fx(orHi)}); ` +
+      `${row[4] - talks} talks of ${total - n} abstracts without it`));
     tip.hidden = false;
     const r = ev.type === "focus" ? ev.target.getBoundingClientRect() : { left: ev.clientX, bottom: ev.clientY };
     tip.style.left = Math.min(r.left + 12, innerWidth - tip.offsetWidth - 8) + "px";
@@ -211,15 +221,15 @@ document.querySelectorAll("table.sortable").forEach(table => {
   function list(container, rows, phrase, base) {
     container.replaceChildren();
     if (!rows.length) { container.appendChild(node("p", "empty", "None with a talk mentioning it.")); return; }
-    const ratio = r => (r[1] + r[2]) / r[3] / base;
-    const ci = r => wilson(r[1] + r[2], r[3]).map(v => v / base);  // the overall rate is treated as fixed
+    const ratio = r => entityOR(r)[0], ci = r => entityOR(r).slice(1);
     const rel = barMode === "rel";
     if (rel) rows = [...rows].sort((a, b) => ratio(b) - ratio(a));
     const max = Math.max(...rows.map(r => r[1] + r[2]));
-    // "rel" is a forest plot on a log scale spanning every interval and 1×; rows have a talk mentioning
-    // the phrase, so every lower bound is above 0
-    const lo0 = Math.min(1, ...rows.map(r => ci(r)[0])) / 1.15, hi0 = Math.max(1, ...rows.map(r => ci(r)[1])) * 1.15;
-    const pos = v => 100 * Math.log(v / lo0) / Math.log(hi0 / lo0) + "%";
+    // "rel" is a forest plot on a log scale spanning every interval and 1×, but an interval past 1/50× or
+    // 50× (a handful of abstracts) is cut off rather than squashing the rest
+    const lo0 = Math.max(0.02, Math.min(1, ...rows.map(r => ci(r)[0]))) / 1.15;
+    const hi0 = Math.min(50, Math.max(1, ...rows.map(r => ci(r)[1]))) * 1.15;
+    const pos = v => 100 * Math.min(1, Math.max(0, Math.log(v / lo0) / Math.log(hi0 / lo0))) + "%";
     rows.forEach(row => {
       const [name, talks, posters] = row, n = talks + posters;
       const r = node("div", "bar-row"); r.tabIndex = 0;
@@ -240,7 +250,7 @@ document.querySelectorAll("table.sortable").forEach(table => {
         cell.appendChild(track);
       }
       r.appendChild(cell);
-      r.appendChild(node("span", "val", rel ? `${x2(ratio(row))} (${ci(row).map(v => v.toFixed(1)).join("–")})`
+      r.appendChild(node("span", "val", rel ? `${fx(ratio(row))}× (${ci(row).map(fx).join("–")})`
         : `${n} (${talks} talk${talks === 1 ? "" : "s"})`));
       r.addEventListener("pointermove", ev => showTip(ev, row, phrase, base));
       r.addEventListener("focus", ev => showTip(ev, row, phrase, base));
@@ -250,7 +260,12 @@ document.querySelectorAll("table.sortable").forEach(table => {
     if (!rel) return;
     // tick axis under the forest plot, aligned with the plot column
     const axis = node("div", "bar-row axis"), cell = node("span", "cell");
-    [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50].filter(v => v >= lo0 && v <= hi0).forEach(v => {
+    // candidates in priority order (1×, then decades, then 2/5 steps); one is skipped if it would sit within
+    // 16% of the plot width of a tick already placed, so labels never overlap
+    const at = v => parseFloat(pos(v)), kept = [];
+    [1, 10, 0.1, 2, 5, 0.5, 0.2, 20, 50, 0.05, 0.02].filter(v => v >= lo0 && v <= hi0)
+      .forEach(v => { if (kept.every(k => Math.abs(at(k) - at(v)) >= 16)) kept.push(v); });
+    kept.forEach(v => {
       const t = node("span", "tick", v + "×"); t.style.left = pos(v); cell.appendChild(t);
     });
     axis.append(node("span"), cell, node("span"));
@@ -277,6 +292,28 @@ document.querySelectorAll("table.sortable").forEach(table => {
     list(document.getElementById("drv-institutes"), d.institutes, phrase, base);
     list(document.getElementById("drv-metros"), d.metros, phrase, base);
   }
+  // Deep links: phrases.html?phrase=X#explorer opens with X selected (any case; a phrase outside the list goes in
+  // the search box). On this page such links select the phrase in place rather than reloading.
+  function select(want) {
+    const key = Object.keys(byPhrase).find(k => k.toLowerCase() === want.toLowerCase());
+    const listed = key && data.phrases.some(p => p.phrase === key);
+    search.value = listed ? "" : (key ?? want);
+    fillOptions(search.value.trim().toLowerCase());
+    if (key) phraseSel.value = key;
+    render();
+  }
+  const wanted = new URLSearchParams(location.search).get("phrase");
+  if (wanted) select(wanted);
+  document.addEventListener("click", ev => {
+    const a = ev.target.closest("a[href*='?phrase=']");
+    if (!a || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button) return;
+    const url = new URL(a.href);
+    if (url.pathname !== location.pathname) return;
+    ev.preventDefault();
+    select(url.searchParams.get("phrase"));
+    history.replaceState(null, "", url.search + "#explorer");
+    document.getElementById("explorer").scrollIntoView({ behavior: "smooth" });
+  });
   render();
 })();
 
@@ -431,4 +468,312 @@ document.querySelectorAll("table.sortable").forEach(table => {
     }));
   }
   render();
+})();
+
+// Overrepresented-phrase score: tokens and 1-3-word n-grams as in features.py (tokenize, ngrams), so a text scores
+// here as it would in talk_score.py. Top-level so it can be checked against the Python outside a browser.
+const talkScore = (() => {
+  const TOKEN = /\p{Nd}+(?:[.,]\p{Nd}+)*(?![\p{L}\p{N}_-])|[\p{L}\p{N}_]+(?:[-'’][\p{L}\p{N}_]+)*/gu;
+  const NUM = /^[\p{Nd}.,]+$/u;
+  const tokenize = text => (text.toLowerCase().match(TOKEN) || []).map(t => NUM.test(t) ? "<num>" : t.replace(/’/g, "'"));
+  const grams = tokens => {
+    const out = new Set();
+    for (let n = 1; n <= 3; n++) for (let i = 0; i + n <= tokens.length; i++) out.add(tokens.slice(i, i + n).join(" "));
+    return out;
+  };
+  // groups: [label, [other variants], or, talks, posters]; returns the groups the text contains, with the variant found
+  const match = (text, groups) => {
+    const g = grams(tokenize(text));
+    return groups.map(([label, also, or]) => ({ label, or, found: [label, ...also].find(v => g.has(v)) })).filter(m => m.found);
+  };
+  // whole-number percentile among abstracts (counts per score), ties counted half
+  const percentile = (s, talks, posters) => {
+    const counts = talks.map((t, i) => t + posters[i]), n = counts.reduce((a, b) => a + b, 0);
+    const below = counts.slice(0, s).reduce((a, b) => a + b, 0);
+    return Math.round(100 * (below + 0.5 * (counts[s] || 0)) / n);
+  };
+  return { tokenize, match, percentile };
+})();
+
+// Score page: the pasted or opened text is scored here and never leaves the browser.
+(() => {
+  const el = typeof document !== "undefined" && document.getElementById("sc-data");
+  if (!el) return;
+  const data = JSON.parse(el.textContent);
+  const text = document.getElementById("sc-text"), file = document.getElementById("sc-file");
+  const result = document.getElementById("sc-result"), chart = document.getElementById("sc-chart");
+  const SVG = "http://www.w3.org/2000/svg";
+  const svg = (tag, attrs, label) => {
+    const n = document.createElementNS(SVG, tag);
+    Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v));
+    if (label != null) n.textContent = label;
+    return n;
+  };
+  const nT = data.talks.reduce((a, b) => a + b, 0), nP = data.posters.reduce((a, b) => a + b, 0);
+  const pct = v => (100 * v).toFixed(v < 0.1 ? 1 : 0) + "%";
+
+  function draw(s) {
+    // histogram: share of talks and of posters at each score, side by side; your score marked
+    const W = 560, H = 190, L = 40, R = 14, T = 16, B = 30, max = data.talks.length - 1;
+    const shares = [data.talks.map(c => c / nT), data.posters.map(c => c / nP)];
+    const top = Math.max(...shares.flat()) * 1.12, step = top > 0.1 ? 0.05 : 0.02;
+    const slot = (W - L - R) / (max + 1), bar = Math.max(1, slot / 2 - 1);
+    const x = i => L + slot * (Math.min(i, max) + 0.5), y = v => T + (H - T - B) * (1 - v / top);
+    chart.replaceChildren();
+    for (let v = 0; v <= top + 1e-9; v += step) {
+      chart.appendChild(svg("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), class: "grid" }));
+      chart.appendChild(svg("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end", class: "axis" }, Math.round(100 * v) + "%"));
+    }
+    for (let v = 0; v <= max; v += 5)
+      chart.appendChild(svg("text", { x: x(v), y: H - 14, "text-anchor": "middle", class: "axis" }, v));
+    chart.appendChild(svg("text", { x: (L + W - R) / 2, y: H - 1, "text-anchor": "middle", class: "axis" },
+      "overrepresented phrases found"));
+    for (let i = 0; i <= max; i++) {
+      [["talk", shares[0][i], -bar - 0.5], ["poster", shares[1][i], 0.5]].forEach(([k, v, dx]) => v &&
+        chart.appendChild(svg("rect", { x: x(i) + dx, y: y(v), width: bar, height: y(0) - y(v), class: "bar " + k })));
+    }
+    if (s != null) {
+      chart.appendChild(svg("line", { x1: x(s), x2: x(s), y1: T - 4, y2: y(0), class: "you" }));
+      const right = s > max * 0.7;
+      chart.appendChild(svg("text", { x: x(s) + (right ? -5 : 5), y: T + 6, class: "you-label",
+        "text-anchor": right ? "end" : "start" }, s > max ? `your text (${s})` : "your text"));
+    }
+    // a hover target per score: share of talks and of posters with that many
+    for (let i = 0; i <= max; i++) {
+      const hit = svg("rect", { x: x(i) - slot / 2, y: T, width: slot, height: y(0) - T, class: "hit" });
+      hit.appendChild(svg("title", {}, `${i} phrase${i === 1 ? "" : "s"}: ${pct(shares[0][i])} of talks (${data.talks[i]}), ` +
+        `${pct(shares[1][i])} of posters (${data.posters[i]})`));
+      chart.appendChild(hit);
+    }
+  }
+
+  function render() {
+    const t = text.value.trim();
+    const words = t ? talkScore.tokenize(t).length : 0;
+    result.hidden = !t;
+    draw(t ? talkScore.match(t, data.groups).length : null);
+    if (!t) return;
+    const found = talkScore.match(t, data.groups), s = found.length;
+    const p = Math.min(99, Math.max(1, talkScore.percentile(s, data.talks, data.posters)));
+    document.getElementById("sc-score").textContent = s;
+    document.getElementById("sc-pct").textContent = (p === 99 ? "over 99" : p === 1 ? "under 1" : p) + "%";
+    document.getElementById("sc-short").hidden = words >= 150;
+    document.getElementById("sc-words").textContent = words;
+    const list = document.getElementById("sc-found");
+    list.replaceChildren(...found.sort((a, b) => b.or - a.or).map(m => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.textContent = m.found.replace(/<num>/g, "N");
+      chip.title = `${m.label.replace(/<num>/g, "N")}: odds ratio ${m.or.toFixed(2)} (talks vs posters, all years)`;
+      return chip;
+    }));
+    document.getElementById("sc-none").hidden = s > 0;
+  }
+  text.addEventListener("input", render);
+  file.addEventListener("change", () => {
+    const f = file.files[0];
+    if (!f) return;
+    f.text().then(t => { text.value = t; render(); });
+  });
+  document.getElementById("sc-clear").addEventListener("click", () => { text.value = ""; file.value = ""; render(); text.focus(); });
+  render();
+})();
+
+// Words more common in the latest year (phrases page): search every word, sort by any column, show the top rows.
+(() => {
+  const el = typeof document !== "undefined" && document.getElementById("we-data");
+  if (!el) return;
+  const data = JSON.parse(el.textContent), SHOW = 50;
+  const search = document.getElementById("we-search"), body = document.getElementById("we-body");
+  const count = document.getElementById("we-count"), heads = [...document.querySelectorAll("#we-table th")];
+  const sig = data.rows.filter(r => r[4] < data.alpha).length;
+  let key = 4, asc = true;
+  // abstracts columns sort by share, so the two periods compare
+  const value = (r, k) => k === 1 ? r[1] / data.n1 : k === 2 ? r[2] / data.n0 : r[k];
+  const share = (k, n) => `${k.toLocaleString()} (${(100 * k / n).toFixed(k / n < 0.1 ? 1 : 0)}%)`;
+  const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+  const fmtP = p => {
+    if (p === 0) return "< 10⁻³⁰⁰";
+    if (p >= 0.001) return String(+p.toPrecision(2));
+    const [m, e] = p.toExponential(1).split("e");
+    return `${m} × 10${[...String(+e)].map(c => SUP[c]).join("")}`;
+  };
+  const cell = (text, cls) => { const td = document.createElement("td"); if (cls) td.className = cls; td.textContent = text; return td; };
+
+  function render() {
+    const q = search.value.trim().toLowerCase();
+    const rows = data.rows.filter(r => !q || r[0].includes(q))
+      .sort((a, b) => { const x = value(a, key), y = value(b, key); return (x > y ? 1 : x < y ? -1 : 0) * (asc ? 1 : -1); });
+    body.replaceChildren(...rows.slice(0, SHOW).map(r => {
+      const tr = document.createElement("tr"), p = cell(fmtP(r[4]));
+      if (r[4] < data.alpha) p.style.fontWeight = "700";
+      tr.append(cell(r[0], "text"), cell(share(r[1], data.n1)), cell(share(r[2], data.n0)), cell(r[3].toFixed(2)), p);
+      return tr;
+    }));
+    count.textContent = (q ? `${rows.length.toLocaleString()} matching word${rows.length === 1 ? "" : "s"}`
+      : `${data.rows.length.toLocaleString()} words, ${sig} significant`) + (rows.length > SHOW ? ` · showing ${SHOW}` : "");
+  }
+  heads.forEach(th => th.addEventListener("click", () => {
+    const k = +th.dataset.k;
+    asc = k === key ? !asc : k === 0 || k === 4;  // words A to Z and p smallest first; the rest largest first
+    key = k;
+    heads.forEach(h => h.removeAttribute("aria-sort"));
+    th.setAttribute("aria-sort", asc ? "ascending" : "descending");
+    render();
+  }));
+  search.addEventListener("input", render);
+  render();
+})();
+
+// Interactive Manhattan plots (phrases page): words A to Z per year, words overrepresented in the latest year, and
+// genes along the genome. Points on a canvas; hover (or tap) for the word or gene; the lead point of each tower (no
+// taller point within a few pixels) is labelled, biggest first, where its label fits. The per-year charts follow
+// the page's year buttons. Without the data (or JS) the static PNG inside the holder stays.
+(() => {
+  const holders = typeof document !== "undefined" ? [...document.querySelectorAll("[data-manhattan]")] : [];
+  if (!holders.length) return;
+  const css = getComputedStyle(document.documentElement);
+  const color = name => css.getPropertyValue(name).trim();
+  const INK = color("--text-primary"), INK_2 = color("--text-secondary"), RULE = color("--rule"), TALK = color("--talk");
+  const LIGHT = "#9fc0ea", FONT = getComputedStyle(document.body).fontFamily;
+  const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+  const pct = v => (100 * v).toFixed(v < 0.1 ? 1 : 0) + "%";
+  const count = (k, n) => `${k.toLocaleString()} of ${n.toLocaleString()} abstracts (${pct(k / n)})`;
+  const yearNow = () => document.querySelector('[data-control="year"] button[aria-pressed="true"]')?.dataset.value ?? "all";
+  const charts = [];
+
+  function model(kind, data) {
+    const w = data.words, g = data.genes, n = data.n;
+    if (kind === "genes") {
+      const ymax = Math.max(...Object.entries(g.counts).map(([y, c]) => Math.max(...c) / n[y])) * 1.25;
+      return {
+        xs: g.x, band: g.chrom.map(c => c % 2), x0: -20, x1: g.chroms[g.chroms.length - 1][2] + 20, ymax, fmt: pct,
+        ticks: g.chroms.filter(c => c[3]).map(c => [(c[1] + c[2]) / 2, c[0]]), labelMin: 0.2, follows: true,
+        leadPx: 2,  // neighbouring genes are separate signals (TP53 and BRCA1 sit 8px apart), not one tower
+        ys: y => g.counts[y].map(c => c / n[y]), skipZero: true,
+        title: y => y === "all" ? `All years, ${n.all.toLocaleString()} abstracts` : `${y}, ${n[y].toLocaleString()} abstracts`,
+        tip: (i, y) => [g.genes[i], `chromosome ${g.chroms[g.chrom[i]][0]}`, count(g.counts[y][i], n[y])],
+      };
+    }
+    const letters = w.words.map(s => s[0]), firsts = [...new Set(letters)];
+    const band = letters.map(l => firsts.indexOf(l) % 2);
+    const ticks = firsts.map(l => { const a = letters.indexOf(l), b = letters.lastIndexOf(l); return [(a + b) / 2, b - a > w.words.length / 120 ? l : ""]; });
+    const base = { xs: w.words.map((_, i) => i), band, x0: -w.words.length * 0.01, x1: w.words.length * 1.01, ticks };
+    if (kind === "words") {
+      const ymax = Math.max(...Object.entries(w.counts).map(([y, c]) => Math.max(...c) / n[y])) * 1.15;
+      return { ...base, ymax, fmt: pct, labelMin: 0.15, follows: true, ys: y => w.counts[y].map(c => c / n[y]),
+        title: y => y === "all" ? `All years, ${n.all.toLocaleString()} abstracts` : `${y}, ${n[y].toLocaleString()} abstracts`,
+        tip: (i, y) => [w.words[i], count(w.counts[y][i], n[y])] };
+    }
+    const e = w.enriched, last = String(e.year), nb = n.all - n[last];
+    return { ...base, ymax: Math.max(...e.logp) * 1.1, fmt: v => String(v), line: e.line, labelMin: 0, minY: 4 * e.line,
+      ys: () => e.logp, follows: false,
+      tip: i => {
+        const k = w.counts[last][i], before = w.counts.all[i] - k, lp = e.logp[i];
+        return [w.words[i], `${last}: ${count(k, n[last])}`, `${e.before}: ${count(before, nb)}`,
+          lp >= 1 ? `p = 10${[...String(-Math.round(lp))].map(c => SUP[c]).join("")}${lp >= e.line ? ", significant" : ""}`
+            : "not overrepresented"];
+      } };
+  }
+
+  function setup(holder, data) {
+    const kind = holder.dataset.manhattan, m = model(kind, data);
+    const canvas = document.createElement("canvas"), tip = document.createElement("div"), title = holder.querySelector(".mh-title");
+    canvas.setAttribute("role", "img");
+    canvas.setAttribute("aria-label", holder.dataset.label || "");
+    tip.className = "tip"; tip.hidden = true; tip.setAttribute("role", "tooltip");
+    holder.querySelector(".mh-fallback")?.remove();
+    holder.append(canvas, tip);
+    const ctx = canvas.getContext("2d");
+    let pts = [], year = m.follows ? yearNow() : null, hover = -1;
+    const L = 44, R = 12, T = 30, B = 26;
+
+    function draw() {
+      const W = holder.clientWidth, H = Math.round(Math.min(340, Math.max(240, W * 0.42))), dpr = devicePixelRatio || 1;
+      canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.width = W + "px"; canvas.style.height = H + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+      if (title) title.textContent = m.title ? m.title(year) : "";
+      const X = x => L + (W - L - R) * (x - m.x0) / (m.x1 - m.x0), Y = v => T + (H - T - B) * (1 - v / m.ymax);
+      // y grid: about four round steps
+      const raw = m.ymax / 4, mag = 10 ** Math.floor(Math.log10(raw)), step = [1, 2, 5, 10].map(s => s * mag).find(s => s >= raw);
+      ctx.font = `11px ${FONT}`; ctx.textAlign = "right"; ctx.textBaseline = "middle";
+      for (let v = 0; v <= m.ymax; v += step) {
+        ctx.strokeStyle = RULE; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(L, Math.round(Y(v)) + 0.5); ctx.lineTo(W - R, Math.round(Y(v)) + 0.5); ctx.stroke();
+        ctx.fillStyle = INK_2; ctx.fillText(m.fmt === pct ? `${+(100 * v).toFixed(2)}%` : m.fmt(+v.toFixed(6)), L - 6, Y(v));
+      }
+      ctx.textAlign = "center"; ctx.textBaseline = "top";
+      m.ticks.forEach(([x, label]) => label && ctx.fillText(label, X(x), H - B + 8));
+      if (m.line) {
+        ctx.strokeStyle = INK_2; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(L, Y(m.line)); ctx.lineTo(W - R, Y(m.line)); ctx.stroke(); ctx.setLineDash([]);
+        ctx.textAlign = "right"; ctx.textBaseline = "bottom"; ctx.fillText("Bonferroni 5%", W - R, Y(m.line) - 2);
+      }
+      const ys = m.ys(year);
+      pts = [];
+      ys.forEach((v, i) => { if (!(m.skipZero && !v)) pts.push([X(m.xs[i]), Y(v), i]); });
+      [0, 1].forEach(b => {
+        ctx.fillStyle = b ? LIGHT : TALK;
+        ctx.beginPath();
+        pts.forEach(([x, y, i]) => { if (m.band[i] === b) { ctx.moveTo(x + 2, y); ctx.arc(x, y, 2, 0, 2 * Math.PI); } });
+        ctx.fill();
+      });
+      // tower leads, tallest first: no taller point within leadPx (10) either side; then a label where it fits
+      const order = pts.filter(([, , i]) => ys[i] >= Math.max(m.labelMin * m.ymax, m.minY ?? 0)).sort((a, b) => a[1] - b[1]);
+      const taller = [], boxes = [], maxLabels = Math.floor((W - L - R) / 55);
+      ctx.font = `bold 11px ${FONT}`; ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+      for (const [x, y, i] of order) {
+        const lead = !taller.some(tx => Math.abs(tx - x) < (m.leadPx ?? 10));
+        taller.push(x);
+        if (!lead || boxes.length >= maxLabels) continue;
+        const text = kind === "genes" ? data.genes.genes[i] : data.words.words[i], w = ctx.measureText(text).width + 4;
+        for (const [dx, dy] of [[0, 4], [-w / 2 - 4, 4], [w / 2 + 4, 4], [0, 16], [-w / 2 - 4, 16], [w / 2 + 4, 16], [0, 28]]) {
+          const box = [x + dx - w / 2, y - dy - 13, x + dx + w / 2, y - dy];
+          if (box[0] < 2 || box[2] > W - 2 || box[1] < 2) continue;
+          if (boxes.some(b => box[0] < b[2] && box[2] > b[0] && box[1] < b[3] && box[3] > b[1])) continue;
+          boxes.push(box);
+          if (dx || dy > 4) { ctx.strokeStyle = INK_2; ctx.lineWidth = 0.75; ctx.beginPath(); ctx.moveTo(x, y - 2); ctx.lineTo(x + dx, y - dy); ctx.stroke(); }
+          ctx.fillStyle = INK; ctx.fillText(text, x + dx, y - dy);
+          break;
+        }
+      }
+      if (hover >= 0) {
+        const p = pts.find(q => q[2] === hover);
+        if (p) { ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(p[0], p[1], 5, 0, 2 * Math.PI); ctx.stroke(); }
+      }
+    }
+
+    function nearest(ev) {
+      const r = canvas.getBoundingClientRect(), mx = ev.clientX - r.left, my = ev.clientY - r.top;
+      let best = -1, bd = 100;  // within 10px
+      for (const [x, y, i] of pts) { const d = (x - mx) ** 2 + (y - my) ** 2; if (d < bd) { bd = d; best = i; } }
+      return best;
+    }
+    function show(ev) {
+      const i = nearest(ev);
+      if (i !== hover) { hover = i; draw(); }
+      if (i < 0) { tip.hidden = true; canvas.style.cursor = ""; return; }
+      const [head, ...lines] = m.tip(i, year);
+      tip.replaceChildren(Object.assign(document.createElement("strong"), { textContent: head }),
+        ...lines.map(t => Object.assign(document.createElement("div"), { textContent: t })));
+      tip.hidden = false;
+      canvas.style.cursor = kind === "enriched" ? "pointer" : "";
+      tip.style.left = Math.min(ev.clientX + 12, innerWidth - tip.offsetWidth - 8) + "px";
+      tip.style.top = Math.min(ev.clientY + 12, innerHeight - tip.offsetHeight - 8) + "px";
+    }
+    canvas.addEventListener("pointermove", show);
+    canvas.addEventListener("pointerdown", show);
+    canvas.addEventListener("pointerleave", () => { tip.hidden = true; if (hover >= 0) { hover = -1; draw(); } });
+    if (kind === "enriched") canvas.addEventListener("click", ev => {  // fill the table's search with that word
+      const i = nearest(ev), q = document.getElementById("we-search");
+      if (i < 0 || !q) return;
+      q.value = data.words.words[i]; q.dispatchEvent(new Event("input")); q.scrollIntoView({ block: "center", behavior: "smooth" });
+    });
+    new ResizeObserver(() => draw()).observe(holder);
+    charts.push(() => { if (m.follows && yearNow() !== year) { year = yearNow(); hover = -1; tip.hidden = true; draw(); } });
+  }
+
+  const sync = () => charts.forEach(f => f());
+  document.querySelector('[data-control="year"]')?.addEventListener("click", () => setTimeout(sync));
+  addEventListener("hashchange", () => setTimeout(sync));
+  fetch(holders[0].dataset.src).then(r => r.json()).then(data => holders.forEach(h => setup(h, data))).catch(() => {});
 })();

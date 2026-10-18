@@ -7,12 +7,16 @@ an odds ratio: how much more likely an abstract containing it is to be a talk.</
 <p>Phrases are 1–3-word sequences from the abstract text. Variants of one idea that turn up in mostly the same
 abstracts (“massively parallel reporter”, “parallel reporter assay”, “MPRA”) are grouped under the
 best-scoring one, with the rest listed beneath it in small type.</p>
-<nav class="toc" aria-label="On this page"><a href="#by-year">Phrases that predict a talk</a>
+<nav class="toc" aria-label="On this page"><a href="#by-year">Phrases overrepresented in talks</a>
+{% if drivers_json %}<a href="#explorer">Look up a phrase</a>{% endif %}
 {% if "trends_phrases" in trends %}<a href="#phrase-trends">Phrase trends</a>{% endif %}
 {% if "trends_biobanks" in trends %}<a href="#biobanks">Biobanks</a>{% endif %}
 {% if "trends_shift" in trends %}<a href="#shift">What changed in {{ years[-1].year }}</a>{% endif %}
-{% if drivers_json %}<a href="#explorer">Look up a phrase</a>{% endif %}
-{% if "trends_sample_size" in trends %}<a href="#sample-size">Sample size</a>{% endif %}</nav>
+{% if "trends_sample_size" in trends %}<a href="#sample-size">Sample size</a>{% endif %}
+{% if words %}<a href="#words">Words A to Z</a>{% endif %}
+{% if "trends_words_enriched" in trends %}<a href="#words-enriched">Words more common in {{ years[-1].year }}</a>{% endif %}
+{% if "trends_genes" in trends %}<a href="#genes">Genes</a>{% endif %}
+{% if score %}<a href="#score">Score your text</a>{% endif %}</nav>
 <span id="by-year"></span>
 {{ m.toolbar(years, pooled) }}
 {% if pooled %}
@@ -53,63 +57,38 @@ left out of the phrase counts.{% endif %}</p>
 </section>
 {% endfor %}
 
-{% if "trends_phrases" in trends %}
-<h2 id="phrase-trends">Phrase trends</h2>
-<p>Year by year, {{ years[0].year }}–{{ years[-1].year }}: the share of talks and of posters mentioning selected phrases.</p>
-{{ m.figure("img/trends_phrases.png", "For selected phrases, the share of talks and of posters mentioning each one, per year.") }}
-{% endif %}
-
-{% if "trends_biobanks" in trends %}
-<h2 id="biobanks">Biobanks</h2>
-<p>How often abstracts mention the most-cited biobanks, {{ years[0].year }}–{{ years[-1].year }}, counting common
-acronyms (UKB, MVP, BBJ). UK Biobank is in about one abstract in eight every year; All of Us grew six-fold. To compare
-talks with posters for any of them, <a href="#explorer">look it up</a> below.</p>
-{{ m.figure("img/trends_biobanks.png", "Share of accepted abstracts mentioning each of eight biobanks per year, with the number of abstracts mentioning it.") }}
-{% endif %}
-
-{% if "trends_shift" in trends %}
-<h2 id="shift">What changed in {{ years[-1].year }}</h2>
-<p>Clinical vocabulary stopped leaning toward posters. “Patients”, “likely pathogenic” and “next-generation
-sequencing” leaned toward posters over {{ years[0].year }}–{{ years[-2].year }} (pooled odds ratios 0.4–0.7); in
-{{ years[-1].year }} all three were at least as common in talks. Scanning every phrase for the largest
-{{ years[-1].year }} shifts turns up more of the same: “idiopathic”, “genetic disease” and “therapy”.</p>
-<p class="caveat"><strong>Suggestive, not established.</strong> The top row was chosen before looking at
-{{ years[-1].year }}; the bottom row was picked for having the largest shifts, so its p-values overstate the
-evidence. Across all ~10,800 phrases tested, no single shift survives a false-discovery-rate correction.</p>
-{{ m.figure("img/trends_shift.png", "Share of talks and of posters mentioning six clinical terms per year, with the odds ratio of a talk before and in %s and the p-value for the change." % years[-1].year) }}
-{% endif %}
-
 {% if drivers_json %}
 <section class="explorer">
 <h2 id="explorer">Look up a phrase</h2>
-<p>The phrases above plus the top 50 each way across all years. See how often talks and posters mention a phrase
+<p>The phrases in the figures below (trends, biobanks, what changed in {{ years[-1].year }}) plus the top 50 each way
+across all years. See how often talks and posters mention a phrase
 each year, then which first-author institutions and metro areas write about it (among those with at least one
 talk mentioning it; an abstract counts for each of its institutions). Hover or focus a row for that institution's
-own mention rate. Searching also finds every other phrase in at least 5 talks over all years; for those the counts
+own mention rate and odds of a talk. Searching also finds every other phrase in at least 5 talks over all years; for those the counts
 are exact matches in the abstract text (no titles or plurals), and there is no institution breakdown.</p>
 <div class="filters">
   <label>Find <input type="search" id="drv-search" placeholder="e.g. enhancer" autocomplete="off"></label>
   <label>Phrase <select id="drv-phrase"></select></label>
   <span class="lbl">Plot</span><span class="seg" id="drv-mode" role="group" aria-label="Plot">
-    <button type="button" data-mode="abs" aria-pressed="true">Shares</button><button type="button" data-mode="rel" aria-pressed="false">Ratio</button>
+    <button type="button" data-mode="abs" aria-pressed="true">Shares</button><button type="button" data-mode="rel" aria-pressed="false">Odds of a talk</button>
   </span>
 </div>
 <div class="drv-trend">
   <svg id="drv-chart" role="img" viewBox="0 0 360 150"></svg>
   <div><p id="drv-or"></p>
   <div class="legend" id="drv-legend"><span><i style="background: var(--talk)"></i>share of talks</span><span><i style="background: var(--poster)"></i>share of posters</span></div>
-  <p class="legend" id="drv-ratio-note" hidden>Share of talks ÷ share of posters mentioning it each year, with 95% CIs; above 1× it is more common in talks.</p></div>
+  <p class="legend" id="drv-ratio-note" hidden>Odds of a talk with vs without it each year, with 95% CIs; above 1× it is more common in talks.</p></div>
 </div>
 <p id="drv-none" class="empty" hidden>No institution or metro breakdown for this phrase: that is kept for the phrases listed before you search.</p>
 <div id="drv-who">
 <div class="filters"><span class="lbl">Who writes about it</span><span class="seg" id="drv-year" role="group" aria-label="Year"></span>
   <span class="lbl">Bars</span><span class="seg" id="drv-bar-mode" role="group" aria-label="Bars">
-    <button type="button" data-mode="abs" aria-pressed="true">Counts</button><button type="button" data-mode="rel" aria-pressed="false">Ratio</button>
+    <button type="button" data-mode="abs" aria-pressed="true">Counts</button><button type="button" data-mode="rel" aria-pressed="false">Odds of a talk</button>
   </span>
 </div>
 <p id="drv-summary"></p>
 <div class="legend" id="drv-bar-legend"><span><i style="background: var(--talk)"></i>talks</span><span><i style="background: var(--poster)"></i>posters</span></div>
-<p class="legend" id="drv-bar-note" hidden>Share of that institution's (or metro's) abstracts mentioning it ÷ share of all abstracts: dot and 95% CI, log scale; the dashed line is 1×, the average.</p>
+<p class="legend" id="drv-bar-note" hidden>Odds of a talk for that institution's (or metro's) abstracts with vs without it, as for the phrase overall above: dot and 95% CI, log scale; the dashed line is 1×, no difference. Few abstracts make for wide intervals.</p>
 <div class="cols bars">
   <div><h4>Institutions</h4><div id="drv-institutes"></div></div>
   <div><h4>Metro areas</h4><div id="drv-metros"></div></div>
@@ -120,10 +99,165 @@ are exact matches in the abstract text (no titles or plurals), and there is no i
 </section>
 {% endif %}
 
+{% if "trends_phrases" in trends %}
+<h2 id="phrase-trends">Phrase trends</h2>
+<p>Year by year, {{ years[0].year }}–{{ years[-1].year }}: the share of talks and of posters mentioning selected phrases.
+For any other phrase, and who writes about it, <a href="#explorer">look it up</a> above.</p>
+{{ m.figure("img/trends_phrases.png", "For selected phrases, the share of talks and of posters mentioning each one, per year.") }}
+{% endif %}
+
+{% if "trends_biobanks" in trends %}
+<h2 id="biobanks">Biobanks</h2>
+<p>How often abstracts mention the most-cited biobanks, {{ years[0].year }}–{{ years[-1].year }}, counting common
+acronyms (UKB, MVP, BBJ). UK Biobank is in about one abstract in eight every year; All of Us grew six-fold. To compare
+talks with posters for any of them, <a href="#explorer">look it up</a> above.</p>
+{{ m.figure("img/trends_biobanks.png", "Share of accepted abstracts mentioning each of eight biobanks per year, with the number of abstracts mentioning it.") }}
+{% endif %}
+
+{% if "trends_shift" in trends %}
+<h2 id="shift">What changed in {{ years[-1].year }}</h2>
+{% macro lookup(phrase, shown=None) %}<a href="phrases.html?phrase={{ phrase | urlencode }}#explorer">{{ shown or phrase }}</a>{% endmacro %}
+<p>Clinical vocabulary stopped leaning toward posters. “{{ lookup("patients", "Patients") }}”, “{{ lookup("likely pathogenic") }}”
+and “{{ lookup("next-generation sequencing") }}” leaned toward posters over {{ years[0].year }}–{{ years[-2].year }} (pooled
+odds ratios 0.4–0.7); in {{ years[-1].year }} all three were at least as common in talks. Scanning every phrase for the
+largest {{ years[-1].year }} shifts turns up more of the same: “{{ lookup("idiopathic") }}”, “{{ lookup("genetic disease") }}”
+and “{{ lookup("therapy") }}”. Click one to look it up.</p>
+<p class="caveat"><strong>Suggestive, not established.</strong> The top row was chosen before looking at
+{{ years[-1].year }}; the bottom row was picked for having the largest shifts, so its p-values overstate the
+evidence. Across all ~10,800 phrases tested, no single shift survives a false-discovery-rate correction.</p>
+{{ m.figure("img/trends_shift.png", "Share of talks and of posters mentioning six clinical terms per year, with the odds ratio of a talk before and in %s and the p-value for the change." % years[-1].year) }}
+{% endif %}
+
 {% if "trends_sample_size" in trends %}
 <h2 id="sample-size">Sample size</h2>
 <p>Talks report larger cohorts than posters, every year: the largest human-subject sample size
 each abstract states (“12,000 individuals”, “N = 450”); the bars span the middle half of abstracts that state one.</p>
 {{ m.figure("img/trends_sample_size.png", "Median largest stated sample size per abstract, with interquartile bars, and the share of abstracts stating a sample size, for talks and posters each year.") }}
+{% endif %}
+
+{% if words %}
+<h2 id="words">Words, A to Z</h2>
+<p>Every word in at least 10 abstracts, in alphabetical order, by the share of abstracts using it. Common English
+words (“the”, “of”) are left out; forms of one word (“remain”, “remains”) sit side by side and form towers, and the
+top of each tower is labelled. Hover a point for its word. The year buttons at the top of the page switch years; words
+keep their place and the scale is the same every year.</p>
+{% if manhattan_src %}
+<div class="mh" data-manhattan="words" data-src="{{ manhattan_src }}" data-label="Manhattan-style plot: share of abstracts using each word, words in alphabetical order.">
+<p class="mh-title"></p>
+<img class="mh-fallback" src="img/all_words.png" alt="Share of all abstracts using each word, words in alphabetical order, {{ pooled.label }} pooled." loading="lazy">
+</div>
+{% endif %}
+<p class="table-note">Images to download: {% if "all_words.png" in words %}<a href="img/all_words.png">all years</a>{% endif %}
+{% for y in years %}{% if "%d_words.png" % y.year in words %} · <a href="img/{{ y.year }}_words.png">{{ y.year }}</a>{% endif %}{% endfor %}</p>
+{% endif %}
+
+{% if "trends_words_enriched" in trends %}
+<h3 id="words-enriched">Words more common in {{ years[-1].year }}</h3>
+<p>The same words, now by how strongly each is overrepresented in {{ years[-1].year }} abstracts compared with
+{{ years[0].year }}–{{ years[-2].year }} (one-sided Fisher's exact test per word; higher is stronger). Most of the
+strongest are general phrasing rather than new topics: “framework” is in 27% of {{ years[-1].year }} abstracts against
+10% before, and “remains”, “incompletely”, “supporting” and “consistent” rose too. One new topic stands out:
+“AlphaGenome”, in 31 abstracts, none before. Hover a point for its word; click it to look it up in the table below.</p>
+{% if manhattan_src %}
+<div class="mh" data-manhattan="enriched" data-src="{{ manhattan_src }}" data-label="Manhattan-style plot of every word, alphabetically, by minus log10 p for being more common in {{ years[-1].year }} abstracts than in earlier years, with a Bonferroni line.">
+<img class="mh-fallback" src="img/trends_words_enriched.png" alt="Manhattan-style plot of every word, alphabetically, by minus log10 p for being more common in {{ years[-1].year }} abstracts than in earlier years." loading="lazy">
+</div>
+<p class="table-note">−log₁₀ p from a one-sided Fisher's exact test per word; dashed line: Bonferroni correction over
+every word at 5%. <a href="img/trends_words_enriched.png">Image to download</a></p>
+{% else %}
+{{ m.figure("img/trends_words_enriched.png", "Manhattan-style plot of every word, alphabetically, by minus log10 p for being more common in %d abstracts than in earlier years, with a Bonferroni line." % years[-1].year) }}
+{% endif %}
+{% if words_enriched_json %}
+<div class="filters">
+  <label>Find a word <input type="search" id="we-search" placeholder="e.g. framework" autocomplete="off"></label>
+  <span class="lbl" id="we-count" aria-live="polite"></span>
+</div>
+<div class="scroll"><table id="we-table">
+<thead><tr><th class="text" data-k="0">Word</th><th data-k="1">{{ years[-1].year }} abstracts</th>
+<th data-k="2">{{ years[0].year }}–{{ years[-2].year }} abstracts</th><th data-k="3">Odds ratio</th>
+<th data-k="4" aria-sort="ascending">p</th></tr></thead>
+<tbody id="we-body"></tbody></table></div>
+<p class="table-note">Every word in the figure, the most overrepresented first; click a heading to sort. Bold p:
+significant after Bonferroni correction. A word less common in {{ years[-1].year }} has an odds ratio below 1 and p near 1.</p>
+<script type="application/json" id="we-data">{{ words_enriched_json }}</script>
+{% endif %}
+{% endif %}
+
+{% if "trends_genes" in trends %}
+<h2 id="genes">Genes</h2>
+<p>How often each protein-coding gene is named, placed along the genome (hg38). APOE leads every year, with BRCA1,
+BRCA2 and TP53 next. Gene symbols that in abstracts mostly mean something else (MAF for minor allele frequency, HR for
+hazard ratio, TF for transcription factor, CAD for coronary artery disease) are left out. Hover a point for its gene;
+the year buttons at the top of the page switch years.</p>
+{% if manhattan_src %}
+<div class="mh" data-manhattan="genes" data-src="{{ manhattan_src }}" data-label="Manhattan-style plot: share of abstracts naming each protein-coding gene, along the genome.">
+<p class="mh-title"></p>
+<img class="mh-fallback" src="img/trends_genes.png" alt="Manhattan-style plot, one row per year: share of abstracts naming each protein-coding gene, along the genome." loading="lazy">
+</div>
+<p class="table-note"><a href="img/trends_genes.png">Image to download</a> (every year, one row each)</p>
+{% else %}
+{{ m.figure("img/trends_genes.png", "Manhattan-style plot, one row per year: share of abstracts naming each protein-coding gene, along the genome, with the most-mentioned genes labelled.") }}
+{% endif %}
+{% endif %}
+
+{% if score %}
+<h2 id="score">Score your text</h2>
+{% set c = score.check %}
+<p>Paste an abstract to count how many of the {{ score.groups | length }} phrases overrepresented in ASHG
+talks it uses, and where that count falls among the {{ "{:,}".format(score.n_abstracts) }} abstracts accepted
+{{ score.years[0] }}–{{ score.years[1] }}.</p>
+<p class="caveat"><strong>Your text stays on your device.</strong> It is scored by this page's own script as you type;
+nothing is uploaded or saved. Only a rounded percentile is shown, from counts of abstracts per score.</p>
+
+<section class="scorer">
+<label for="sc-text" class="lbl">Abstract text</label>
+<textarea id="sc-text" rows="10" spellcheck="false" placeholder="Paste the abstract text here (the body; the title is optional)."></textarea>
+<div class="filters">
+  <label class="lbl">Or open a text file <input type="file" id="sc-file" accept=".txt,text/plain"></label>
+  <span class="seg"><button type="button" id="sc-clear">Clear</button></span>
+</div>
+<div id="sc-result" hidden aria-live="polite">
+  <p class="sc-headline"><strong id="sc-score"></strong> overrepresented phrases: more than about
+  <strong id="sc-pct"></strong> of accepted abstracts.</p>
+  <p id="sc-short" class="empty" hidden>That is <span id="sc-words"></span> words; abstracts run about 300–350, so a
+  shorter text scores lower.</p>
+  <h4>Phrases found</h4>
+  <p class="table-note">Strongest overrepresentation first; hover one for its odds ratio.</p>
+  <div id="sc-found" class="chips"></div>
+  <p id="sc-none" class="empty" hidden>None of the phrases.</p>
+</div>
+<h4>How talks and posters score</h4>
+<div class="legend"><span><i style="background: var(--talk)"></i>share of talks</span><span><i style="background: var(--poster)"></i>share of posters</span></div>
+<svg id="sc-chart" role="img" viewBox="0 0 560 190" aria-label="Histogram: share of talks and of posters by number of overrepresented phrases used"></svg>
+<p class="table-note">Median talk {{ "%g" | format(score.median.talks) }}, median poster
+{{ "%g" | format(score.median.posters) }}. Hover a score for its counts.</p>
+<script type="application/json" id="sc-data">{{ score.json }}</script>
+</section>
+
+<h3>What the score is</h3>
+<p>The phrases are the 1–3-word phrases more common in talk abstracts than in poster abstracts over
+{{ score.years[0] }}–{{ score.years[1] }}, significant after a Bonferroni correction across all
+{{ "{:,}".format(score.n_tested) }} phrases tested (z ≥ {{ score.z }}). Variants of one idea found in mostly the same
+abstracts (“massively parallel reporter”, “MPRA”) count once. The score is how many of them a text uses, the same way
+for your text as for every accepted abstract.</p>
+<p>Mostly they mark topics (functional genomics, single-cell and chromatin work, very large cohorts) and the way
+large studies describe their results (“largest”, “novel”, “million”), more than style.</p>
+
+<h3>How well it separates talks and posters</h3>
+<p>To check the score on abstracts it was not built from, the phrase list was rebuilt from {{ c.train[0] }}–{{ c.train[1] }}
+alone ({{ c.groups }} phrases) and used to score the {{ "{:,}".format(c.talks + c.posters) }} abstracts of {{ c.test }}.
+A random {{ c.test }} talk outscores a random {{ c.test }} poster <strong>{{ "%.0f" | format(100 * c.auc) }}%</strong>
+of the time (50% would be no better than a coin flip; ties count half). For comparison, ranking abstracts by length
+alone (how many different words they use) puts the talk ahead {{ "%.0f" | format(100 * c.auc_length) }}% of the time,
+so the phrase count reflects more than talk abstracts running a little longer.</p>
+<p class="caveat"><strong>A description, not a verdict.</strong> Talks and posters overlap heavily at every score.
+Accepted abstracts only, and authors can ask for a poster, so this is association, not acceptance odds. Adding phrases
+to an abstract will raise its score without changing the work.</p>
+
+{% call m.details("All %d phrases" % (score.groups | length)) %}
+<p class="table-note">Talks and posters using each phrase in their text, and its odds ratio of a talk, combined across
+years. Variants listed under a phrase count toward the score too.</p>
+<div class="scroll">{{ score.table }}</div>
+{% endcall %}
 {% endif %}
 {% endblock %}

@@ -5,11 +5,12 @@
 {% set p = pooled or latest %}
 {% set h = highlights %}
 {% macro pct(v, d=1) %}{{ ("%." ~ d ~ "f")|format(100 * v) }}%{% endmacro %}
-{% macro rate_table(t, head, count_head="Talks / abstracts", val_head="Talk rate · 95% CI") %}
+{% macro lookup(phrase) %}<a href="phrases.html?phrase={{ phrase | urlencode }}#explorer">{{ phrase }}</a>{% endmacro %}
+{% macro rate_table(t, head, count_head="Talks / abstracts", val_head="Talk rate · 95% CI", link=False) %}
 <div class="scroll"><table class="hl-table rates">
 <thead><tr><th class="text">{{ head }}</th><th>{{ count_head }}</th><th class="text">{{ val_head }}</th></tr></thead>
 <tbody>
-{% for r in t.rows %}<tr><td class="text">{{ r.label }}</td>
+{% for r in t.rows %}<tr><td class="text">{{ lookup(r.label) if link else r.label }}</td>
 <td>{{ r.count }}</td>
 <td class="text"><span class="rate"><span class="track">
 <span class="ci" style="left:{{ '%.1f'|format(r.ci_left) }}%;width:{{ '%.1f'|format(r.ci_width) }}%"></span>
@@ -31,8 +32,32 @@ rate or a quality score. Every number here is an association. Not every affiliat
 institution or place: see the <a href="methods.html#match-rates">match rates</a>.</p>
 
 {% if h %}
+{% if h.words %}
+{% set w0 = h.words.rows[0] %}
+<section class="vignette" id="wording">
+<h2><span class="num">1</span>{{ h.latest }} abstracts are worded differently</h2>
+<p class="lead">“{{ w0.word }}” is in {{ pct(w0.share, 0) }} of {{ h.latest }} abstracts, up from
+{{ pct(w0.share_before, 0) }} in {{ years[0].year }}–{{ years[-2].year }}. It is one of {{ h.words.n_sig }} words
+significantly more common in {{ h.latest }}, and most of them are general wording rather than new topics.</p>
+{% if "trends_words_enriched" in trends %}
+{{ m.figure("img/trends_words_enriched.png", "Manhattan-style plot of every word, alphabetically, by minus log10 p for being more common in %s abstracts than in earlier years, with a Bonferroni line; framework stands far above the rest." % h.latest) }}
+{% endif %}
+<div class="scroll"><table class="hl-table">
+<thead><tr><th class="text">Word</th><th>{{ years[0].year }}–{{ years[-2].year }}</th><th>{{ h.latest }}</th></tr></thead>
+<tbody>
+{% for r in h.words.rows %}<tr><td class="text">{{ lookup(r.word) }}</td><td>{{ pct(r.share_before) }}</td><td><strong>{{ pct(r.share) }}</strong></td></tr>
+{% endfor %}
+</tbody></table></div>
+<p class="table-note">Share of abstracts using each word (title or text). The most overrepresented words, one per family
+of forms (“remain”, “remains”); one-sided Fisher's exact test per word, significant after Bonferroni correction over
+{{ "{:,}".format(h.words.n) }} words. Click a word to see it in talks and posters, year by year.</p>
+<p class="more-link"><a href="phrases.html#words-enriched">Every word, interactive →</a></p>
+<p class="more-link"><a href="phrases.html#explorer">Look up any word in talks and posters, year by year →</a></p>
+</section>
+{% endif %}
+
 <section class="vignette" id="hot">
-<h2><span class="num">1</span>What's hot at ASHG {{ h.latest }}</h2>
+<h2><span class="num">{{ 2 if h.words else 1 }}</span>What's hot at ASHG {{ h.latest }}</h2>
 {% set r0 = h.rising[0] %}
 <p class="lead">Topics that keep growing: “{{ r0.phrase }}” is in {{ pct(r0.last) }} of {{ h.latest }} abstracts, up
 from {{ pct(r0.first) }} in {{ years[0].year }}.</p>
@@ -40,18 +65,24 @@ from {{ pct(r0.first) }} in {{ years[0].year }}.</p>
 <thead><tr><th class="text">Topic</th><th>{{ years[0].year }}</th><th class="text spark-col">{{ years[0].year }}–{{ h.latest }}</th>
 <th>{{ h.latest }}</th><th>Talks in {{ h.latest }}</th></tr></thead>
 <tbody>
-{% for r in h.rising %}<tr><td class="text">{{ r.phrase }}</td><td>{{ pct(r.first) }}</td><td class="text spark-col">{{ r.spark }}</td>
+{% for r in h.rising %}<tr><td class="text">{{ lookup(r.phrase) }}</td><td>{{ pct(r.first) }}</td><td class="text spark-col">{{ r.spark }}</td>
 <td><strong>{{ pct(r.last) }}</strong></td><td>{{ r.talks_last }}</td></tr>
 {% endfor %}
 </tbody></table></div>
-<p class="table-note">Share of each year's accepted abstracts mentioning the topic (title or text; spelling variants count).
+<p class="table-note">Share of each year's accepted abstracts mentioning the topic (title or text; spelling variants count). Click a topic to look it up.
 {% for r in h.rising if r.peak_year != h.latest %}“{{ r.phrase }}” peaked in {{ r.peak_year }} ({{ pct(r.peak) }}).{% endfor %}</p>
-<p><strong>Most talk-leaning in {{ h.latest }}.</strong> Among phrases in at least 10 talks, an abstract mentioning
-“{{ h.hot.rows[0].label }}” had {{ h.hot.rows[0].val }} the odds of a talk of one that didn't.</p>
-{{ rate_table(h.hot, "Phrase", count_head="Talks / posters", val_head="Odds of a talk · 95% CI") }}
+<p class="more-link"><a href="phrases.html#explorer">Look up any phrase, year by year →</a></p>
+<p class="more-link"><a href="phrases.html#phrase-trends">Phrase trends and biobanks →</a></p>
+</section>
+
+<section class="vignette" id="talk-leaning">
+<h2><span class="num">{{ 3 if h.words else 2 }}</span>What leans toward talks in {{ h.latest }}</h2>
+<p class="lead">Among phrases in at least 10 talks, an abstract mentioning “{{ h.hot.rows[0].label }}” had
+{{ h.hot.rows[0].val }} the odds of a talk of one that didn't.</p>
+{{ rate_table(h.hot, "Phrase", count_head="Talks / posters", val_head="Odds of a talk · 95% CI", link=True) }}
 <p class="table-note">The {{ h.hot.rows | length }} phrases with the strongest evidence of leaning toward talks (largest
 z-score), sorted by odds of a talk with versus without the phrase; log scale, dashed line = 1× (as common in talks as
-in posters).</p>
+in posters). Click a phrase to look it up.</p>
 {% if h.shift %}
 <p><strong>Clinical work stopped leaning toward posters.</strong> Through {{ years[-2].year }},
 {% for r in h.shift %}“{{ r.phrase }}”{{ ", " if loop.revindex > 2 else (" and " if not loop.last else "") }}{% endfor %} came up more often in posters than in talks; in {{ h.latest }} they were at least as common in talks.</p>
@@ -60,7 +91,7 @@ in posters).</p>
 <thead><tr><th class="text">Phrase</th><th class="text spark-col">{{ years[0].year }}–{{ h.latest }}</th>
 <th>Odds of a talk {{ years[0].year }}–{{ years[-2].year % 100 }}</th><th>{{ h.latest }}</th><th>p (change)</th></tr></thead>
 <tbody>
-{% for r in h.shift %}<tr><td class="text">{{ r.phrase }}</td><td class="text spark-col">{{ r.spark }}</td>
+{% for r in h.shift %}<tr><td class="text">{{ lookup(r.phrase) }}</td><td class="text spark-col">{{ r.spark }}</td>
 <td>{{ "%.2f"|format(r.or_before) }}×</td><td><strong>{{ "%.2f"|format(r.or_last) }}×</strong></td>
 <td>{{ "< 0.001" if r.p < 0.001 else "%.3f"|format(r.p) }}</td></tr>
 {% endfor %}
@@ -69,11 +100,14 @@ in posters).</p>
 every phrase tested no single shift survives a false-discovery-rate correction: <a href="phrases.html#shift">suggestive,
 not established</a>.</p>
 {% endif %}
-<p class="more-link"><a href="phrases.html">Phrase trends, each year's top phrases and a lookup for any phrase →</a></p>
+<p class="more-link"><a href="phrases.html#explorer">Look up any phrase →</a></p>
+<p class="more-link"><a href="phrases.html#by-year">Each year's top phrases →</a></p>
+<p class="more-link"><a href="phrases.html#score">Score your own abstract →</a></p>
 </section>
 
+{% set n0 = 3 if h.words else 2 %}
 <section class="vignette" id="institutions">
-<h2><span class="num">2</span>Institutions with the highest talk rate</h2>
+<h2><span class="num">{{ n0 + 1 }}</span>Institutions with the highest talk rate</h2>
 {% set i3 = h.inst.rows[:3] %}
 <p class="lead">Among the {{ h.inst_pool }} institutions with the most first-author abstracts ({{ p.label }}),
 {{ i3[0].label }}, {{ i3[1].label }} and {{ i3[2].label }} lead, at {{ pct(i3[2].talk_rate, 0) }}–{{ pct(i3[0].talk_rate, 0) }}
@@ -86,7 +120,7 @@ institutions have wide intervals. In {{ h.latest }} alone, {{ h.latest_top | joi
 
 {% if h.center %}
 <section class="vignette" id="center">
-<h2><span class="num">3</span>The center of mass follows the host city</h2>
+<h2><span class="num">{{ n0 + 2 }}</span>The center of mass follows the host city</h2>
 {% set pulls = h.center | sort(attribute="km", reverse=True) %}
 <p class="lead">Local groups bring extra abstracts to a home meeting. Leave out first authors from the host city and the
 center of mass of North American abstracts moves {{ "{:,}".format(pulls[0].km) }} km for {{ pulls[0].host }}

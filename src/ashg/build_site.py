@@ -16,6 +16,7 @@ import html
 import json
 import pathlib
 import shutil
+from urllib.parse import quote
 
 import jinja2
 import numpy as np
@@ -23,19 +24,21 @@ import pandas as pd
 
 from center import great_circle_km
 from figures import HOST_METRO
+from manhattan import AMBIGUOUS
 
 TEMPLATES = pathlib.Path(__file__).resolve().parent / "templates"
 PAGES = [  # (file, nav label, page title)
     ("index.html", "Overview", "Talks vs posters at ASHG"),
-    ("phrases.html", "Phrases", "Phrases that predict a talk"),
+    ("phrases.html", "Phrases", "Phrases overrepresented in talks"),
     ("institutions.html", "Institutions", "Institutions"),
     ("geography.html", "Geography", "Regions, countries and metro areas"),
     ("authors.html", "Senior authors", "Senior authors with the highest talk rate"),
     ("methods.html", "Methods", "Methods and caveats"),
 ]
 YEAR_FIGURES = ("headline", "institutions", "metros", "regions", "senior_authors")
-TREND_FIGURES = ("trends_talk_rate", "trends_phrases", "trends_biobanks", "trends_shift", "trends_sample_size", "trends_regions",
-                 "trends_metros", "trends_center_na", "trends_center_world")
+TREND_FIGURES = ("trends_talk_rate", "trends_phrases", "trends_biobanks", "trends_shift", "trends_talk_score",
+                 "trends_words_enriched", "trends_genes", "trends_sample_size", "trends_regions", "trends_metros", "trends_center_na",
+                 "trends_center_world")
 EXPLORER_ROWS = 10
 
 
@@ -86,8 +89,13 @@ def first_author(df, columns):
     return table(df.assign(ci=df.apply(ci, axis=1)), columns, sorted_by="abstracts")
 
 
+def lookup_link(phrase):
+    """A phrase linked to the phrase explorer with it selected (handled in place on the phrases page)."""
+    return f'<a href="phrases.html?phrase={quote(phrase)}#explorer">{html.escape(phrase)}</a>'
+
+
 def phrase_cell(r):
-    shown = html.escape(r["ngram"])
+    shown = lookup_link(r["ngram"])
     if isinstance(r["related"], str) and r["related"]:
         shown += f'<span class="related">also {html.escape(", ".join(r["related"].split("; ")))}</span>'
     return shown
@@ -175,6 +183,7 @@ def highlights(out, years, n_rising=6, n_hot=6, min_hot_talks=10, n_rows=6):
     rising.sort(key=lambda r: r["last"] - r["first"], reverse=True)  # biggest gain first
 
     prem = pd.read_csv(out / f"{latest}_premium.csv")
+    prem["ngram"] = prem.ngram.str.replace("<num>", "N", regex=False)  # as the explorer and tables show it
     hot = prem[(prem.direction == "talk") & (prem.talk_docs >= min_hot_talks)].head(n_hot)
     shift = pd.read_csv(out / "trends_shift.csv")
     prespecified = set(t[t.group.str.startswith("Poster-leaning")].phrase)  # picked before looking at the latest year
@@ -197,8 +206,21 @@ def highlights(out, years, n_rising=6, n_hot=6, min_hot_talks=10, n_rows=6):
                                                                     values=["lat", "lon"])
         km = great_circle_km(c.lat["with"], c.lon["with"], c.lat["without"], c.lon["without"])
         center = [{"year": int(y), "host": HOST_METRO.get(int(y)), "km": round(float(k))} for y, k in zip(c.index, km)]
+    words = None
+    if (out / "trends_words_enriched.csv").exists():  # words overrepresented in the latest year, strongest first
+        e = pd.read_csv(out / "trends_words_enriched.csv", keep_default_na=False)
+        sig = e[e.p < 0.05 / len(e)]
+        rows, seen = [], set()
+        for r in sig.to_dict("records"):
+            if r["word"][:6] in seen:  # one word per family of forms: "remain" / "remains", "support" / "supporting"
+                continue
+            seen.add(r["word"][:6])
+            rows.append(r)
+            if len(rows) == n_rows:
+                break
+        words = {"rows": rows, "n_sig": len(sig), "n": len(e)}
     baseline = pool.baseline.iloc[0]
-    return {"rising": rising[:n_rising], "hot": odds_rows(hot.sort_values("or", ascending=False)), "shift": shift,
+    return {"rising": rising[:n_rising], "words": words, "hot": odds_rows(hot.sort_values("or", ascending=False)), "shift": shift,
             "inst": rate_rows(top, "institute", baseline), "inst_pool": len(pool), "baseline": baseline,
             "latest_top": latest_top, "center": center, "latest": latest}
 
@@ -220,6 +242,33 @@ def odds_rows(df):
              "bar": pos(r["or"]), "ci_left": pos(r["or_lo"]), "ci_width": pos(r["or_hi"]) - pos(r["or_lo"])}
             for r in df.to_dict("records")]
     return {"rows": rows, "base": pos(1)}
+
+
+def score_context(path):
+    """The score page: phrase list (JSON for the page's script, and a table), score histogram, the check."""
+    data = json.loads(path.read_text())
+    rows = pd.DataFrame(data["groups"], columns=["ngram", "related", "or", "talk_docs", "poster_docs"])
+    rows["ngram"] = rows.ngram.str.replace("<num>", "N", regex=False)
+    rows["related"] = rows.related.map(lambda r: "; ".join(r).replace("<num>", "N"))
+    rows["phrase"], rows["phrase_sort"] = rows.apply(phrase_cell, axis=1), rows.ngram
+    talks, posters = np.array(data["talks"]), np.array(data["posters"])
+    return {**data, "n_abstracts": int(talks.sum() + posters.sum()),
+            "json": json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/"),
+            "table": table(rows, [("Phrase", "phrase", None, "html"), ("Talks", "talk_docs", None, "num"),
+                                  ("Posters", "poster_docs", None, "num"), ("Odds ratio", "or", "{:.2f}".format, "num")],
+                           sorted_by="or")}
+
+
+def words_enriched_json(path, years):
+    """Every word's latest-year enrichment test (manhattan.py) as compact rows [word, abstracts that year, abstracts
+    before, OR, p], strongest first, for the searchable table under the figure."""
+    t = pd.read_csv(path, keep_default_na=False)  # "nan" and "null" are words here
+    data = {"year": years[-1], "before": f"{years[0]}–{years[-2]}",
+            "n1": int(round((t.docs / t.share).dropna().iloc[0])),
+            "n0": int(round((t.docs_before / t.share_before).dropna().iloc[0])), "alpha": 0.05 / len(t),
+            "rows": [[r.word, int(r.docs), int(r.docs_before), float(f"{r['or']:.3g}"), float(f"{r.p:.3g}")]
+                     for _, r in t.iterrows()]}
+    return json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
 
 
 def explorer_json(path):
@@ -256,8 +305,16 @@ def main():
     if pooled:
         for fig in YEAR_FIGURES:
             shutil.copy(out / f"all_{fig}.png", docs / "img" / f"all_{fig}.png")
-    stale = docs / "trends.html"  # merged into the overview
-    stale.unlink(missing_ok=True)
+    words = [p.name for p in out.glob("*_words.png")]  # word Manhattans from manhattan.py, per year and pooled
+    for f in words:
+        shutil.copy(out / f, docs / "img" / f)
+    manhattan_src = None  # data for the interactive Manhattans, fetched by the phrases page (too big to inline)
+    if (out / "manhattan.json").exists():
+        (docs / "data").mkdir(exist_ok=True)
+        shutil.copy(out / "manhattan.json", docs / "data" / "manhattan.json")
+        manhattan_src = f"data/manhattan.json?v={hashlib.sha1((out / 'manhattan.json').read_bytes()).hexdigest()[:8]}"
+    for stale in ("trends.html", "score.html"):  # merged into the overview / the phrases page
+        (docs / stale).unlink(missing_ok=True)
     for f in (docs / "img").glob("*_senior.png"):  # senior-author credit figures are no longer on the site
         f.unlink()
     for f in (TEMPLATES / "static").iterdir():
@@ -275,8 +332,11 @@ def main():
               "drivers_json": explorer_json(drivers) if drivers.exists() else None,
               "center_json": center.read_text().replace("</", "<\\/") if center.exists() else None,
               "highlights": highlights(out, years) if pooled and (out / "trends_phrases.csv").exists() else None,
+              "words": words, "manhattan_src": manhattan_src, "words_enriched_json": words_enriched_json(out / "trends_words_enriched.csv", years)
+              if (out / "trends_words_enriched.csv").exists() else None,
+              "score": score_context(out / "talk_score.json") if (out / "talk_score.json").exists() else None,
               "repo_url": args.repo_url, "site_url": args.site_url, "asset_v": asset_v,
-              "n_institutes": pd.read_csv(args.aliases, comment="#").institute.nunique()}
+              "n_institutes": pd.read_csv(args.aliases, comment="#").institute.nunique(), "n_ambiguous": len(AMBIGUOUS)}
     for i, page in enumerate(pages):
         html_out = env.get_template(page["file"] + ".j2").render(
             page=page, prev=pages[i - 1] if i else None, next=pages[i + 1] if i + 1 < len(pages) else None, **shared)

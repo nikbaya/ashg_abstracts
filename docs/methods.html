@@ -13,7 +13,7 @@
 <meta property="og:url" content="https://nikbaya.github.io/ashg_abstracts/methods.html">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='5' cy='8' r='4' fill='%232a78d6'/%3E%3Ccircle cx='11' cy='8' r='4' fill='%23e34948' fill-opacity='.85'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/site.css?v=0a10da93">
+<link rel="stylesheet" href="assets/site.css?v=a0117f7f">
 </head>
 <body>
 <header class="site-header"><div class="wrap">
@@ -130,6 +130,18 @@ stays separate from a broader one that contains it when the broader one carries 
 mentioning “chromatin accessibility” also mentions “chromatin” (Jaccard 0.43), but most “chromatin” abstracts are
 about something else, and those still lean toward talks (2022–2026 talk rate 15.7%
 for “chromatin” without accessibility, 21.9% with “chromatin accessibility”, 9.4% without “chromatin”).</li>
+<li><strong>Phrase score.</strong> The phrases overrepresented in talks with a pooled z-score past a Bonferroni
+threshold (two-sided 5% across every phrase tested), grouped as above; a text's score is the number of groups it
+uses. The <a href="phrases.html#score">scorer</a> runs in the browser and matches the pipeline's scores exactly. Its
+out-of-sample check rebuilds the list from the earlier years and scores the latest year (AUC: the chance a random
+talk outscores a random poster, ties half).</li>
+<li><strong>Words.</strong> Tokens from the title and text of each complete abstract, counted once per abstract;
+English stop words, numbers and one-letter tokens are left out, and plurals are separate words.</li>
+<li><strong>Genes.</strong> Approved HGNC protein-coding symbols in the title or text, case-sensitive, as whole
+tokens (each part of a hyphenated token counts, but not a symbol right before “+”, as in “CD4+ T cells”). Symbols that
+in abstracts mostly mean something else were checked against their contexts and left out (67 of them, from MAF and HR
+to CD4). Positions are each gene's leftmost RefSeq transcript start on hg38 (UCSC refGene); the few genes without
+one are left out of the figure.</li>
 <li><strong>All years.</strong> Institution, place and author talk rates pool the counts from every year. Phrase
 odds ratios across years are Mantel–Haenszel estimates stratified by year (each year's 2×2 table, +0.5 in every
 cell, Robins–Breslow–Greenland variance), because the baseline talk rate differs by year.</li>
@@ -142,7 +154,7 @@ cell, Robins–Breslow–Greenland variance), because the baseline talk rate dif
   <p>Parsed from the ASHG annual meeting abstracts (2022–2026). Abstracts © ASHG; no abstract text is reproduced here, only counts and rates.</p>
   <p>Code and full aggregate tables: <a href="https://github.com/nikbaya/ashg_abstracts">github.com/nikbaya/ashg_abstracts</a> · <a href="methods.html">Methods and caveats</a></p>
 </div></footer>
-<script src="assets/site.js?v=0a10da93"></script>
+<script src="assets/site.js?v=a0117f7f"></script>
 <script data-goatcounter="https://ashg-abstracts.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

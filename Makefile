@@ -1,12 +1,12 @@
 # Rebuild one year end to end:  make YEAR=2025
-# Cross-year steps (after every year is built):        make pooled trends writing
+# Cross-year steps (after every year is built):        make pooled trends manhattan score writing
 # Then render the site from every year in outputs/:  make site
 YEAR ?= 2025
 TYPES := platform plenary poster
 PY := PYTHONPATH=src/ashg mamba run -n ashg python
 ABSTRACTS = $(foreach t,$(TYPES),data/abstracts/$(YEAR)_$(t).parquet)
 
-.PHONY: year spans abstracts validate institutions people geography features analysis figures pooled trends center naturalearth writing site test review
+.PHONY: year spans abstracts validate institutions people geography features analysis figures pooled trends center naturalearth writing site test review genedata manhattan score
 year: validate institutions people geography features analysis figures
 
 spans:
@@ -73,6 +73,21 @@ naturalearth:
 
 center: naturalearth
 	$(PY) src/ashg/center.py
+
+# gene and word Manhattan plots (HGNC symbols + UCSC hg38 refGene positions, both public)
+genedata:
+	@mkdir -p data/raw/genes
+	@test -s data/raw/genes/hgnc_complete_set.txt || curl -sSfL -o data/raw/genes/hgnc_complete_set.txt \
+	  https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt
+	@test -s data/raw/genes/refGene.txt.gz || curl -sSfL -o data/raw/genes/refGene.txt.gz \
+	  https://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/refGene.txt.gz
+
+manhattan: genedata
+	$(PY) src/ashg/manhattan.py
+
+# overrepresented-phrase score per abstract, for the site's score page (after `make pooled`)
+score:
+	$(PY) src/ashg/talk_score.py
 
 writing:
 	$(PY) src/ashg/writing.py data/abstracts/*.parquet

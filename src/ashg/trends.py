@@ -198,9 +198,10 @@ def metro_table(insts, credit, years, n_metros):
 def drivers(hits, credit, phrases, years):
     """{phrase: {year or "all": {talks, posters, unmatched, institutes: [...], metros: [...]}}}.
 
-    Rows are [name, talks, posters, entity_abstracts]: abstracts mentioning the phrase with a
-    first author at that institute/metro, split by talk/poster, and that entity's complete
-    abstracts in the same period (so the explorer can show its own mention rate).
+    Rows are [name, talks, posters, entity_abstracts, entity_talks]: abstracts mentioning the
+    phrase with a first author at that institute/metro, split by talk/poster, and that entity's
+    complete abstracts and talks in the same period (so the explorer can show its own mention
+    rate and its odds of a talk with vs without the phrase).
     """
     complete = credit[credit.abstract_id.isin(hits.abstract_id)]
     out = {}
@@ -215,11 +216,11 @@ def drivers(hits, credit, phrases, years):
             entry["unmatched"] = int((~mention.abstract_id.isin(matched)).sum())
             for kind in ("institute", "metro"):
                 s = scope.dropna(subset=[kind]).drop_duplicates(["abstract_id", kind])
-                totals = s.groupby(kind).size()
+                totals = s.groupby(kind).talk.agg(talks="sum", n="size")
                 hit = s[s.abstract_id.isin(mention.abstract_id)]
                 agg = hit.groupby(kind).talk.agg(talks="sum", n="size")
                 agg = agg.assign(posters=agg.n - agg.talks).sort_values(["n", "talks"], ascending=False)
-                entry[kind + "s"] = [[name, int(r.talks), int(r.posters), int(totals[name])]
+                entry[kind + "s"] = [[name, int(r.talks), int(r.posters), int(totals.n[name]), int(totals.talks[name])]
                                      for name, r in agg.head(TOP_DRIVERS).iterrows()]
             out[p][str(period)] = entry
     return out
@@ -359,7 +360,12 @@ def biobanks_figure(t, years, path, specs, ncols=4):
         r = t[t.phrase == p].set_index("year").loc[years]
         panel_style(ax, years, short_years=True)
         series(ax, xs, r.share, INK)
-        ax.set_xticks(xs, [f"’{y % 100:02d}\n{n}" for y, n in zip(years, r.docs)])  # abstracts mentioning it
+        # abstracts mentioning it, in a row under the years headed "n =" (n= on every tick runs together)
+        for x, n in zip(xs, r.docs):
+            ax.annotate(f"{n}", (x, 0), xycoords=("data", "axes fraction"), xytext=(0, -17),
+                        textcoords="offset points", ha="center", va="top", color=INK_2, fontsize=8.5)
+        ax.annotate("n =", (0, 0), xycoords="axes fraction", xytext=(-4, -17), textcoords="offset points",
+                    ha="right", va="top", color=INK_2, fontsize=8.5)
         ax.set_ylim(0, r.share.max() * 1.25)
         if r.share.max() < 0.03:  # small shares need a decimal to tell the ticks apart
             ax.yaxis.set_major_formatter(PercentFormatter(1, decimals=1))
