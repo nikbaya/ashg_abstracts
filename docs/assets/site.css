@@ -151,6 +151,13 @@ details.table > summary { cursor: pointer; color: var(--talk); font-size: 14px; 
 #drv-chart .ref { stroke: var(--text-secondary); stroke-dasharray: 3 3; }
 .filters input { font: inherit; font-size: 14px; color: var(--text-primary); background: var(--surface-1);
   border: 1px solid var(--rule); border-radius: 6px; padding: 4px 10px; }
+.sg-wrap { position: relative; display: inline-block; }
+#drv-suggest { position: absolute; top: calc(100% + 4px); left: 0; z-index: 5; min-width: 100%; width: max-content; max-width: 340px;
+  margin: 0; padding: 4px; list-style: none; background: var(--surface-1); border: 1px solid var(--rule);
+  border-radius: 8px; box-shadow: 0 4px 16px rgb(0 0 0 / 0.1); font-size: 14px; }
+#drv-suggest li { padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+#drv-suggest li[aria-selected="true"], #drv-suggest li:hover { background: var(--surface-2); }
+#drv-suggest b { font-weight: 600; }
 .filters .lbl { font-size: 13px; color: var(--text-secondary); }
 
 /* center-of-mass map (geography page) */

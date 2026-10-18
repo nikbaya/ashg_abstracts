@@ -42,7 +42,7 @@
 <h2 id="explorer">{% if num %}<span class="num">{{ num }}</span>{% endif %}{{ heading }}</h2>
 {{ caller() }}
 <div class="filters">
-  <label>Find <input type="search" id="drv-search" placeholder="e.g. enhancer" autocomplete="off"></label>
+  <label>Find <span class="sg-wrap"><input type="search" id="drv-search" placeholder="e.g. enhancer" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="drv-suggest" aria-autocomplete="list"><ul id="drv-suggest" role="listbox" hidden></ul></span></label>
   <label>Phrase <select id="drv-phrase"></select></label>
   <span class="lbl">Plot</span><span class="seg" id="drv-mode" role="group" aria-label="Plot">
     <button type="button" data-mode="abs" aria-pressed="true">Shares</button><button type="button" data-mode="rel" aria-pressed="false">Odds of a talk</button>

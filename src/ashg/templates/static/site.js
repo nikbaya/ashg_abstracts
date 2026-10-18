@@ -85,12 +85,64 @@ document.querySelectorAll("table.sortable").forEach(table => {
     ({ phrase, group: MORE, counts: data.years.map((_, i) => [flat[2 * i], flat[2 * i + 1]]), or }));
   const byPhrase = Object.fromEntries([...data.phrases, ...more].map(p => [p.phrase, p]));
 
+  // best matches first: the exact phrase, then phrases starting with the query, then the rest
+  const rank = (name, q) => { const l = name.toLowerCase(); return l === q ? 0 : l.startsWith(q) ? 1 : 2; };
+  const byRank = q => (a, b) => rank(a, q) - rank(b, q);
+  const suggest = document.getElementById("drv-suggest");
+
+  // type-ahead popup under the search box: best matches first, matched text in bold
+  let active = -1;
+  function showSuggestions(names, q) {
+    suggest.replaceChildren(...names.map(name => {
+      const li = node("li"), i = name.toLowerCase().indexOf(q);
+      li.setAttribute("role", "option");
+      li.dataset.value = name;
+      li.append(name.slice(0, i), node("b", null, name.slice(i, i + q.length)), name.slice(i + q.length));
+      return li;
+    }));
+    active = -1;
+    suggest.hidden = !names.length || document.activeElement !== search;
+    search.setAttribute("aria-expanded", String(!suggest.hidden));
+  }
+  function highlight(i) {
+    const items = [...suggest.children];
+    if (!items.length) return;
+    active = (i + items.length) % items.length;
+    items.forEach((li, k) => li.setAttribute("aria-selected", String(k === active)));
+    items[active].scrollIntoView({ block: "nearest" });
+  }
+  function choose(name) {
+    search.value = name;
+    fillOptions(name.toLowerCase());
+    phraseSel.value = name;
+    suggest.hidden = true;
+    search.setAttribute("aria-expanded", "false");
+    render();
+  }
+  search?.addEventListener("keydown", ev => {
+    if (ev.key === "ArrowDown") { ev.preventDefault(); highlight(active + 1); }
+    else if (ev.key === "ArrowUp") { ev.preventDefault(); highlight(active - 1); }
+    else if (ev.key === "Enter" && active >= 0) { ev.preventDefault(); choose(suggest.children[active].dataset.value); }
+    else if (ev.key === "Escape") { suggest.hidden = true; }
+  });
+  suggest?.addEventListener("mousedown", ev => {  // mousedown, so it lands before the input loses focus
+    const li = ev.target.closest("li");
+    if (li) { ev.preventDefault(); choose(li.dataset.value); }
+  });
+  search?.addEventListener("blur", () => { suggest.hidden = true; });
+  search?.addEventListener("focus", () => { if (suggest.children.length) suggest.hidden = false; });
+
   function fillOptions(q) {
     const keep = phraseSel.value;
     phraseSel.replaceChildren();
+    const match = p => p.phrase.toLowerCase().includes(q);
+    const hits = q ? [...data.phrases.filter(match), ...more.filter(match)] : [];
+    const exact = q && byPhrase[hits.find(p => p.phrase.toLowerCase() === q)?.phrase];
     const groups = {};
-    data.phrases.filter(p => !q || p.phrase.toLowerCase().includes(q)).forEach(p => (groups[p.group] ??= []).push(p.phrase));
-    const extra = q ? more.filter(p => p.phrase.toLowerCase().includes(q)) : [];
+    if (exact) groups["Exact match"] = [exact.phrase];
+    data.phrases.filter(p => (!q || match(p)) && p !== exact).sort((a, b) => byRank(q)(a.phrase, b.phrase))
+      .forEach(p => (groups[p.group] ??= []).push(p.phrase));
+    const extra = q ? more.filter(p => match(p) && p !== exact).sort((a, b) => byRank(q)(a.phrase, b.phrase)) : [];
     if (extra.length) groups[MORE] = extra.slice(0, MORE_MAX).map(p => p.phrase);
     Object.entries(groups).forEach(([g, ps]) => {
       const og = document.createElement("optgroup"); og.label = g;
@@ -100,7 +152,9 @@ document.querySelectorAll("table.sortable").forEach(table => {
     if (extra.length > MORE_MAX)
       phraseSel.lastChild.appendChild(node("option", null, `…${extra.length - MORE_MAX} more; keep typing`)).disabled = true;
     if (!phraseSel.options.length) phraseSel.appendChild(node("option", null, "No matching phrase")).disabled = true;
+    else if (q) phraseSel.selectedIndex = 0;  // the best match, not whatever was chosen before
     else if ([...phraseSel.options].some(o => o.value === keep)) phraseSel.value = keep;
+    showSuggestions(q ? hits.map(p => p.phrase).sort(byRank(q)).slice(0, 8) : [], q);
   }
   fillOptions("");
   search?.addEventListener("input", () => {
