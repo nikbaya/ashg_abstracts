@@ -1,0 +1,225 @@
+# Terms from Matsui K. Delving Into PubMed Records: How AI-Influenced Vocabulary has Transformed Medical Writing
+# since ChatGPT. Perspectives on Medical Education. 2025; 14(1): 882-890. https://doi.org/10.5334/pme.1929
+# (https://pmc.ncbi.nlm.nih.gov/articles/PMC12679996/): 135 potentially AI-influenced terms (group ai)
+# and 84 common medical-academic phrases used as controls (group control). Read by ai_words.py.
+# The paper's noun list reads "captive complexity"; taken as a typo and kept as "complexity" only ("captive" left out).
+term,category,group
+address,verb,ai
+align,verb,ai
+boast,verb,ai
+bolster,verb,ai
+catalyze,verb,ai
+comprehend,verb,ai
+delve,verb,ai
+elucidate,verb,ai
+embark,verb,ai
+emerge,verb,ai
+employ,verb,ai
+emphasize,verb,ai
+encompass,verb,ai
+endeavor,verb,ai
+enhance,verb,ai
+excel,verb,ai
+exhibit,verb,ai
+explore,verb,ai
+facilitate,verb,ai
+fortify,verb,ai
+foster,verb,ai
+garner,verb,ai
+grapple,verb,ai
+harness,verb,ai
+highlight,verb,ai
+illuminate,verb,ai
+integrate,verb,ai
+interplay,verb,ai
+juxtapose,verb,ai
+leverage,verb,ai
+navigate,verb,ai
+necessitate,verb,ai
+offer,verb,ai
+outperform,verb,ai
+revolutionize,verb,ai
+scrutinize,verb,ai
+showcase,verb,ai
+surpass,verb,ai
+transform,verb,ai
+transcend,verb,ai
+underscore,verb,ai
+unearth,verb,ai
+unveil,verb,ai
+actionable,adjective,ai
+commendable,adjective,ai
+complex,adjective,ai
+comprehensive,adjective,ai
+critical,adjective,ai
+crucial,adjective,ai
+deeper,adjective,ai
+essential,adjective,ai
+exceptional,adjective,ai
+exhaustive,adjective,ai
+expansive,adjective,ai
+fresh,adjective,ai
+fundamental,adjective,ai
+groundbreaking,adjective,ai
+ingenious,adjective,ai
+innovative,adjective,ai
+intricate,adjective,ai
+intriguing,adjective,ai
+invaluable,adjective,ai
+meticulous,adjective,ai
+multifaceted,adjective,ai
+noteworthy,adjective,ai
+nuanced,adjective,ai
+pivotal,adjective,ai
+potent,adjective,ai
+potential,adjective,ai
+renowned,adjective,ai
+significant,adjective,ai
+transformative,adjective,ai
+unlocking,adjective,ai
+valuable,adjective,ai
+versatile,adjective,ai
+well-rounded,adjective,ai
+accurately,adverb,ai
+additionally,adverb,ai
+aptly,adverb,ai
+compellingly,adverb,ai
+effectively,adverb,ai
+effortlessly,adverb,ai
+excellently,adverb,ai
+impressively,adverb,ai
+lucidly,adverb,ai
+methodically,adverb,ai
+notably,adverb,ai
+particularly,adverb,ai
+predominantly,adverb,ai
+primarily,adverb,ai
+profoundly,adverb,ai
+promptly,adverb,ai
+reportedly,adverb,ai
+scholarly,adverb,ai
+seamlessly,adverb,ai
+strategically,adverb,ai
+subsequently,adverb,ai
+thereby,adverb,ai
+thoroughly,adverb,ai
+thoughtfully,adverb,ai
+ultimately,adverb,ai
+undoubtedly,adverb,ai
+advancement,noun,ai
+capability,noun,ai
+complexity,noun,ai
+ecosystem,noun,ai
+enhancement,noun,ai
+essence,noun,ai
+finding,noun,ai
+foundation,noun,ai
+insight,noun,ai
+intricacy,noun,ai
+journey,noun,ai
+landscape,noun,ai
+milestone,noun,ai
+pipeline,noun,ai
+prowess,noun,ai
+realm,noun,ai
+significance,noun,ai
+soil,noun,ai
+tapestry,noun,ai
+testament,noun,ai
+thought,noun,ai
+understanding,noun,ai
+utilization,noun,ai
+deep dive,phrase,ai
+driving force,phrase,ai
+ethical consideration,phrase,ai
+exercise caution,phrase,ai
+game changer,phrase,ai
+in addition,phrase,ai
+in summary,phrase,ai
+knowledge gap,phrase,ai
+shed light,phrase,ai
+vital role,phrase,ai
+adverse events,control,control
+aim of,control,control
+aimed to,control,control
+all patients,control,control
+analysis,control,control
+associated with,control,control
+association between,control,control
+at least,control,control
+basis of,control,control
+cohort study,control,control
+common grade,control,control
+compared with,control,control
+control group,control,control
+cross-sectional,control,control
+difference between,control,control
+difference in,control,control
+dose of,control,control
+effect of,control,control
+efficacy,control,control
+end of,control,control
+end point,control,control
+evaluate,control,control
+examine,control,control
+further research,control,control
+higher in,control,control
+hypothesis,control,control
+identify,control,control
+included in,control,control
+increased risk,control,control
+independently associated,control,control
+investigate,control,control
+is known,control,control
+less likely,control,control
+logistic regression,control,control
+lower in,control,control
+median follow-up,control,control
+models,control,control
+more likely,control,control
+most common,control,control
+no difference,control,control
+objective of,control,control
+one of,control,control
+our results,control,control
+outcome measure,control,control
+patients who,control,control
+placebo group,control,control
+primary endpoint,control,control
+primary outcome,control,control
+proportion of,control,control
+purpose of,control,control
+randomly,control,control
+ratio,control,control
+registered with,control,control
+regression analysis,control,control
+results suggest,control,control
+retrospective,control,control
+safety,control,control
+secondary analysis,control,control
+sought to,control,control
+statistically,control,control
+study period,control,control
+suggest that,control,control
+this study,control,control
+this trial,control,control
+time of,control,control
+to assess,control,control
+to compare,control,control
+to determine,control,control
+to evaluate,control,control
+to examine,control,control
+to identify,control,control
+to investigate,control,control
+to receive,control,control
+treatment allocation,control,control
+treatment assignment,control,control
+treatment of,control,control
+two groups,control,control
+was found,control,control
+was used,control,control
+were assessed,control,control
+were collected,control,control
+were enrolled,control,control
+were performed,control,control
+were reported,control,control
