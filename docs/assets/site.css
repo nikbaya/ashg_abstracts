@@ -12,13 +12,15 @@ a { color: var(--talk); }
 [hidden] { display: none !important; }
 
 /* header + nav */
-.site-header { border-bottom: 1px solid var(--rule); }
+.site-header { position: sticky; top: 0; z-index: 10; background: var(--surface-1); border-bottom: 1px solid var(--rule); }
 .site-header .wrap { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 28px; padding-top: 14px; }
 .brand { font-weight: 700; font-size: 17px; color: var(--text-primary); text-decoration: none; white-space: nowrap; }
 .brand span { font-weight: 400; color: var(--text-secondary); }
 .site-nav { display: flex; gap: 2px; overflow-x: auto; margin: 0 -8px; scrollbar-width: none; min-width: 0; max-width: calc(100% + 16px); }
 .site-nav a { padding: 10px 8px 12px; color: var(--text-secondary); text-decoration: none; white-space: nowrap;
   border-bottom: 2px solid transparent; }
+.nav-icon { width: 16px; height: 16px; margin-right: 6px; vertical-align: -3px; fill: none; stroke: currentColor;
+  stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .site-nav a:hover { color: var(--text-primary); }
 .site-nav a[aria-current="page"] { color: var(--text-primary); font-weight: 600; border-bottom-color: var(--talk); }
 
@@ -31,7 +33,7 @@ p, li { color: var(--text-secondary); max-width: 72ch; }
 .caveat { background: var(--surface-2); border-radius: 8px; padding: 12px 16px; max-width: none; }
 
 /* page toolbar: year switcher and toggles, sticky while scrolling */
-.toolbar { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center;
+.toolbar { position: sticky; top: var(--header-h, 58px); z-index: 5; display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center;
   padding: 10px 0; margin: 12px 0 4px; background: var(--surface-1); border-bottom: 1px solid var(--rule); }
 .toolbar label, .toolbar .lbl { font-size: 13px; color: var(--text-secondary); }
 .seg { display: inline-flex; gap: 4px; vertical-align: middle; }
@@ -81,6 +83,8 @@ footer p { margin: 4px 0; }
 .bars { gap: 32px; }
 .bars h4 { margin: 8px 0 6px; font-size: 14px; }
 .explorer { margin: 8px 0 48px; }
+.explorer.in-vignette { margin-bottom: 8px; }
+.explorer.in-vignette h2 { display: flex; align-items: baseline; gap: 10px; margin-top: 20px; }
 /* fixed value column: an auto one sizes per row, so equal totals got different bar widths */
 .bar-row { display: grid; grid-template-columns: minmax(0, 15em) 1fr 9em; gap: 8px; align-items: center;
   padding: 3px 4px; border-radius: 4px; font-size: 13px; cursor: default; }
@@ -119,7 +123,7 @@ h2 .sub { font-weight: 400; color: var(--text-secondary); }
 .toc { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; margin: 4px 0 8px; }
 .toc a { text-decoration: none; }
 .toc a:hover { text-decoration: underline; }
-h2[id], h3[id] { scroll-margin-top: 64px; }  /* clear the sticky toolbar */
+h2[id], h3[id], .explorer, .vignette[id] { scroll-margin-top: 130px; }  /* clear the sticky header and toolbar */
 @media (max-width: 600px) {
   h1 { font-size: 24px; }
   .toolbar input { width: 100%; }

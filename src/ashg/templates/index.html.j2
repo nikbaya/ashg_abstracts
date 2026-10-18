@@ -5,7 +5,7 @@
 {% set p = pooled or latest %}
 {% set h = highlights %}
 {% macro pct(v, d=1) %}{{ ("%." ~ d ~ "f")|format(100 * v) }}%{% endmacro %}
-{% macro lookup(phrase) %}<a href="phrases.html?phrase={{ phrase | urlencode }}#explorer">{{ phrase }}</a>{% endmacro %}
+{% macro lookup(phrase) %}<a href="?phrase={{ phrase | urlencode }}#explorer">{{ phrase }}</a>{% endmacro %}
 {% macro rate_table(t, head, count_head="Talks / abstracts", val_head="Talk rate · 95% CI", link=False) %}
 <div class="scroll"><table class="hl-table rates">
 <thead><tr><th class="text">{{ head }}</th><th>{{ count_head }}</th><th class="text">{{ val_head }}</th></tr></thead>
@@ -26,38 +26,18 @@ abstracts for a talk; the rest become posters. This site parses the published ab
 ({{ years[0].year }}–{{ latest.year }}{% if pooled %}: {{ "{:,}".format(p.summary.abstracts) }} abstracts,
 {{ "{:,}".format(p.summary.talks) }} talks{% endif %}) and asks which phrases, institutions and places show up more
 often among talks.</p>
-<p class="caveat"><strong>Read this first.</strong> The abstracts list only <em>accepted</em> work, and authors
-can ask for a poster. “Talk rate” is the fraction of accepted abstracts presented as a talk, not an acceptance
-rate or a quality score. Every number here is an association. Not every affiliation could be matched to an
+<p class="caveat"><strong>Read this first.</strong> Only <em>accepted</em> abstracts are published, so rejected
+submissions never appear here, and authors can request a poster instead of a talk, so a poster does not mean an
+abstract was passed over for a talk. “Talk rate” is the fraction of accepted abstracts presented as a talk, not an
+acceptance rate or a quality score. Every number here is an association: it says how often a phrase, institution or
+place goes with a talk, not that it earns one (adding a phrase to your abstract will not make it a talk), and
+differences can reflect topic, field or what authors chose to submit. Not every affiliation could be matched to an
 institution or place: see the <a href="methods.html#match-rates">match rates</a>.</p>
 
+{% set ns = namespace(n=0) %}
 {% if h %}
-{% if h.words %}
-{% set w0 = h.words.rows[0] %}
-<section class="vignette" id="wording">
-<h2><span class="num">1</span>{{ h.latest }} abstracts are worded differently</h2>
-<p class="lead">“{{ w0.word }}” is in {{ pct(w0.share, 0) }} of {{ h.latest }} abstracts, up from
-{{ pct(w0.share_before, 0) }} in {{ years[0].year }}–{{ years[-2].year }}. It is one of {{ h.words.n_sig }} words
-significantly more common in {{ h.latest }}, and most of them are general wording rather than new topics.</p>
-{% if "trends_words_enriched" in trends %}
-{{ m.figure("img/trends_words_enriched.png", "Manhattan-style plot of every word, alphabetically, by minus log10 p for being more common in %s abstracts than in earlier years, with a Bonferroni line; framework stands far above the rest." % h.latest) }}
-{% endif %}
-<div class="scroll"><table class="hl-table">
-<thead><tr><th class="text">Word</th><th>{{ years[0].year }}–{{ years[-2].year }}</th><th>{{ h.latest }}</th></tr></thead>
-<tbody>
-{% for r in h.words.rows %}<tr><td class="text">{{ lookup(r.word) }}</td><td>{{ pct(r.share_before) }}</td><td><strong>{{ pct(r.share) }}</strong></td></tr>
-{% endfor %}
-</tbody></table></div>
-<p class="table-note">Share of abstracts using each word (title or text). The most overrepresented words, one per family
-of forms (“remain”, “remains”); one-sided Fisher's exact test per word, significant after Bonferroni correction over
-{{ "{:,}".format(h.words.n) }} words. Click a word to see it in talks and posters, year by year.</p>
-<p class="more-link"><a href="phrases.html#words-enriched">Every word, interactive →</a></p>
-<p class="more-link"><a href="phrases.html#explorer">Look up any word in talks and posters, year by year →</a></p>
-</section>
-{% endif %}
-
 <section class="vignette" id="hot">
-<h2><span class="num">{{ 2 if h.words else 1 }}</span>What's hot at ASHG {{ h.latest }}</h2>
+<h2>{% set ns.n = ns.n + 1 %}<span class="num">{{ ns.n }}</span>What's hot at ASHG {{ h.latest }}</h2>
 {% set r0 = h.rising[0] %}
 <p class="lead">Topics that keep growing: “{{ r0.phrase }}” is in {{ pct(r0.last) }} of {{ h.latest }} abstracts, up
 from {{ pct(r0.first) }} in {{ years[0].year }}.</p>
@@ -71,12 +51,23 @@ from {{ pct(r0.first) }} in {{ years[0].year }}.</p>
 </tbody></table></div>
 <p class="table-note">Share of each year's accepted abstracts mentioning the topic (title or text; spelling variants count). Click a topic to look it up.
 {% for r in h.rising if r.peak_year != h.latest %}“{{ r.phrase }}” peaked in {{ r.peak_year }} ({{ pct(r.peak) }}).{% endfor %}</p>
-<p class="more-link"><a href="phrases.html#explorer">Look up any phrase, year by year →</a></p>
+<p class="more-link"><a href="#explorer">Look up any phrase, year by year →</a></p>
 <p class="more-link"><a href="phrases.html#phrase-trends">Phrase trends and biobanks →</a></p>
 </section>
 
+{% if drivers_json %}
+<div class="vignette" id="search">
+{% set ns.n = ns.n + 1 %}
+{% call m.explorer(None, explorer_src, ns.n, "Search a phrase") %}
+<p>Type a word or phrase to see how often talks and posters mention it each year, then which first-author institutions
+and metro areas write about it. Hover or focus a row for that institution's own mention rate and odds of a talk.</p>
+{% endcall %}
+<p class="more-link"><a href="phrases.html#explorer">About the search, and phrase trends →</a></p>
+</div>
+{% endif %}
+
 <section class="vignette" id="talk-leaning">
-<h2><span class="num">{{ 3 if h.words else 2 }}</span>What leans toward talks in {{ h.latest }}</h2>
+<h2>{% set ns.n = ns.n + 1 %}<span class="num">{{ ns.n }}</span>What phrases are overrepresented in talks</h2>
 <p class="lead">Among phrases in at least 10 talks, an abstract mentioning “{{ h.hot.rows[0].label }}” had
 {{ h.hot.rows[0].val }} the odds of a talk of one that didn't.</p>
 {{ rate_table(h.hot, "Phrase", count_head="Talks / posters", val_head="Odds of a talk · 95% CI", link=True) }}
@@ -100,14 +91,47 @@ in posters). Click a phrase to look it up.</p>
 every phrase tested no single shift survives a false-discovery-rate correction: <a href="phrases.html#shift">suggestive,
 not established</a>.</p>
 {% endif %}
-<p class="more-link"><a href="phrases.html#explorer">Look up any phrase →</a></p>
 <p class="more-link"><a href="phrases.html#by-year">Each year's top phrases →</a></p>
 <p class="more-link"><a href="phrases.html#score">Score your own abstract →</a></p>
 </section>
 
-{% set n0 = 3 if h.words else 2 %}
+{% if h.words %}
+{% set w0 = h.words.rows[0] %}
+<section class="vignette" id="wording">
+<h2>{% set ns.n = ns.n + 1 %}<span class="num">{{ ns.n }}</span>{{ h.latest }} abstracts are worded differently</h2>
+<p class="lead">“{{ w0.word }}” is in {{ pct(w0.share, 0) }} of {{ h.latest }} abstracts, up from
+{{ pct(w0.share_before, 0) }} in {{ years[0].year }}–{{ years[-2].year }}. It is one of {{ h.words.n_sig }} words
+significantly more common in {{ h.latest }}, and most of them are general wording rather than new topics.</p>
+{% if "trends_words_enriched" in trends %}
+{% if manhattan_src %}
+<div class="mh" data-manhattan="enriched" data-src="{{ manhattan_src }}" data-label="Manhattan-style plot of every word, alphabetically, by minus log10 p for being more common in {{ h.latest }} abstracts than in earlier years, with a Bonferroni line.">
+<img class="mh-fallback" src="img/trends_words_enriched.png" alt="Manhattan-style plot of every word, alphabetically, by minus log10 p for being more common in {{ h.latest }} abstracts than in earlier years, with a Bonferroni line; framework stands far above the rest." loading="lazy">
+</div>
+<p class="table-note">Every word, alphabetically, by how strongly it is overrepresented in {{ h.latest }}; dashed line: Bonferroni correction. Hover a point for its word, click it to look it up.</p>
+{% else %}
+{{ m.figure("img/trends_words_enriched.png", "Manhattan-style plot of every word, alphabetically, by minus log10 p for being more common in %s abstracts than in earlier years, with a Bonferroni line; framework stands far above the rest." % h.latest) }}
+{% endif %}
+{% endif %}
+
+<div class="scroll"><table class="hl-table">
+<thead><tr><th class="text">Word</th><th>{{ years[0].year }}–{{ years[-2].year }}</th><th>{{ h.latest }}</th></tr></thead>
+<tbody>
+{% for r in h.words.rows %}<tr><td class="text">{{ lookup(r.word) }}</td><td>{{ pct(r.share_before) }}</td><td><strong>{{ pct(r.share) }}</strong></td></tr>
+{% endfor %}
+</tbody></table></div>
+<p class="table-note">Share of abstracts using each word (title or text). The most overrepresented words, one per family
+of forms (“remain”, “remains”); one-sided Fisher's exact test per word, significant after Bonferroni correction over
+{{ "{:,}".format(h.words.n) }} words. Click a word to see it in talks and posters, year by year.</p>
+{% if words_enriched_json %}
+{{ m.words_table(years, words_enriched_json, words_enriched_src, 10) }}
+{% endif %}
+<p class="more-link"><a href="phrases.html#words-enriched">Every word, interactive →</a></p>
+<p class="more-link"><a href="#explorer">Look up any word in talks and posters, year by year →</a></p>
+</section>
+{% endif %}
+
 <section class="vignette" id="institutions">
-<h2><span class="num">{{ n0 + 1 }}</span>Institutions with the highest talk rate</h2>
+<h2>{% set ns.n = ns.n + 1 %}<span class="num">{{ ns.n }}</span>Institutions with the highest talk rate</h2>
 {% set i3 = h.inst.rows[:3] %}
 <p class="lead">Among the {{ h.inst_pool }} institutions with the most first-author abstracts ({{ p.label }}),
 {{ i3[0].label }}, {{ i3[1].label }} and {{ i3[2].label }} lead, at {{ pct(i3[2].talk_rate, 0) }}–{{ pct(i3[0].talk_rate, 0) }}
@@ -118,21 +142,6 @@ institutions have wide intervals. In {{ h.latest }} alone, {{ h.latest_top | joi
 <p class="more-link"><a href="institutions.html">All 50 largest institutions, year by year →</a></p>
 </section>
 
-{% if h.center %}
-<section class="vignette" id="center">
-<h2><span class="num">{{ n0 + 2 }}</span>The center of mass follows the host city</h2>
-{% set pulls = h.center | sort(attribute="km", reverse=True) %}
-<p class="lead">Local groups bring extra abstracts to a home meeting. Leave out first authors from the host city and the
-center of mass of North American abstracts moves {{ "{:,}".format(pulls[0].km) }} km for {{ pulls[0].host }}
-{{ pulls[0].year }}, and {{ pulls[-1].km }} km for {{ pulls[-1].host }} {{ pulls[-1].year }}.</p>
-{% if "trends_center_na" in trends %}
-{{ m.figure("img/trends_center_na.png", "Map of North America and a zoom on Illinois and Indiana, with the yearly center of US and Canadian first authors' metro areas moving toward each year's host city.") }}
-{% endif %}
-<p class="table-note">Host-city pull by year:
-{% for r in h.center %}{{ r.host }} {{ r.year }} {{ "{:,}".format(r.km) }} km{{ " · " if not loop.last else "." }}{% endfor %}</p>
-<p class="more-link"><a href="geography.html#center">Interactive map: talks, worldwide, without North America →</a></p>
-</section>
-{% endif %}
 {% endif %}
 
 {% endblock %}

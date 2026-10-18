@@ -58,45 +58,14 @@ left out of the phrase counts.{% endif %}</p>
 {% endfor %}
 
 {% if drivers_json %}
-<section class="explorer">
-<h2 id="explorer">Look up a phrase</h2>
+{% call m.explorer(drivers_json) %}
 <p>The phrases in the figures below (trends, biobanks, what changed in {{ years[-1].year }}) plus the top 50 each way
 across all years. See how often talks and posters mention a phrase
 each year, then which first-author institutions and metro areas write about it (among those with at least one
 talk mentioning it; an abstract counts for each of its institutions). Hover or focus a row for that institution's
 own mention rate and odds of a talk. Searching also finds every other phrase in at least 5 talks over all years; for those the counts
 are exact matches in the abstract text (no titles or plurals), and there is no institution breakdown.</p>
-<div class="filters">
-  <label>Find <input type="search" id="drv-search" placeholder="e.g. enhancer" autocomplete="off"></label>
-  <label>Phrase <select id="drv-phrase"></select></label>
-  <span class="lbl">Plot</span><span class="seg" id="drv-mode" role="group" aria-label="Plot">
-    <button type="button" data-mode="abs" aria-pressed="true">Shares</button><button type="button" data-mode="rel" aria-pressed="false">Odds of a talk</button>
-  </span>
-</div>
-<div class="drv-trend">
-  <svg id="drv-chart" role="img" viewBox="0 0 360 150"></svg>
-  <div><p id="drv-or"></p>
-  <div class="legend" id="drv-legend"><span><i style="background: var(--talk)"></i>share of talks</span><span><i style="background: var(--poster)"></i>share of posters</span></div>
-  <p class="legend" id="drv-ratio-note" hidden>Odds of a talk with vs without it each year, with 95% CIs; above 1× it is more common in talks.</p></div>
-</div>
-<p id="drv-none" class="empty" hidden>No institution or metro breakdown for this phrase: that is kept for the phrases listed before you search.</p>
-<div id="drv-who">
-<div class="filters"><span class="lbl">Who writes about it</span><span class="seg" id="drv-year" role="group" aria-label="Year"></span>
-  <span class="lbl">Bars</span><span class="seg" id="drv-bar-mode" role="group" aria-label="Bars">
-    <button type="button" data-mode="abs" aria-pressed="true">Counts</button><button type="button" data-mode="rel" aria-pressed="false">Odds of a talk</button>
-  </span>
-</div>
-<p id="drv-summary"></p>
-<div class="legend" id="drv-bar-legend"><span><i style="background: var(--talk)"></i>talks</span><span><i style="background: var(--poster)"></i>posters</span></div>
-<p class="legend" id="drv-bar-note" hidden>Odds of a talk for that institution's (or metro's) abstracts with vs without it, as for the phrase overall above: dot and 95% CI, log scale; the dashed line is 1×, no difference. Few abstracts make for wide intervals.</p>
-<div class="cols bars">
-  <div><h4>Institutions</h4><div id="drv-institutes"></div></div>
-  <div><h4>Metro areas</h4><div id="drv-metros"></div></div>
-</div>
-</div>
-<div class="tip" id="drv-tip" role="tooltip" hidden></div>
-<script type="application/json" id="drv-data">{{ drivers_json }}</script>
-</section>
+{% endcall %}
 {% endif %}
 
 {% if "trends_phrases" in trends %}
@@ -168,18 +137,7 @@ every word at 5%. <a href="img/trends_words_enriched.png">Image to download</a><
 {{ m.figure("img/trends_words_enriched.png", "Manhattan-style plot of every word, alphabetically, by minus log10 p for being more common in %d abstracts than in earlier years, with a Bonferroni line." % years[-1].year) }}
 {% endif %}
 {% if words_enriched_json %}
-<div class="filters">
-  <label>Find a word <input type="search" id="we-search" placeholder="e.g. framework" autocomplete="off"></label>
-  <span class="lbl" id="we-count" aria-live="polite"></span>
-</div>
-<div class="scroll"><table id="we-table">
-<thead><tr><th class="text" data-k="0">Word</th><th data-k="1">{{ years[-1].year }} abstracts</th>
-<th data-k="2">{{ years[0].year }}–{{ years[-2].year }} abstracts</th><th data-k="3">Odds ratio</th>
-<th data-k="4" aria-sort="ascending">p</th></tr></thead>
-<tbody id="we-body"></tbody></table></div>
-<p class="table-note">Every word in the figure, the most overrepresented first; click a heading to sort. Bold p:
-significant after Bonferroni correction. A word less common in {{ years[-1].year }} has an odds ratio below 1 and p near 1.</p>
-<script type="application/json" id="we-data">{{ words_enriched_json }}</script>
+{{ m.words_table(years, words_enriched_json) }}
 {% endif %}
 {% endif %}
 

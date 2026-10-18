@@ -324,16 +324,28 @@ def main():
     drivers = out / "trends_drivers.json"
     center = out / "trends_center.json"  # center-of-mass map (geography page), from center.py
 
+    explorer_src = None  # the overview page fetches the explorer data; the phrases page inlines it
+    if drivers.exists():
+        explorer_data = explorer_json(drivers)
+        (docs / "data").mkdir(exist_ok=True)
+        (docs / "data" / "explorer.json").write_text(explorer_data.replace("<\\/", "</"))
+        explorer_src = f"data/explorer.json?v={hashlib.sha1(explorer_data.encode()).hexdigest()[:8]}"
+
+    words_enriched = words_enriched_json(out / "trends_words_enriched.csv", years) if (out / "trends_words_enriched.csv").exists() else None
+    words_enriched_src = None  # the overview page fetches the table data; the phrases page inlines it
+    if words_enriched:
+        (docs / "data" / "words_enriched.json").write_text(words_enriched.replace("<\\/", "</"))
+        words_enriched_src = f"data/words_enriched.json?v={hashlib.sha1(words_enriched.encode()).hexdigest()[:8]}"
+
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATES), autoescape=False,
                              trim_blocks=True, lstrip_blocks=True)
     pages = [{"file": f, "label": label, "title": title} for f, label, title in PAGES]
     shared = {"years": [year_context(out, y) for y in years], "trends": trends, "pages": pages,
               "pooled": year_context(out, "all", f"{years[0]}–{years[-1]}") if pooled else None,
-              "drivers_json": explorer_json(drivers) if drivers.exists() else None,
+              "drivers_json": explorer_data if drivers.exists() else None, "explorer_src": explorer_src,
               "center_json": center.read_text().replace("</", "<\\/") if center.exists() else None,
               "highlights": highlights(out, years) if pooled and (out / "trends_phrases.csv").exists() else None,
-              "words": words, "manhattan_src": manhattan_src, "words_enriched_json": words_enriched_json(out / "trends_words_enriched.csv", years)
-              if (out / "trends_words_enriched.csv").exists() else None,
+              "words": words, "manhattan_src": manhattan_src, "words_enriched_json": words_enriched, "words_enriched_src": words_enriched_src,
               "score": score_context(out / "talk_score.json") if (out / "talk_score.json").exists() else None,
               "repo_url": args.repo_url, "site_url": args.site_url, "asset_v": asset_v,
               "n_institutes": pd.read_csv(args.aliases, comment="#").institute.nunique(), "n_ambiguous": len(AMBIGUOUS)}

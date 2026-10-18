@@ -54,7 +54,10 @@ document.querySelectorAll("table.sortable").forEach(table => {
 (() => {
   const el = document.getElementById("drv-data");
   if (!el) return;
-  const data = JSON.parse(el.textContent);
+  // The overview page fetches the data (data-src); the phrases page inlines it.
+  if (el.dataset.src) fetch(el.dataset.src).then(r => r.json()).then(start).catch(() => {});
+  else start(JSON.parse(el.textContent));
+  function start(data) {
   const phraseSel = document.getElementById("drv-phrase"), yearSeg = document.getElementById("drv-year");
   const search = document.getElementById("drv-search"), chart = document.getElementById("drv-chart");
   const tip = document.getElementById("drv-tip");
@@ -314,7 +317,12 @@ document.querySelectorAll("table.sortable").forEach(table => {
     history.replaceState(null, "", url.search + "#explorer");
     document.getElementById("explorer").scrollIntoView({ behavior: "smooth" });
   });
+  document.addEventListener("lookup-phrase", ev => {  // from the word Manhattan on the overview page
+    select(ev.detail);
+    document.getElementById("explorer").scrollIntoView({ behavior: "smooth" });
+  });
   render();
+  }
 })();
 
 // Center-of-mass map (geography page): a zoomed basemap from center.py and the yearly centers for the chosen
@@ -326,7 +334,7 @@ document.querySelectorAll("table.sortable").forEach(table => {
   const root = document.getElementById("com"), map = document.getElementById("com-map");
   const tip = document.getElementById("com-tip"), tbody = document.querySelector("#com-table tbody");
   root.hidden = false;
-  const state = { map: "na", group: "abstracts", host: "with", na: "with" };
+  const state = { map: "na", group: "abstracts", host: root.dataset.host || "with", na: "with" };
   const SHORT = { "Los Angeles": "LA", "Washington, DC": "DC" };
   const NAMES = { na: "North America (US and Canada)", world: "Worldwide", world_no_na: "Worldwide without North America" };
   const SVG = "http://www.w3.org/2000/svg";
@@ -583,7 +591,11 @@ const talkScore = (() => {
 (() => {
   const el = typeof document !== "undefined" && document.getElementById("we-data");
   if (!el) return;
-  const data = JSON.parse(el.textContent), SHOW = 50;
+  // The overview page fetches the data (data-src); the phrases page inlines it.
+  if (el.dataset.src) fetch(el.dataset.src).then(r => r.json()).then(start).catch(() => {});
+  else start(JSON.parse(el.textContent));
+  function start(data) {
+  const SHOW = +el.dataset.show || 50;
   const search = document.getElementById("we-search"), body = document.getElementById("we-body");
   const count = document.getElementById("we-count"), heads = [...document.querySelectorAll("#we-table th")];
   const sig = data.rows.filter(r => r[4] < data.alpha).length;
@@ -623,6 +635,7 @@ const talkScore = (() => {
   }));
   search.addEventListener("input", render);
   render();
+  }
 })();
 
 // Interactive Manhattan plots (phrases page): words A to Z per year, words overrepresented in the latest year, and
@@ -765,7 +778,8 @@ const talkScore = (() => {
     canvas.addEventListener("pointerleave", () => { tip.hidden = true; if (hover >= 0) { hover = -1; draw(); } });
     if (kind === "enriched") canvas.addEventListener("click", ev => {  // fill the table's search with that word
       const i = nearest(ev), q = document.getElementById("we-search");
-      if (i < 0 || !q) return;
+      if (i < 0) return;
+      if (!q) { document.dispatchEvent(new CustomEvent("lookup-phrase", { detail: data.words.words[i] })); return; }
       q.value = data.words.words[i]; q.dispatchEvent(new Event("input")); q.scrollIntoView({ block: "center", behavior: "smooth" });
     });
     new ResizeObserver(() => draw()).observe(holder);
@@ -776,4 +790,13 @@ const talkScore = (() => {
   document.querySelector('[data-control="year"]')?.addEventListener("click", () => setTimeout(sync));
   addEventListener("hashchange", () => setTimeout(sync));
   fetch(holders[0].dataset.src).then(r => r.json()).then(data => holders.forEach(h => setup(h, data))).catch(() => {});
+})();
+
+// The header is sticky; the page toolbar sticks just below it, wherever the header wraps to.
+(() => {
+  const header = document.querySelector(".site-header");
+  if (!header) return;
+  const set = () => document.documentElement.style.setProperty("--header-h", header.offsetHeight + "px");
+  set();
+  new ResizeObserver(set).observe(header);
 })();
