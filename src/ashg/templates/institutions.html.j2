@@ -8,7 +8,7 @@ An abstract can count for several institutions, so rows don't sum to the total. 
 hand-curated list of {{ n_institutes }} institutions, which places about {{ "{:.0%}".format(years[-1].summary.first_inst_coverage) }} of
 abstracts. The figure shows the 20 highest talk rates among the 50 institutions with the most abstracts;
 the tables list all 50, except any without a talk.</p>
-{{ m.toolbar(years, pooled) }}
+{% call m.year_scope(years, pooled) %}
 {% if pooled %}
 {% set p = pooled %}
 <section data-show-year="all">
@@ -26,4 +26,5 @@ the tables list all 50, except any without a talk.</p>
 {{ m.first_author_table(y.institutions) }}
 </section>
 {% endfor %}
+{% endcall %}
 {% endblock %}

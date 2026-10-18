@@ -18,7 +18,7 @@ best-scoring one, with the rest listed beneath it in small type.</p>
 {% if "trends_genes" in trends %}<a href="#genes">Genes</a>{% endif %}
 {% if score %}<a href="#score">Score your text</a>{% endif %}</nav>
 <span id="by-year"></span>
-{{ m.toolbar(years, pooled) }}
+{% call m.year_scope(years, pooled) %}
 {% if pooled %}
 {% set p = pooled %}
 <section data-show-year="all">
@@ -56,6 +56,7 @@ left out of the phrase counts.{% endif %}</p>
 </div>
 </section>
 {% endfor %}
+{% endcall %}
 
 {% if drivers_json %}
 {% call m.explorer(drivers_json) %}

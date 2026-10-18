@@ -10,7 +10,7 @@ became talks. The last author is usually, but not always, the senior author (co-
 conventions differ), and the rate reflects a group's submissions and poster requests. Names are matched
 automatically, so one person can be split in two or two people merged. The intervals overlap heavily, so the order
 within a list means little.</p>
-{{ m.toolbar(years, pooled) }}
+{% call m.year_scope(years, pooled) %}
 {% if pooled %}
 {% set p = pooled %}
 <section data-show-year="all">
@@ -31,4 +31,5 @@ booklet gives only initials{% endif %}.</p>
 <div class="scroll">{{ y.senior_authors }}</div>
 </section>
 {% endfor %}
+{% endcall %}
 {% endblock %}

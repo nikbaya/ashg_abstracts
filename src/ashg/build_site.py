@@ -28,7 +28,7 @@ from manhattan import AMBIGUOUS
 
 TEMPLATES = pathlib.Path(__file__).resolve().parent / "templates"
 PAGES = [  # (file, nav label, page title)
-    ("index.html", "Overview", "Talks vs posters at ASHG"),
+    ("index.html", "Overview", "Analyzing ASHG abstracts"),
     ("phrases.html", "Phrases", "Phrases overrepresented in talks"),
     ("institutions.html", "Institutions", "Institutions"),
     ("geography.html", "Geography", "Regions, countries and metro areas"),
@@ -169,18 +169,16 @@ def sparkline_pair(talks, posters, w=120, h=40, pad=4):
     return svg + "</svg>"
 
 
-def highlights(out, years, n_rising=6, n_hot=6, min_hot_talks=10, n_rows=6):
-    """Numbers for the overview's vignettes: rising topics and 2026's talk-leaning phrases, the clinical
+def highlights(out, years, n_hot=6, min_hot_talks=10, n_rows=6):
+    """Numbers for the overview's vignettes: topics that rose or fell and 2026's talk-leaning phrases, the clinical
     shift, the institutions with the highest pooled talk rate, and the host-city pull on the center of mass."""
     latest = years[-1]
     t = pd.read_csv(out / "trends_phrases.csv")
-    rising = []
-    for phrase, g in t[t.group == "Topics to watch"].groupby("phrase", sort=False):
-        g = g.set_index("year").loc[years]
-        rising.append({"phrase": phrase, "first": g.share.iloc[0], "last": g.share.iloc[-1],
-                       "peak_year": int(g.share.idxmax()), "peak": g.share.max(),  # for topics that peaked earlier
-                       "spark": sparkline(list(g.share)), "talks_last": int(g.talk_docs.iloc[-1])})
-    rising.sort(key=lambda r: r["last"] - r["first"], reverse=True)  # biggest gain first
+    series = {}  # every topic in the scrolling chart: yearly share of abstracts, abstracts and talks mentioning it
+    for phrase in [*t[t.group.isin(["Topics to watch", "Field shifts"])].phrase.unique(), "UK Biobank"]:
+        g = t[t.phrase == phrase].set_index("year").loc[years]
+        series[phrase] = {"share": [round(float(v), 5) for v in g.share], "docs": g.docs.astype(int).tolist(),
+                          "talks": g.talk_docs.astype(int).tolist(), "spark": sparkline(list(g.share))}
 
     prem = pd.read_csv(out / f"{latest}_premium.csv")
     prem["ngram"] = prem.ngram.str.replace("<num>", "N", regex=False)  # as the explorer and tables show it
@@ -220,7 +218,9 @@ def highlights(out, years, n_rising=6, n_hot=6, min_hot_talks=10, n_rows=6):
                 break
         words = {"rows": rows, "n_sig": len(sig), "n": len(e)}
     baseline = pool.baseline.iloc[0]
-    return {"rising": rising[:n_rising], "words": words, "hot": odds_rows(hot.sort_values("or", ascending=False)), "shift": shift,
+    series_json = json.dumps({"years": years, "series": {p: {k: v for k, v in s.items() if k != "spark"}
+                                                          for p, s in series.items()}}, separators=(",", ":"))
+    return {"series": series, "series_json": series_json, "words": words, "hot": odds_rows(hot.sort_values("or", ascending=False)), "shift": shift,
             "inst": rate_rows(top, "institute", baseline), "inst_pool": len(pool), "baseline": baseline,
             "latest_top": latest_top, "center": center, "latest": latest}
 

@@ -22,7 +22,7 @@ toggle below applies only to the sections after it. The center follows the meeti
 
 {% endif %}
 
-{{ m.toolbar(years, pooled) }}
+{% call m.year_scope(years, pooled) %}
 {% set p = pooled %}
 
 <h2 id="regions">World regions</h2>
@@ -92,4 +92,5 @@ of abstracts have a first-author metro.</p>
 {{ m.first_author_table(y.metros) }}
 </section>
 {% endfor %}
+{% endcall %}
 {% endblock %}

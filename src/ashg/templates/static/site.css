@@ -12,7 +12,8 @@ a { color: var(--talk); }
 [hidden] { display: none !important; }
 
 /* header + nav */
-.site-header { position: sticky; top: 0; z-index: 10; background: var(--surface-1); border-bottom: 1px solid var(--rule); }
+.site-header { position: sticky; top: 0; z-index: 10; background: var(--surface-2); border-bottom: 1px solid #d6d4cf;
+  box-shadow: 0 1px 6px rgb(0 0 0 / 0.07); }
 .site-header .wrap { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 28px; padding-top: 14px; }
 .brand { font-weight: 700; font-size: 17px; color: var(--text-primary); text-decoration: none; white-space: nowrap; }
 .brand span { font-weight: 400; color: var(--text-secondary); }
@@ -25,7 +26,7 @@ a { color: var(--talk); }
 .site-nav a[aria-current="page"] { color: var(--text-primary); font-weight: 600; border-bottom-color: var(--talk); }
 
 main { padding-top: 28px; padding-bottom: 48px; }
-h1 { font-size: 30px; line-height: 1.2; margin: 0 0 10px; }
+h1 { font-size: 30px; line-height: 1.2; margin: 14px 0 18px; }
 h2 { font-size: 22px; margin: 36px 0 8px; }
 h3 { font-size: 17px; margin: 28px 0 6px; }
 p, li { color: var(--text-secondary); max-width: 72ch; }
@@ -211,6 +212,43 @@ details.table > summary { cursor: pointer; color: var(--talk); font-size: 14px; 
 .rates .val { min-width: 3.5em; text-align: right; }
 @media (max-width: 600px) { .rates .track { width: 110px; } }
 table.match th.group { text-align: center; border-bottom: 1px solid var(--rule); }
+
+/* what's hot (overview): steps scroll past a sticky chart; up to three colored topics per step (not talk/poster blue/red) */
+.story { --hl-1: #eb6834; --hl-2: #1baf7a; --hl-3: #6250d6; display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: 0 40px; margin: 8px 0 12px; }
+.story .hl-1 { --c: var(--hl-1); } .story .hl-2 { --c: var(--hl-2); } .story .hl-3 { --c: var(--hl-3); }
+.story-chart { --h: min(420px, calc(100vh - var(--header-h, 58px) - 80px)); grid-column: 2; grid-row: 1; position: sticky;
+  top: calc(var(--header-h, 58px) + (100vh - var(--header-h, 58px) - var(--h)) / 2); align-self: start; height: var(--h); }
+.story-chart svg { display: block; overflow: visible; touch-action: pan-y; }
+.story-steps { grid-column: 1; grid-row: 1; padding: 8vh 0 24vh; }
+.story-step { margin-bottom: 40vh; }
+.story-step:last-child { margin-bottom: 0; }
+.story-step h3 { margin: 0 0 6px; }
+.story-step p { margin: 0; }
+.story.live .story-step { opacity: 0.3; transition: opacity .3s; }
+.story.live .story-step.active { opacity: 1; }
+.story .hl { color: var(--text-primary); font-weight: 600; text-decoration: none; border-bottom: 3px solid var(--c); }
+.story .hl:hover { background: var(--surface-2); }
+.story-chart .grid line { stroke: var(--rule); }
+.story-chart .axis text { fill: var(--text-secondary); font-size: 11px; font-variant-numeric: tabular-nums; }
+.story-chart .topic path { fill: none; stroke: #d5d3ce; stroke-width: 1.5; stroke-linejoin: round; transition: stroke .3s; }
+.story-chart .topic:not(.on) { display: none; }  /* only the step's own topics */
+.story-chart .topic circle { fill: var(--c, transparent); stroke: var(--surface-1); stroke-width: 2; opacity: 0; transition: opacity .3s; }
+.story-chart .topic.on path { stroke: var(--c); stroke-width: 2.5; }
+.story-chart .topic.on circle { opacity: 1; }
+.story-chart .lab text { fill: var(--text-primary); font-size: 13px; font-weight: 600; }
+.story-chart .lab text.val { fill: var(--text-secondary); font-size: 12px; font-weight: 400; font-variant-numeric: tabular-nums; }
+.story-chart .cross { stroke: var(--text-secondary); stroke-dasharray: 3 3; }
+@media (prefers-reduced-motion: reduce) { .story.live .story-step, .story-chart .topic path, .story-chart .topic circle { transition: none; } }
+@media (max-width: 760px) {  /* chart pinned under the header, steps scroll beneath it */
+  .story { grid-template-columns: minmax(0, 1fr); }
+  .story-chart { --h: 280px; grid-column: 1; top: var(--header-h, 58px); z-index: 2; background: var(--surface-1);
+    border-bottom: 1px solid var(--rule); padding-bottom: 4px; }
+  .story-steps { grid-row: 2; padding: 4vh 0 30vh; }
+  .story-step { margin-bottom: 50vh; }
+  .story-chart .lab text { font-size: 12px; }
+  .story-chart .lab text.val { font-size: 11px; }
+}
 
 /* score page */
 .scorer { margin: 20px 0 8px; }

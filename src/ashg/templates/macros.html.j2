@@ -1,10 +1,14 @@
-{% macro toolbar(years, pooled=None) %}
+{% macro year_scope(years, pooled=None) %}
+{# the year toggle sticks only while its sections are on screen, then scrolls away with them #}
+<div class="year-scope">
 <div class="toolbar">
   <span class="lbl">Year</span>
   <span class="seg" role="group" aria-label="Year" data-control="year" data-default="{{ 'all' if pooled else years[-1].year }}">
   {% if pooled %}<button type="button" data-value="all">All years</button>{% endif %}
   {% for y in years %}<button type="button" data-value="{{ y.year }}">{{ y.year }}</button>{% endfor %}
   </span>
+</div>
+{{ caller() }}
 </div>
 {% endmacro %}
 

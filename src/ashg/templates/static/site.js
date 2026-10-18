@@ -792,6 +792,131 @@ const talkScore = (() => {
   fetch(holders[0].dataset.src).then(r => r.json()).then(data => holders.forEach(h => setup(h, data))).catch(() => {});
 })();
 
+// What's hot (overview): a sticky line chart of the yearly share of abstracts mentioning each topic. The step
+// nearest the middle of the screen picks the topics to color (in its data-phrases order) and the y-axis eases to
+// fit them; the other topics are hidden. Without JS the steps read as text and the table stays.
+(() => {
+  const root = document.querySelector("[data-story]");
+  if (!root) return;
+  const { years, series } = JSON.parse(root.querySelector("script[type='application/json']").textContent);
+  const holder = root.querySelector(".story-chart"), steps = [...root.querySelectorAll(".story-step")];
+  const NS = "http://www.w3.org/2000/svg", L = 42, T = 14, B = 28, GAP = 34;  // GAP: between two-line labels
+  const make = (tag, attrs = {}, parent) => {
+    const e = document.createElementNS(NS, tag);
+    Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v));
+    return parent ? parent.appendChild(e) : e;
+  };
+  const pct = v => `${+(100 * v).toFixed(v < 0.1 ? 1 : 0)}%`;
+  holder.hidden = false;
+  root.classList.add("live");
+  const svg = make("svg", { role: "img", "aria-label": holder.getAttribute("aria-label") }, holder);
+  const clip = make("rect", {}, make("clipPath", { id: "story-clip" }, make("defs", {}, svg)));
+  const grid = make("g", { class: "grid" }, svg), axis = make("g", { class: "axis" }, svg);
+  const plot = make("g", { "clip-path": "url(#story-clip)" }, svg), labels = make("g", { class: "labels" }, svg);
+  const cross = make("line", { class: "cross" }, svg);
+  const tip = Object.assign(document.createElement("div"), { className: "tip", hidden: true });
+  tip.setAttribute("role", "tooltip");
+  holder.append(tip);
+  const lines = Object.keys(series).map(p => {
+    const g = make("g", { class: "topic" }, plot);
+    return { p, g, path: make("path", {}, g), dots: years.map(() => make("circle", { r: 3.5 }, g)) };
+  });
+
+  let W = 0, H = 0, R = 128, rFrom = R, rTo = R, ymax = 0.15, from = ymax, to = ymax, t0 = 0, active = [], ticks = [], hoverYear = -1;
+  const X = i => L + (W - L - R) * i / (years.length - 1), Y = v => T + (H - T - B) * (1 - v / ymax);
+  const still = matchMedia("(prefers-reduced-motion: reduce)");
+
+  function niceTicks(max) {  // about four round steps, and a top that clears the highest point
+    const raw = max / 4, mag = 10 ** Math.floor(Math.log10(raw));
+    const step = [1, 2, 2.5, 5, 10].map(s => s * mag).find(s => s >= raw);
+    const top = Math.ceil(max * 1.08 / step) * step;
+    return { top, ticks: Array.from({ length: Math.round(top / step) + 1 }, (_, i) => +(i * step).toFixed(6)) };
+  }
+
+  function draw() {
+    if (!W) return;  // not laid out yet; the ResizeObserver draws once it is
+    clip.setAttribute("x", L - 6); clip.setAttribute("y", T - 6);
+    clip.setAttribute("width", W - L - R + 12); clip.setAttribute("height", H - T - B + 6);
+    grid.replaceChildren(...ticks.filter(v => v <= ymax * 1.001).map(v => make("line", { x1: L, x2: W - R, y1: Y(v), y2: Y(v) })));
+    axis.replaceChildren(
+      ...ticks.filter(v => v <= ymax * 1.001).map(v => Object.assign(make("text", { x: L - 6, y: Y(v), dy: "0.32em", "text-anchor": "end" }), { textContent: pct(v) })),
+      ...years.map((y, i) => Object.assign(make("text", { x: X(i), y: H - B + 18, "text-anchor": "middle" }), { textContent: y })));
+    lines.forEach(({ p, path, dots }) => {
+      const s = series[p].share;
+      path.setAttribute("d", s.map((v, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(""));
+      dots.forEach((c, i) => { c.setAttribute("cx", X(i)); c.setAttribute("cy", Y(s[i])); });
+    });
+    // direct labels at the right end, nudged apart so they don't overlap, kept inside the plot
+    const placed = active.map((p, k) => ({ p, k, y: Y(series[p].share.at(-1)) })).sort((a, b) => a.y - b.y);
+    placed.forEach((d, j) => { if (j) d.y = Math.max(d.y, placed[j - 1].y + GAP); });
+    for (let j = placed.length - 1; j >= 0; j--)  // then back up from the bottom edge if the nudging ran past it
+      placed[j].y = Math.min(placed[j].y, j === placed.length - 1 ? H - B - 6 : placed[j + 1].y - GAP);
+    labels.replaceChildren(...placed.map(({ p, k, y }) => {
+      const g = make("g", { class: `lab hl-${k + 1}`, transform: `translate(${W - R + 10},${y})` });
+      Object.assign(make("text", { y: -2 }, g), { textContent: p });
+      Object.assign(make("text", { y: 12, class: "val" }, g), { textContent: `${pct(series[p].share.at(-1))} in ${years.at(-1)}` });
+      return g;
+    }));
+    if (hoverYear >= 0) { cross.setAttribute("x1", X(hoverYear)); cross.setAttribute("x2", X(hoverYear)); cross.setAttribute("y1", T); cross.setAttribute("y2", H - B); }
+    cross.style.display = hoverYear >= 0 ? "" : "none";
+  }
+
+  function frame(now) {
+    const k = still.matches ? 1 : Math.min(1, (now - t0) / 650), e = 1 - (1 - k) ** 3;  // ease-out cubic
+    ymax = from + (to - from) * e; R = rFrom + (rTo - rFrom) * e;
+    draw();
+    if (k < 1) requestAnimationFrame(frame);
+  }
+  function show(step) {
+    steps.forEach(s => s.classList.toggle("active", s === step));
+    active = JSON.parse(step.dataset.phrases);
+    lines.forEach(({ p, g }) => {
+      const k = active.indexOf(p);
+      g.setAttribute("class", k < 0 ? "topic" : `topic on hl-${k + 1}`);
+      if (k >= 0) plot.appendChild(g);  // colored lines on top
+    });
+    const n = niceTicks(Math.max(...active.flatMap(p => series[p].share)));
+    ticks = n.ticks; from = ymax; to = n.top; rFrom = R; rTo = labelRoom(); t0 = performance.now();
+    requestAnimationFrame(frame);
+  }
+
+  function labelRoom() {  // right margin wide enough for the longest label of this step
+    const probe = make("g", { class: "lab" }, labels), text = make("text", {}, probe);
+    const widths = active.flatMap(p => [p, `${pct(series[p].share.at(-1))} in ${years.at(-1)}`])
+      .map(s => { text.textContent = s; return text.getComputedTextLength(); });
+    probe.remove();
+    return Math.max(80, ...widths.map(w => w + 18));
+  }
+  function size() {
+    W = holder.clientWidth; H = holder.clientHeight;
+    R = rTo = labelRoom();
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("width", W); svg.setAttribute("height", H);
+    draw();
+  }
+  new ResizeObserver(size).observe(holder);
+
+  // the step crossing the middle of the screen (below the sticky chart on narrow screens) is the active one
+  const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && show(e.target)),
+    { rootMargin: "-50% 0px -49% 0px" });
+  steps.forEach(s => io.observe(s));
+  show(steps[0]);
+
+  // hover: crosshair on the nearest year, the colored topics' shares and counts in a tooltip
+  svg.addEventListener("pointermove", ev => {
+    const r = svg.getBoundingClientRect(), mx = ev.clientX - r.left;
+    const i = Math.max(0, Math.min(years.length - 1, Math.round((mx - L) / (W - L - R) * (years.length - 1))));
+    if (mx < L - 20 || mx > W - R + 20) { svg.dispatchEvent(new Event("pointerleave")); return; }
+    hoverYear = i; draw();
+    tip.replaceChildren(Object.assign(document.createElement("strong"), { textContent: `ASHG ${years[i]}` }),
+      ...active.map(p => Object.assign(document.createElement("div"), {
+        textContent: `${p}: ${pct(series[p].share[i])} · ${series[p].docs[i]} abstracts, ${series[p].talks[i]} talks` })));
+    tip.hidden = false;
+    tip.style.left = Math.min(ev.clientX + 14, innerWidth - tip.offsetWidth - 8) + "px";
+    tip.style.top = Math.min(ev.clientY + 14, innerHeight - tip.offsetHeight - 8) + "px";
+  });
+  svg.addEventListener("pointerleave", () => { tip.hidden = true; hoverYear = -1; draw(); });
+})();
+
 // The header is sticky; the page toolbar sticks just below it, wherever the header wraps to.
 (() => {
   const header = document.querySelector(".site-header");

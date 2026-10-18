@@ -20,12 +20,13 @@
 {% endfor %}
 </tbody></table></div>
 {% endmacro %}
-<h1>{{ page.title }}</h1>
-<p class="lede">Every year the American Society of Human Genetics picks a few hundred of its several thousand accepted
-abstracts for a talk; the rest become posters. This site parses the published abstracts
-({{ years[0].year }}–{{ latest.year }}{% if pooled %}: {{ "{:,}".format(p.summary.abstracts) }} abstracts,
-{{ "{:,}".format(p.summary.talks) }} talks{% endif %}) and asks which phrases, institutions and places show up more
-often among talks.</p>
+<h1>{{ page.title }}, {{ years[0].year }}–{{ latest.year }}</h1>
+<p class="lede">This site parses the abstracts published for the American Society of Human Genetics annual meeting
+({{ years[0].year }}–{{ latest.year }}{% if pooled %}: {{ "{:,}".format(p.summary.abstracts) }} abstracts{% endif %}) and
+asks what the field is writing about: which topics and wording are rising or fading, and who presents. Every year
+ASHG picks a few hundred of its several thousand accepted abstracts for a talk{% if pooled %}
+({{ "{:,}".format(p.summary.talks) }} over these years){% endif %}; the rest become posters. So it also asks which phrases,
+institutions and places show up more often among talks.</p>
 <p class="caveat"><strong>Read this first.</strong> Only <em>accepted</em> abstracts are published, so rejected
 submissions never appear here, and authors can request a poster instead of a talk, so a poster does not mean an
 abstract was passed over for a talk. “Talk rate” is the fraction of accepted abstracts presented as a talk, not an
@@ -38,19 +39,61 @@ institution or place: see the <a href="methods.html#match-rates">match rates</a>
 {% if h %}
 <section class="vignette" id="hot">
 <h2>{% set ns.n = ns.n + 1 %}<span class="num">{{ ns.n }}</span>What's hot at ASHG {{ h.latest }}</h2>
-{% set r0 = h.rising[0] %}
-<p class="lead">Topics that keep growing: “{{ r0.phrase }}” is in {{ pct(r0.last) }} of {{ h.latest }} abstracts, up
-from {{ pct(r0.first) }} in {{ years[0].year }}.</p>
+{% set S = h.series %}
+{% macro was(p) %}{{ pct(S[p].share[0]) }}{% endmacro %}
+{% macro now(p) %}{{ pct(S[p].share[-1]) }}{% endmacro %}
+{% macro hl(p, i, shown=None) %}<a class="hl hl-{{ i }}" href="?phrase={{ p | urlencode }}#explorer">{{ shown or p }}</a>{% endmacro %}
+<p class="lead">Five shifts in what ASHG abstracts mention, {{ years[0].year }}–{{ h.latest }}. Scroll through them; the
+chart shows the share of each year's accepted abstracts that mention a topic.</p>
+<div class="story" data-story>
+<script type="application/json">{{ h.series_json }}</script>
+<div class="story-chart" hidden aria-label="Line chart of the yearly share of abstracts mentioning the topics in the step beside it."></div>
+<div class="story-steps">
+<div class="story-step" data-phrases='["long-read", "proteomics", "pangenome"]'>
+<h3>Long reads and proteomics keep growing</h3>
+<p>{{ hl("long-read", 1) }} is in {{ now("long-read") }} of {{ h.latest }} abstracts, up from {{ was("long-read") }} in
+{{ years[0].year }}. {{ hl("proteomics", 2) }} rose from {{ was("proteomics") }} to {{ now("proteomics") }}, and
+{{ hl("pangenome", 3) }} from {{ was("pangenome") }} to {{ now("pangenome") }}.</p>
+</div>
+<div class="story-step" data-phrases='["whole-genome sequencing", "exome sequencing"]'>
+<h3>Genomes are pulling ahead of exomes</h3>
+<p>{{ hl("whole-genome sequencing", 1) }} went from {{ was("whole-genome sequencing") }} of abstracts to
+{{ now("whole-genome sequencing") }}, while {{ hl("exome sequencing", 2) }} fell from {{ was("exome sequencing") }} to
+{{ now("exome sequencing") }} (WGS and WES count).</p>
+</div>
+<div class="story-step" data-phrases='["All of Us", "multi-ancestry", "UK Biobank"]'>
+<h3>All of Us arrived, and cohorts got more diverse</h3>
+<p>{{ hl("All of Us", 1) }} went from {{ was("All of Us") }} of abstracts to {{ now("All of Us") }}, and
+{{ hl("multi-ancestry", 2) }} from {{ was("multi-ancestry") }} to {{ now("multi-ancestry") }}.
+{{ hl("UK Biobank", 3) }} held steady, in {{ pct(S["UK Biobank"].share | min, 0) }}–{{ pct(S["UK Biobank"].share | max, 0) }}
+of abstracts every year.</p>
+</div>
+<div class="story-step" data-phrases='["AlphaMissense", "gnomAD v4", "language model"]'>
+<h3>New tools caught on within a year</h3>
+<p>{{ hl("AlphaMissense", 1) }} and {{ hl("gnomAD v4", 2) }}, both released in late 2023, were in
+{{ S["AlphaMissense"].docs[-1] }} and {{ S["gnomAD v4"].docs[-1] }} abstracts in {{ h.latest }}.
+{{ hl("language model", 3, "Language models") }} went from {{ S["language model"].docs[0] }} abstracts in
+{{ years[0].year }} to {{ S["language model"].docs[-1] }}.</p>
+</div>
+<div class="story-step" data-phrases='["COVID-19"]'>
+<h3>COVID-19 faded</h3>
+<p>{{ hl("COVID-19", 1) }} (or SARS-CoV-2) was in {{ was("COVID-19") }} of {{ years[0].year }} abstracts and
+{{ now("COVID-19") }} of {{ h.latest }}'s.</p>
+</div>
+</div>
+</div>
+{% call m.details("All topics as a table") %}
 <div class="scroll"><table class="hl-table">
 <thead><tr><th class="text">Topic</th><th>{{ years[0].year }}</th><th class="text spark-col">{{ years[0].year }}–{{ h.latest }}</th>
 <th>{{ h.latest }}</th><th>Talks in {{ h.latest }}</th></tr></thead>
 <tbody>
-{% for r in h.rising %}<tr><td class="text">{{ lookup(r.phrase) }}</td><td>{{ pct(r.first) }}</td><td class="text spark-col">{{ r.spark }}</td>
-<td><strong>{{ pct(r.last) }}</strong></td><td>{{ r.talks_last }}</td></tr>
+{% for p, s in S.items() %}<tr><td class="text">{{ lookup(p) }}</td><td>{{ pct(s.share[0]) }}</td><td class="text spark-col">{{ s.spark }}</td>
+<td><strong>{{ pct(s.share[-1]) }}</strong></td><td>{{ s.talks[-1] }}</td></tr>
 {% endfor %}
 </tbody></table></div>
-<p class="table-note">Share of each year's accepted abstracts mentioning the topic (title or text; spelling variants count). Click a topic to look it up.
-{% for r in h.rising if r.peak_year != h.latest %}“{{ r.phrase }}” peaked in {{ r.peak_year }} ({{ pct(r.peak) }}).{% endfor %}</p>
+{% endcall %}
+<p class="table-note">Share of each year's accepted abstracts mentioning the topic (title or text; spelling variants
+and abbreviations count). Click a topic to look it up in talks and posters.</p>
 <p class="more-link"><a href="#explorer">Look up any phrase, year by year →</a></p>
 <p class="more-link"><a href="phrases.html#phrase-trends">Phrase trends and biobanks →</a></p>
 </section>
@@ -102,6 +145,9 @@ not established</a>.</p>
 <p class="lead">“{{ w0.word }}” is in {{ pct(w0.share, 0) }} of {{ h.latest }} abstracts, up from
 {{ pct(w0.share_before, 0) }} in {{ years[0].year }}–{{ years[-2].year }}. It is one of {{ h.words.n_sig }} words
 significantly more common in {{ h.latest }}, and most of them are general wording rather than new topics.</p>
+<p class="how"><strong>How this differs from the sections above.</strong> Those look at hand-picked or talk-leaning phrases.
+This one tests every single word, comparing {{ h.latest }} with {{ years[0].year }}–{{ years[-2].year }}, whatever
+the topic and whether it was a talk or a poster.</p>
 {% if "trends_words_enriched" in trends %}
 {% if manhattan_src %}
 <div class="mh" data-manhattan="enriched" data-src="{{ manhattan_src }}" data-label="Manhattan-style plot of every word, alphabetically, by minus log10 p for being more common in {{ h.latest }} abstracts than in earlier years, with a Bonferroni line.">
@@ -113,15 +159,6 @@ significantly more common in {{ h.latest }}, and most of them are general wordin
 {% endif %}
 {% endif %}
 
-<div class="scroll"><table class="hl-table">
-<thead><tr><th class="text">Word</th><th>{{ years[0].year }}–{{ years[-2].year }}</th><th>{{ h.latest }}</th></tr></thead>
-<tbody>
-{% for r in h.words.rows %}<tr><td class="text">{{ lookup(r.word) }}</td><td>{{ pct(r.share_before) }}</td><td><strong>{{ pct(r.share) }}</strong></td></tr>
-{% endfor %}
-</tbody></table></div>
-<p class="table-note">Share of abstracts using each word (title or text). The most overrepresented words, one per family
-of forms (“remain”, “remains”); one-sided Fisher's exact test per word, significant after Bonferroni correction over
-{{ "{:,}".format(h.words.n) }} words. Click a word to see it in talks and posters, year by year.</p>
 {% if words_enriched_json %}
 {{ m.words_table(years, words_enriched_json, words_enriched_src, 10) }}
 {% endif %}

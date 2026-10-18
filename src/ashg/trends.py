@@ -66,6 +66,13 @@ BIOBANKS = {
                  "BioBank Japan|Biobank of Japan|BioBankJapan|BBJ", "Taiwan Biobank|TWB|TWBB", "BioVU",
                  "Penn Medicine Biobank|PMBB"],
 }
+# Topics for the overview's scrolling "what's hot" chart (share of all abstracts per year): changes in what the
+# field uses, picked by hand from scanning the explorer's yearly counts. Not in any PNG.
+STORIES = {
+    "Field shifts": ["whole-genome sequencing|whole genome sequencing|WGS",
+                     "exome sequencing|whole-exome sequencing|whole exome sequencing|exome-sequencing|WES",
+                     "AlphaMissense", "gnomAD v4|gnomADv4", "COVID-19|SARS-CoV-2|COVID"],
+}
 TOP_DRIVERS = 50  # rows kept per list; the site shows the top 10 with at least one talk
 EXPLORER_TOP = 50  # pooled top phrases each way added to the explorer
 SHORT = {"next-generation sequencing": "next-gen sequencing"}
@@ -502,7 +509,7 @@ def main():
     if args.phrases:
         PHRASES.clear()
         PHRASES["Selected phrases"] = args.phrases
-    curated = {**PHRASES, **SHIFT, **BIOBANKS}
+    curated = {**PHRASES, **SHIFT, **BIOBANKS, **STORIES}
     groups = {**curated, **explorer_specs(data, args.explorer_top, [p for ps in curated.values() for p in ps])}
     specs = list(dict.fromkeys(p for ps in groups.values() for p in ps))  # a phrase in two groups is counted once
     labels = [s.split("|")[0] for s in specs]

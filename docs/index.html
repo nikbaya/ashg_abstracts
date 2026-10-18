@@ -4,20 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>ASHG abstracts</title>
-<meta name="description" content="Which phrases, institutions and places are over-represented among talks (vs posters) at the ASHG annual meeting, 2022–2026.">
+<title>Analyzing ASHG abstracts, 2022–2026</title>
+<meta name="description" content="What the abstracts at the ASHG annual meeting say, 2022–2026: topics and wording over time, and which phrases, institutions and places are over-represented among talks (vs posters).">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Talks vs posters at ASHG · ASHG abstracts">
-<meta property="og:description" content="Which phrases, institutions and places are more common in talks than in posters at ASHG, from the published abstracts.">
+<meta property="og:title" content="Analyzing ASHG abstracts · ASHG abstracts">
+<meta property="og:description" content="Topics, wording and who presents at ASHG, from the published abstracts: what is rising, what is fading, and what leans toward talks over posters.">
 <meta property="og:image" content="https://nikbaya.github.io/ashg_abstracts/img/2026_headline.png">
 <meta property="og:url" content="https://nikbaya.github.io/ashg_abstracts/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='5' cy='8' r='4' fill='%232a78d6'/%3E%3Ccircle cx='11' cy='8' r='4' fill='%23e34948' fill-opacity='.85'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/site.css?v=1816185c">
+<link rel="stylesheet" href="assets/site.css?v=bfbed4f6">
 </head>
 <body>
 <header class="site-header"><div class="wrap">
-  <a class="brand" href="index.html">ASHG abstracts <span>talks vs posters</span></a>
+  <a class="brand" href="index.html">ASHG abstracts <span>an analysis</span></a>
   <nav class="site-nav" aria-label="Sections">
     <a href="index.html" aria-current="page"><svg class="nav-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="9" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="9" width="4.5" height="4.5" rx="1"/><rect x="9" y="9" width="4.5" height="4.5" rx="1"/></svg>Overview</a>
     <a href="phrases.html"><svg class="nav-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"/><path d="M5.5 6.5h5"/></svg>Phrases</a>
@@ -28,12 +28,12 @@
   </nav>
 </div></header>
 <main class="wrap">
-<h1>Talks vs posters at ASHG</h1>
-<p class="lede">Every year the American Society of Human Genetics picks a few hundred of its several thousand accepted
-abstracts for a talk; the rest become posters. This site parses the published abstracts
-(2022–2026: 15,327 abstracts,
-1,544 talks) and asks which phrases, institutions and places show up more
-often among talks.</p>
+<h1>Analyzing ASHG abstracts, 2022–2026</h1>
+<p class="lede">This site parses the abstracts published for the American Society of Human Genetics annual meeting
+(2022–2026: 15,327 abstracts) and
+asks what the field is writing about: which topics and wording are rising or fading, and who presents. Every year
+ASHG picks a few hundred of its several thousand accepted abstracts for a talk(1,544 over these years); the rest become posters. So it also asks which phrases,
+institutions and places show up more often among talks.</p>
 <p class="caveat"><strong>Read this first.</strong> Only <em>accepted</em> abstracts are published, so rejected
 submissions never appear here, and authors can request a poster instead of a talk, so a poster does not mean an
 abstract was passed over for a talk. “Talk rate” is the fraction of accepted abstracts presented as a talk, not an
@@ -44,27 +44,79 @@ institution or place: see the <a href="methods.html#match-rates">match rates</a>
 
 <section class="vignette" id="hot">
 <h2><span class="num">1</span>What's hot at ASHG 2026</h2>
-<p class="lead">Topics that keep growing: “All of Us” is in 6.0% of 2026 abstracts, up
-from 1.0% in 2022.</p>
+<p class="lead">Five shifts in what ASHG abstracts mention, 2022–2026. Scroll through them; the
+chart shows the share of each year's accepted abstracts that mention a topic.</p>
+<div class="story" data-story>
+<script type="application/json">{"years":[2022,2023,2024,2025,2026],"series":{"long-read":{"share":[0.04098,0.05165,0.06271,0.07202,0.08702],"docs":[120,172,185,226,258],"talks":[21,22,33,32,35]},"All of Us":{"share":[0.00956,0.01592,0.04983,0.05322,0.06037],"docs":[28,53,147,167,179],"talks":[10,10,26,15,23]},"language model":{"share":[0.00068,0.0024,0.01153,0.01498,0.01653],"docs":[2,8,34,47,49],"talks":[0,3,3,5,8]},"proteomics":{"share":[0.02527,0.02913,0.03932,0.04939,0.06374],"docs":[74,97,116,155,189],"talks":[11,12,20,12,16]},"multi-ancestry":{"share":[0.01776,0.02102,0.03593,0.03633,0.04047],"docs":[52,70,106,114,120],"talks":[14,16,17,13,14]},"pangenome":{"share":[0.00307,0.00961,0.01085,0.01147,0.01686],"docs":[9,32,32,36,50],"talks":[3,3,6,7,7]},"whole-genome sequencing":{"share":[0.1117,0.1159,0.1244,0.1262,0.1379],"docs":[327,386,367,396,409],"talks":[50,54,53,29,32]},"exome sequencing":{"share":[0.1059,0.1063,0.09085,0.08509,0.07791],"docs":[310,354,268,267,231],"talks":[40,37,20,20,22]},"AlphaMissense":{"share":[0.0,0.0,0.00746,0.00733,0.01349],"docs":[0,0,22,23,40],"talks":[0,0,3,0,4]},"gnomAD v4":{"share":[0.0,0.0009,0.00678,0.00829,0.01282],"docs":[0,3,20,26,38],"talks":[0,3,2,1,4]},"COVID-19":{"share":[0.02664,0.01381,0.01322,0.00669,0.00809],"docs":[78,46,39,21,24],"talks":[5,3,4,1,3]},"UK Biobank":{"share":[0.1243,0.1213,0.1444,0.1214,0.1315],"docs":[364,404,426,381,390],"talks":[69,55,73,36,40]}}}</script>
+<div class="story-chart" hidden aria-label="Line chart of the yearly share of abstracts mentioning the topics in the step beside it."></div>
+<div class="story-steps">
+<div class="story-step" data-phrases='["long-read", "proteomics", "pangenome"]'>
+<h3>Long reads and proteomics keep growing</h3>
+<p><a class="hl hl-1" href="?phrase=long-read#explorer">long-read</a> is in 8.7% of 2026 abstracts, up from 4.1% in
+2022. <a class="hl hl-2" href="?phrase=proteomics#explorer">proteomics</a> rose from 2.5% to 6.4%, and
+<a class="hl hl-3" href="?phrase=pangenome#explorer">pangenome</a> from 0.3% to 1.7%.</p>
+</div>
+<div class="story-step" data-phrases='["whole-genome sequencing", "exome sequencing"]'>
+<h3>Genomes are pulling ahead of exomes</h3>
+<p><a class="hl hl-1" href="?phrase=whole-genome%20sequencing#explorer">whole-genome sequencing</a> went from 11.2% of abstracts to
+13.8%, while <a class="hl hl-2" href="?phrase=exome%20sequencing#explorer">exome sequencing</a> fell from 10.6% to
+7.8% (WGS and WES count).</p>
+</div>
+<div class="story-step" data-phrases='["All of Us", "multi-ancestry", "UK Biobank"]'>
+<h3>All of Us arrived, and cohorts got more diverse</h3>
+<p><a class="hl hl-1" href="?phrase=All%20of%20Us#explorer">All of Us</a> went from 1.0% of abstracts to 6.0%, and
+<a class="hl hl-2" href="?phrase=multi-ancestry#explorer">multi-ancestry</a> from 1.8% to 4.0%.
+<a class="hl hl-3" href="?phrase=UK%20Biobank#explorer">UK Biobank</a> held steady, in 12%–14%
+of abstracts every year.</p>
+</div>
+<div class="story-step" data-phrases='["AlphaMissense", "gnomAD v4", "language model"]'>
+<h3>New tools caught on within a year</h3>
+<p><a class="hl hl-1" href="?phrase=AlphaMissense#explorer">AlphaMissense</a> and <a class="hl hl-2" href="?phrase=gnomAD%20v4#explorer">gnomAD v4</a>, both released in late 2023, were in
+40 and 38 abstracts in 2026.
+<a class="hl hl-3" href="?phrase=language%20model#explorer">Language models</a> went from 2 abstracts in
+2022 to 49.</p>
+</div>
+<div class="story-step" data-phrases='["COVID-19"]'>
+<h3>COVID-19 faded</h3>
+<p><a class="hl hl-1" href="?phrase=COVID-19#explorer">COVID-19</a> (or SARS-CoV-2) was in 2.7% of 2022 abstracts and
+0.8% of 2026's.</p>
+</div>
+</div>
+</div>
+<details class="table"><summary>All topics as a table</summary>
 <div class="scroll"><table class="hl-table">
 <thead><tr><th class="text">Topic</th><th>2022</th><th class="text spark-col">2022–2026</th>
 <th>2026</th><th>Talks in 2026</th></tr></thead>
 <tbody>
-<tr><td class="text"><a href="?phrase=All%20of%20Us#explorer">All of Us</a></td><td>1.0%</td><td class="text spark-col"><svg class="spark" viewBox="0 0 96 24" width="96" height="24" aria-hidden="true"><polyline points="3.0,18.1 25.5,16.3 48.0,6.1 70.5,5.1 93.0,3.0"/><circle cx="93.0" cy="3.0" r="2.5"/></svg></td>
-<td><strong>6.0%</strong></td><td>23</td></tr>
 <tr><td class="text"><a href="?phrase=long-read#explorer">long-read</a></td><td>4.1%</td><td class="text spark-col"><svg class="spark" viewBox="0 0 96 24" width="96" height="24" aria-hidden="true"><polyline points="3.0,12.5 25.5,10.3 48.0,8.0 70.5,6.1 93.0,3.0"/><circle cx="93.0" cy="3.0" r="2.5"/></svg></td>
 <td><strong>8.7%</strong></td><td>35</td></tr>
+<tr><td class="text"><a href="?phrase=All%20of%20Us#explorer">All of Us</a></td><td>1.0%</td><td class="text spark-col"><svg class="spark" viewBox="0 0 96 24" width="96" height="24" aria-hidden="true"><polyline points="3.0,18.1 25.5,16.3 48.0,6.1 70.5,5.1 93.0,3.0"/><circle cx="93.0" cy="3.0" r="2.5"/></svg></td>
+<td><strong>6.0%</strong></td><td>23</td></tr>
+<tr><td class="text"><a href="?phrase=language%20model#explorer">language model</a></td><td>0.1%</td><td class="text spark-col"><svg class="spark" viewBox="0 0 96 24" width="96" height="24" aria-hidden="true"><polyline points="3.0,20.3 25.5,18.4 48.0,8.4 70.5,4.7 93.0,3.0"/><circle cx="93.0" cy="3.0" r="2.5"/></svg></td>
+<td><strong>1.7%</strong></td><td>8</td></tr>
 <tr><td class="text"><a href="?phrase=proteomics#explorer">proteomics</a></td><td>2.5%</td><td class="text spark-col"><svg class="spark" viewBox="0 0 96 24" width="96" height="24" aria-hidden="true"><polyline points="3.0,13.9 25.5,12.8 48.0,9.9 70.5,7.1 93.0,3.0"/><circle cx="93.0" cy="3.0" r="2.5"/></svg></td>
 <td><strong>6.4%</strong></td><td>16</td></tr>
 <tr><td class="text"><a href="?phrase=multi-ancestry#explorer">multi-ancestry</a></td><td>1.8%</td><td class="text spark-col"><svg class="spark" viewBox="0 0 96 24" width="96" height="24" aria-hidden="true"><polyline points="3.0,13.1 25.5,11.7 48.0,5.0 70.5,4.8 93.0,3.0"/><circle cx="93.0" cy="3.0" r="2.5"/></svg></td>
 <td><strong>4.0%</strong></td><td>14</td></tr>
-<tr><td class="text"><a href="?phrase=language%20model#explorer">language model</a></td><td>0.1%</td><td class="text spark-col"><svg class="spark" viewBox="0 0 96 24" width="96" height="24" aria-hidden="true"><polyline points="3.0,20.3 25.5,18.4 48.0,8.4 70.5,4.7 93.0,3.0"/><circle cx="93.0" cy="3.0" r="2.5"/></svg></td>
-<td><strong>1.7%</strong></td><td>8</td></tr>
 <tr><td class="text"><a href="?phrase=pangenome#explorer">pangenome</a></td><td>0.3%</td><td class="text spark-col"><svg class="spark" viewBox="0 0 96 24" width="96" height="24" aria-hidden="true"><polyline points="3.0,17.7 25.5,10.7 48.0,9.4 70.5,8.8 93.0,3.0"/><circle cx="93.0" cy="3.0" r="2.5"/></svg></td>
 <td><strong>1.7%</strong></td><td>7</td></tr>
+<tr><td class="text"><a href="?phrase=whole-genome%20sequencing#explorer">whole-genome sequencing</a></td><td>11.2%</td><td class="text spark-col"><svg class="spark" viewBox="0 0 96 24" width="96" height="24" aria-hidden="true"><polyline points="3.0,6.4 25.5,5.9 48.0,4.8 70.5,4.5 93.0,3.0"/><circle cx="93.0" cy="3.0" r="2.5"/></svg></td>
+<td><strong>13.8%</strong></td><td>32</td></tr>
+<tr><td class="text"><a href="?phrase=exome%20sequencing#explorer">exome sequencing</a></td><td>10.6%</td><td class="text spark-col"><svg class="spark" viewBox="0 0 96 24" width="96" height="24" aria-hidden="true"><polyline points="3.0,3.1 25.5,3.0 48.0,5.6 70.5,6.6 93.0,7.8"/><circle cx="93.0" cy="7.8" r="2.5"/></svg></td>
+<td><strong>7.8%</strong></td><td>22</td></tr>
+<tr><td class="text"><a href="?phrase=AlphaMissense#explorer">AlphaMissense</a></td><td>0.0%</td><td class="text spark-col"><svg class="spark" viewBox="0 0 96 24" width="96" height="24" aria-hidden="true"><polyline points="3.0,21.0 25.5,21.0 48.0,11.0 70.5,11.2 93.0,3.0"/><circle cx="93.0" cy="3.0" r="2.5"/></svg></td>
+<td><strong>1.3%</strong></td><td>4</td></tr>
+<tr><td class="text"><a href="?phrase=gnomAD%20v4#explorer">gnomAD v4</a></td><td>0.0%</td><td class="text spark-col"><svg class="spark" viewBox="0 0 96 24" width="96" height="24" aria-hidden="true"><polyline points="3.0,21.0 25.5,19.7 48.0,11.5 70.5,9.4 93.0,3.0"/><circle cx="93.0" cy="3.0" r="2.5"/></svg></td>
+<td><strong>1.3%</strong></td><td>4</td></tr>
+<tr><td class="text"><a href="?phrase=COVID-19#explorer">COVID-19</a></td><td>2.7%</td><td class="text spark-col"><svg class="spark" viewBox="0 0 96 24" width="96" height="24" aria-hidden="true"><polyline points="3.0,3.0 25.5,11.7 48.0,12.1 70.5,16.5 93.0,15.5"/><circle cx="93.0" cy="15.5" r="2.5"/></svg></td>
+<td><strong>0.8%</strong></td><td>3</td></tr>
+<tr><td class="text"><a href="?phrase=UK%20Biobank#explorer">UK Biobank</a></td><td>12.4%</td><td class="text spark-col"><svg class="spark" viewBox="0 0 96 24" width="96" height="24" aria-hidden="true"><polyline points="3.0,5.5 25.5,5.9 48.0,3.0 70.5,5.9 93.0,4.6"/><circle cx="93.0" cy="4.6" r="2.5"/></svg></td>
+<td><strong>13.2%</strong></td><td>40</td></tr>
 </tbody></table></div>
-<p class="table-note">Share of each year's accepted abstracts mentioning the topic (title or text; spelling variants count). Click a topic to look it up.
-</p>
+
+</details>
+<p class="table-note">Share of each year's accepted abstracts mentioning the topic (title or text; spelling variants
+and abbreviations count). Click a topic to look it up in talks and posters.</p>
 <p class="more-link"><a href="#explorer">Look up any phrase, year by year →</a></p>
 <p class="more-link"><a href="phrases.html#phrase-trends">Phrase trends and biobanks →</a></p>
 </section>
@@ -104,7 +156,7 @@ and metro areas write about it. Hover or focus a row for that institution's own 
 </div>
 </div>
 <div class="tip" id="drv-tip" role="tooltip" hidden></div>
-<script type="application/json" id="drv-data" data-src="data/explorer.json?v=22068d5c"></script>
+<script type="application/json" id="drv-data" data-src="data/explorer.json?v=647712ac"></script>
 </section>
 <p class="more-link"><a href="phrases.html#explorer">About the search, and phrase trends →</a></p>
 </div>
@@ -192,24 +244,14 @@ not established</a>.</p>
 <p class="lead">“framework” is in 27% of 2026 abstracts, up from
 10% in 2022–2025. It is one of 288 words
 significantly more common in 2026, and most of them are general wording rather than new topics.</p>
+<p class="how"><strong>How this differs from the sections above.</strong> Those look at hand-picked or talk-leaning phrases.
+This one tests every single word, comparing 2026 with 2022–2025, whatever
+the topic and whether it was a talk or a poster.</p>
 <div class="mh" data-manhattan="enriched" data-src="data/manhattan.json?v=3d395420" data-label="Manhattan-style plot of every word, alphabetically, by minus log10 p for being more common in 2026 abstracts than in earlier years, with a Bonferroni line.">
 <img class="mh-fallback" src="img/trends_words_enriched.png" alt="Manhattan-style plot of every word, alphabetically, by minus log10 p for being more common in 2026 abstracts than in earlier years, with a Bonferroni line; framework stands far above the rest." loading="lazy">
 </div>
 <p class="table-note">Every word, alphabetically, by how strongly it is overrepresented in 2026; dashed line: Bonferroni correction. Hover a point for its word, click it to look it up.</p>
 
-<div class="scroll"><table class="hl-table">
-<thead><tr><th class="text">Word</th><th>2022–2025</th><th>2026</th></tr></thead>
-<tbody>
-<tr><td class="text"><a href="?phrase=framework#explorer">framework</a></td><td>9.8%</td><td><strong>27.2%</strong></td></tr>
-<tr><td class="text"><a href="?phrase=remains#explorer">remains</a></td><td>11.9%</td><td><strong>23.7%</strong></td></tr>
-<tr><td class="text"><a href="?phrase=supporting#explorer">supporting</a></td><td>4.0%</td><td><strong>11.1%</strong></td></tr>
-<tr><td class="text"><a href="?phrase=findings#explorer">findings</a></td><td>27.0%</td><td><strong>40.3%</strong></td></tr>
-<tr><td class="text"><a href="?phrase=incompletely#explorer">incompletely</a></td><td>0.6%</td><td><strong>4.3%</strong></td></tr>
-<tr><td class="text"><a href="?phrase=consistent#explorer">consistent</a></td><td>9.8%</td><td><strong>18.6%</strong></td></tr>
-</tbody></table></div>
-<p class="table-note">Share of abstracts using each word (title or text). The most overrepresented words, one per family
-of forms (“remain”, “remains”); one-sided Fisher's exact test per word, significant after Bonferroni correction over
-12,893 words. Click a word to see it in talks and posters, year by year.</p>
 <div class="filters">
   <label>Find a word <input type="search" id="we-search" placeholder="e.g. framework" autocomplete="off"></label>
   <span class="lbl" id="we-count" aria-live="polite"></span>
@@ -292,7 +334,7 @@ institutions have wide intervals. In 2026 alone, Johns Hopkins University, Unive
   <p>Parsed from the ASHG annual meeting abstracts (2022–2026). Abstracts © their authors; the collection © ASHG. No abstract text is reproduced here, only counts and rates.</p>
   <p>Code and full aggregate tables: <a href="https://github.com/nikbaya/ashg_abstracts">github.com/nikbaya/ashg_abstracts</a> · <a href="methods.html">Methods and caveats</a></p>
 </div></footer>
-<script src="assets/site.js?v=1816185c"></script>
+<script src="assets/site.js?v=bfbed4f6"></script>
 <script data-goatcounter="https://ashg-abstracts.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
