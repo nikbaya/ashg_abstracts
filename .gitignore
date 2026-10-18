@@ -2,7 +2,7 @@
 *.pdf
 
 # Per-abstract derived data (contains full abstract text / author lists)
-data/
+/data/
 
 # Python
 __pycache__/
