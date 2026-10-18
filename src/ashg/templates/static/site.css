@@ -276,3 +276,8 @@ table.match th.group { text-align: center; border-bottom: 1px solid var(--rule);
 .mh canvas { display: block; touch-action: pan-y; }
 .mh .mh-title { margin: 0 0 2px; font-size: 13px; font-weight: 600; color: var(--text-primary); }
 .mh .mh-fallback { display: block; width: 100%; height: auto; border: 1px solid var(--rule); border-radius: 6px; }
+
+/* about */
+.about { display: flex; gap: 16px; align-items: center; margin: 8px 0 24px; }
+.about img { width: 110px; height: auto; border-radius: 6px; border: 1px solid var(--rule); flex: none; }
+.about p { margin: 0; }
