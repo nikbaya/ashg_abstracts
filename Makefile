@@ -96,7 +96,7 @@ site:
 	$(PY) src/ashg/build_site.py
 
 review:
-	$(PY) src/ashg/review_sheet.py tests/fixtures/golden_$(YEAR)_review.md $(ABSTRACTS) --n 20
+	$(PY) src/ashg/review_sheet.py data/review/golden_$(YEAR)_review.md $(ABSTRACTS) --n 20
 
 test:
 	mamba run -n ashg python -m pytest -q tests

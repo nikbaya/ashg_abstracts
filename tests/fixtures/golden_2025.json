@@ -2,551 +2,1046 @@
  {
   "abstract_id": "2025-platform-0006",
   "page": 26,
-  "title_prefix": "The cumulative effect of protein-truncating variants on human life ex",
+  "title_prefix": [
+   69,
+   "12983c732b9daeef"
+  ],
   "senior_name": "Ron Do",
   "n_authors": 4,
-  "body_start": "Genetic variation is a key determinant o",
-  "body_end": "d overall health, beyond polygenic risk.",
+  "body_start": [
+   40,
+   "0b4b1e81a90f052f"
+  ],
+  "body_end": [
+   40,
+   "f30327fd89a00125"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-platform-0009",
   "page": 29,
-  "title_prefix": "Marker-based tumor-normal haplotypes matching for accurate genome-wid",
+  "title_prefix": [
+   69,
+   "6bac39dfa7fbaf71"
+  ],
   "senior_name": "Justin M. Zook",
   "n_authors": 5,
-  "body_start": "Accurate identification of somatic mutat",
-  "body_end": "V benchmarks for this tumor-normal pair.",
+  "body_start": [
+   40,
+   "f2e6913d31d35f7f"
+  ],
+  "body_end": [
+   40,
+   "a11db7708c5f1d6b"
+  ],
   "review_note": "wagner is 2nd author, senior author is justin m. zook. there are 5 total authors."
  },
  {
   "abstract_id": "2025-platform-0074",
   "page": 106,
-  "title_prefix": "mFABIO: Multi-tissue TWAS fine-mapping to prioritize causal tissues a",
+  "title_prefix": [
+   69,
+   "fb957235ed820b8a"
+  ],
   "senior_name": "Xiang Zhou",
   "n_authors": 4,
-  "body_start": "Recent developments in transcriptome-wid",
-  "body_end": "S fine-mapping of binary disease traits.",
+  "body_start": [
+   40,
+   "4524994d32f421ba"
+  ],
+  "body_end": [
+   40,
+   "40c60e5a88f21b7e"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-platform-0103",
   "page": 130,
-  "title_prefix": "Global identification of inflammatory bowel disease risk variant alle",
+  "title_prefix": [
+   69,
+   "333409ae4744e47f"
+  ],
   "senior_name": "Leah C. Kottyan",
   "n_authors": 9,
-  "body_start": "Inflammatory bowel diseases (IBD) are in",
-  "body_end": "erlying the complex genetic risk of IBD.",
+  "body_start": [
+   40,
+   "1564fdd6ed3db33a"
+  ],
+  "body_end": [
+   40,
+   "ecc2e57caf376643"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-platform-0127",
   "page": 156,
-  "title_prefix": "Dissecting Genetic Contributors to eGFR Bias: Effects of African-Enri",
+  "title_prefix": [
+   69,
+   "736f7eabf7bf2429"
+  ],
   "senior_name": "June Fabian",
   "n_authors": 13,
-  "body_start": "Serum creatinine is the most widely used",
-  "body_end": " of CKD in African ancestry populations.",
+  "body_start": [
+   40,
+   "1bf49efaa7c19d2a"
+  ],
+  "body_end": [
+   40,
+   "297fc09681454567"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-platform-0128",
   "page": 157,
-  "title_prefix": "Gene expression associated with impending severe asthma exacerbations",
+  "title_prefix": [
+   69,
+   "bb268b9259d87bf2"
+  ],
   "senior_name": "L. Keoki Williams",
   "n_authors": 9,
-  "body_start": "Background: Severe asthma exacerbations ",
-  "body_end": " preventing severe asthma exacerbations.",
+  "body_start": [
+   40,
+   "dfc3527985b6b246"
+  ],
+  "body_end": [
+   40,
+   "a693e8d5e7e2c158"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-platform-0133",
   "page": 163,
-  "title_prefix": "Epigenome-Wide and Causal Mediation Analyses Identify DNA Methylation",
+  "title_prefix": [
+   69,
+   "ecd578cd6f957efa"
+  ],
   "senior_name": "Jin J. Zhou",
   "n_authors": 10,
-  "body_start": "Cumulative glycemic exposure is a key dr",
-  "body_end": "butes to DR through epigenetic pathways.",
+  "body_start": [
+   40,
+   "c05feaa3dad2157c"
+  ],
+  "body_end": [
+   40,
+   "af5eaa932edb6216"
+  ],
   "review_note": "yan v. sun is 2nd-to-last author, the senior author is jin j. zhou of UCLA and Phoenix VA. The number of authors is correct."
  },
  {
   "abstract_id": "2025-platform-0141",
   "page": 173,
-  "title_prefix": "Comprehensive characterization and analysis of nuclear mitochondrial ",
+  "title_prefix": [
+   69,
+   "e7fe4abb67354083"
+  ],
   "senior_name": "Zishan Peng",
   "n_authors": 5,
-  "body_start": "Nuclear mitochondrial DNA segments (NUMT",
-  "body_end": "stigations into their functional impact.",
+  "body_start": [
+   40,
+   "a0f5826daaa4850a"
+  ],
+  "body_end": [
+   40,
+   "17bee702809ca97f"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-platform-0147",
   "page": 180,
-  "title_prefix": "Shared and distinct genetic architectures of autism and neuropsychiat",
+  "title_prefix": [
+   69,
+   "ee57354b314c6400"
+  ],
   "senior_name": "Michael E. Talkowski",
   "n_authors": 21,
-  "body_start": "Discovery of genetic factors underlying ",
-  "body_end": "riant risk across diagnostic boundaries.",
+  "body_start": [
+   40,
+   "e7a54f64305cbae9"
+  ],
+  "body_end": [
+   40,
+   "fdbd5e16b814f548"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-platform-0153",
   "page": 187,
-  "title_prefix": "A phenome-wide association study of CNVs genotyped from genome sequen",
+  "title_prefix": [
+   69,
+   "13705c6ff5492df0"
+  ],
   "senior_name": "Alejandro Martin-Trujillo",
   "n_authors": 5,
-  "body_start": "We developed a novel read depth-based ap",
-  "body_end": "nsights into their role on human traits.",
+  "body_start": [
+   40,
+   "dcbc85efc6379a88"
+  ],
+  "body_end": [
+   40,
+   "9c372084d99b680c"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-platform-0154",
   "page": 188,
-  "title_prefix": "Identification of genetic modifiers of somatic instability across mul",
+  "title_prefix": [
+   69,
+   "eeef3bddacfd5117"
+  ],
   "senior_name": "Shota Shibata",
   "n_authors": 11,
-  "body_start": "Somatic expansion of disease-causing rep",
-  "body_end": "ing class of neurodegenerative diseases.",
+  "body_start": [
+   40,
+   "04157a65a27709df"
+  ],
+  "body_end": [
+   40,
+   "49dfe8ebaa931da9"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-platform-0161",
   "page": 195,
-  "title_prefix": "Human genetics evidence supporting ANGPTL4 inhibition to reduce remna",
+  "title_prefix": [
+   69,
+   "bba441db92702788"
+  ],
   "senior_name": "Brent Richards",
   "n_authors": 7,
-  "body_start": "Few human genetics-based drug developmen",
-  "body_end": "that are likely unique to animal models.",
+  "body_start": [
+   40,
+   "5bbc3d6149b3e970"
+  ],
+  "body_end": [
+   40,
+   "cfa8bd117b774ab0"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-platform-0174",
   "page": 211,
-  "title_prefix": "Genetic control of regulatory dispersion across human and chimpanzee ",
+  "title_prefix": [
+   69,
+   "439e62e7a6beec47"
+  ],
   "senior_name": "Yoav Gilad",
   "n_authors": 1,
-  "body_start": "Gene regulatory mutations are a powerful",
-  "body_end": "ing evolution, development, and disease.",
+  "body_start": [
+   40,
+   "393090588838ca5e"
+  ],
+  "body_end": [
+   40,
+   "ff4d48d19eecb40a"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-platform-0186",
   "page": 225,
-  "title_prefix": "Psychometric Validation of the Education and Assessment of Genetic Li",
+  "title_prefix": [
+   69,
+   "428d71016938d534"
+  ],
   "senior_name": "Kimberly Kaphingst",
   "n_authors": 5,
-  "body_start": "Genetic literacy, defined as “the suffic",
-  "body_end": "uctively implement genetic applications.",
+  "body_start": [
+   40,
+   "ee69e4f1e6cf52e2"
+  ],
+  "body_end": [
+   40,
+   "4001dad039fdd476"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-platform-0187",
   "page": 226,
-  "title_prefix": "Learning Competencies and Pedagogical Considerations for the Future P",
+  "title_prefix": [
+   69,
+   "8e52e84fc2b779a0"
+  ],
   "senior_name": "Joon-Ho Yu",
   "n_authors": 3,
-  "body_start": "Background. The Public Health Genetics (",
-  "body_end": "munication and meet emerging challenges.",
+  "body_start": [
+   40,
+   "7ad8866adeeb9368"
+  ],
+  "body_end": [
+   40,
+   "1db93492d85aad2b"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-platform-0205",
   "page": 246,
-  "title_prefix": "Microbiome and host genetic effects on gene regulation in Inflammator",
+  "title_prefix": [
+   69,
+   "9fd39e8c8293376d"
+  ],
   "senior_name": "Francesca Luca",
   "n_authors": 7,
-  "body_start": "Inflammatory Bowel Disease (IBD), a chro",
-  "body_end": "robial taxa contingent on host genotype.",
+  "body_start": [
+   40,
+   "c7171ed28b067f78"
+  ],
+  "body_end": [
+   40,
+   "abfab11c08dc59a9"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-platform-0215",
   "page": 257,
-  "title_prefix": "Multi-ancestry genome-wide association study of endometriosis and its",
+  "title_prefix": [
+   69,
+   "a32c3ffa4f2f7ab7"
+  ],
   "senior_name": "Renato Polimanti",
   "n_authors": null,
-  "body_start": "Endometriosis is a systemic inflammatory",
-  "body_end": " of symptoms reported by affected women.",
+  "body_start": [
+   40,
+   "262f9b4f727c8d58"
+  ],
+  "body_end": [
+   40,
+   "359909c61e800f5e"
+  ],
   "review_note": "Renato Polimanti is the last author, but he has a bunch of numbers after his name \"Renato"
  },
  {
   "abstract_id": "2025-platform-0229",
   "page": 277,
-  "title_prefix": "Large-scale metabolomic profiling enables genome-wide and phenome-wid",
+  "title_prefix": [
+   69,
+   "3b4555775fee19d1"
+  ],
   "senior_name": "Saiju Pyarajan",
   "n_authors": 8,
-  "body_start": "Background: Modern advances in high-thro",
-  "body_end": "tabolism and uncover novel associations.",
+  "body_start": [
+   40,
+   "6bef1d5f19a710ff"
+  ],
+  "body_end": [
+   40,
+   "c41e6903bb395318"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-platform-0236",
   "page": 285,
-  "title_prefix": "Adipose single nucleus transcriptomic and epigenomic sequencing disco",
+  "title_prefix": [
+   69,
+   "5882cf3732afbfdf"
+  ],
   "senior_name": "Päivi Pajukanta",
   "n_authors": 18,
-  "body_start": "Previous colocalization analyses of card",
-  "body_end": "r of single-nucleus functional genomics.",
+  "body_start": [
+   40,
+   "805556d1c9b0d181"
+  ],
+  "body_end": [
+   40,
+   "3c0a5a9ddf0d2cfd"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-platform-0248",
   "page": 299,
-  "title_prefix": "Phenome-wide Genetic Colocalization and Mendelian Randomization of eQ",
+  "title_prefix": [
+   69,
+   "7e0000a2845069a2"
+  ],
   "senior_name": "Nils Koelling",
   "n_authors": 6,
-  "body_start": "Unraveling the intricate relationships b",
-  "body_end": "by enriching drug development pipelines.",
+  "body_start": [
+   40,
+   "0ac1706528a2a9e9"
+  ],
+  "body_end": [
+   40,
+   "4688bacdd161c3fa"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-plenary-0002",
   "page": 3,
-  "title_prefix": "Comprehensive Proteomic Characterization of GLP1R Therapy: Leveraging",
+  "title_prefix": [
+   69,
+   "ace26fa34721ad0b"
+  ],
   "senior_name": "Yalda Jamshidi",
   "n_authors": 6,
-  "body_start": "The glucagon-like peptide-1 receptor (GL",
-  "body_end": "iscovery of biomarkers and drug targets.",
+  "body_start": [
+   40,
+   "b0eca48adbbb8064"
+  ],
+  "body_end": [
+   40,
+   "f85d7f675298deb7"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-plenary-0001",
   "page": 3,
-  "title_prefix": "Measuring the functional impact of 5'UTR variants in human disease",
+  "title_prefix": [
+   66,
+   "f209a794b1c0ec96"
+  ],
   "senior_name": "Antonio J Giraldez",
   "n_authors": 9,
-  "body_start": "The 5' Untranslated Regions (UTRs) conta",
-  "body_end": "lecular interpretation of human disease.",
+  "body_start": [
+   40,
+   "7275434d8f1fa87b"
+  ],
+  "body_end": [
+   40,
+   "22fc2a7c7873ece4"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-plenary-0003",
   "page": 5,
-  "title_prefix": "Integrative multi-omics analysis of spaceflight-induced physiological",
+  "title_prefix": [
+   69,
+   "bfd994b0cfbf80b4"
+  ],
   "senior_name": "Christopher E. Mason",
   "n_authors": 20,
-  "body_start": "The recent expansion of commercial, priv",
-  "body_end": "ed lunar and interplanetary exploration.",
+  "body_start": [
+   40,
+   "cb661377ec7176ee"
+  ],
+  "body_end": [
+   40,
+   "f377ddf21482d8ec"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-plenary-0004",
   "page": 5,
-  "title_prefix": "Identifying candidate genes and potential drug targets for central ob",
+  "title_prefix": [
+   69,
+   "5ae8dde4046b4da5"
+  ],
   "senior_name": "Karen L. Mohlke",
   "n_authors": 21,
-  "body_start": "GWAS for central obesity have identified",
-  "body_end": " sex differences, and contribute to WHR.",
+  "body_start": [
+   40,
+   "8a1fa6ae956c1284"
+  ],
+  "body_end": [
+   40,
+   "ee2986711ce0aa11"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-plenary-0005",
   "page": 6,
-  "title_prefix": "Comparing the Diagnostic Capability of Large Language Models and Clin",
+  "title_prefix": [
+   69,
+   "4bedd1c2f073bbd1"
+  ],
   "senior_name": "Priyanka Ahimaz",
   "n_authors": 3,
-  "body_start": "As demand for genetic expertise grows, a",
-  "body_end": "se tools across clinical subspecialties.",
+  "body_start": [
+   40,
+   "eb6a3144fada072f"
+  ],
+  "body_end": [
+   40,
+   "a3e91a0a25c251c0"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-plenary-0006",
   "page": 8,
-  "title_prefix": "Supernumerary X chromosomes shape brain organoid architecture and fun",
+  "title_prefix": [
+   69,
+   "e5e66414e3a57e84"
+  ],
   "senior_name": "Antonio Adamo",
   "n_authors": 9,
-  "body_start": "Klinefelter syndrome (KS, 47,XXY) is the",
-  "body_end": "gene overdosage during neurodevelopment.",
+  "body_start": [
+   40,
+   "87262a45d2984c8b"
+  ],
+  "body_end": [
+   40,
+   "7d75a87bb392044f"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-plenary-0007",
   "page": 9,
-  "title_prefix": "Identification of Unannotated mRNA Isoforms Driving Gene Regulation a",
+  "title_prefix": [
+   69,
+   "2dabb666282357f9"
+  ],
   "senior_name": "Yang I. Li",
   "n_authors": 7,
-  "body_start": "Current RNA-seq methods for quantifying ",
-  "body_end": " tissues, species, and complex diseases.",
+  "body_start": [
+   40,
+   "32f717df9aa28eab"
+  ],
+  "body_end": [
+   40,
+   "45cfbab442d2c409"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-plenary-0008",
   "page": 9,
-  "title_prefix": "Reimbursement of germline genetic testing for cancer is impacted by s",
+  "title_prefix": [
+   69,
+   "e9661ed35af6f9ad"
+  ],
   "senior_name": "Edward D. Esplin",
   "n_authors": 3,
-  "body_start": "Background: Germline genetic testing (GG",
-  "body_end": "act the reimbursement landscape for GGT.",
+  "body_start": [
+   40,
+   "2296d1afe9b56599"
+  ],
+  "body_end": [
+   40,
+   "67a56f3e2bab93f2"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-plenary-0009",
   "page": 10,
-  "title_prefix": "Pervasive interaction between HLA, KIR, and TCR for autoimmune diseas",
+  "title_prefix": [
+   69,
+   "4283ad547ccc4ab5"
+  ],
   "senior_name": "D Liu",
   "n_authors": null,
-  "body_start": "The human leukocyte antigen (HLA) genes ",
-  "body_end": "ractions in autoimmune disease etiology.",
+  "body_start": [
+   40,
+   "f03ebda36f07e981"
+  ],
+  "body_end": [
+   40,
+   "81ea69d6e7629cf9"
+  ],
   "review_note": "here the authors are listed with just a single institution at the end for all of them. the last author is D Liu, with the affiliation \"Penn State Coll. of Med., Hershey, PA\""
  },
  {
   "abstract_id": "2025-plenary-0010",
   "page": 11,
-  "title_prefix": "Human-specific tandem repeat in CACNA1C modulates responses to neuron",
+  "title_prefix": [
+   69,
+   "475d21ef9c79246a"
+  ],
   "senior_name": "David M. Kingsley",
   "n_authors": 13,
-  "body_start": "The recent development of long-read sequ",
-  "body_end": "variation in both evolution and disease.",
+  "body_start": [
+   40,
+   "0ad003f53280648f"
+  ],
+  "body_end": [
+   40,
+   "a57d4a212d623bb1"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-plenary-0011",
   "page": 13,
-  "title_prefix": "Haplotype-resolved chromatin differences and genome structural variat",
+  "title_prefix": [
+   69,
+   "8b6a51123b437769"
+  ],
   "senior_name": "Evan E. Eichler",
   "n_authors": 5,
-  "body_start": "Structural variants (SVs) located in dis",
-  "body_end": "e with respect to disease and evolution.",
+  "body_start": [
+   40,
+   "f007f563e89d9d89"
+  ],
+  "body_end": [
+   40,
+   "6983ff88fa09ab2b"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-plenary-0012",
   "page": 13,
-  "title_prefix": "Accurate representation of globally diverse human haplotypes in the s",
+  "title_prefix": [
+   69,
+   "39a03ba3a3ad5f31"
+  ],
   "senior_name": "Karen Miga",
   "n_authors": 4,
-  "body_start": "The Human Pangenome Reference Consortium",
-  "body_end": "t generation of human genetics research.",
+  "body_start": [
+   40,
+   "b243066543f59654"
+  ],
+  "body_end": [
+   40,
+   "99e26b09246c0dae"
+  ],
   "review_note": ""
  },
  {
   "abstract_id": "2025-plenary-0013",
   "page": 14,
-  "title_prefix": "Local ancestry-specific genetic architecture of breast cancer risk in",
+  "title_prefix": [
+   69,
+   "82e62d0fff1d768c"
+  ],
   "senior_name": "Song Yao",
   "n_authors": 20,
-  "body_start": "Breast cancer mortality in women of Afri",
-  "body_end": "stry information in admixed populations.",
+  "body_start": [
+   40,
+   "bf89fc1e38051c62"
+  ],
+  "body_end": [
+   40,
+   "2dc259abe37a31af"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-plenary-0015",
   "page": 16,
-  "title_prefix": "The impact of rare deleterious mutations on human lifespan",
+  "title_prefix": [
+   58,
+   "7ee2f27549f1a973"
+  ],
   "senior_name": "Kyle Kai-How Farh",
   "n_authors": 17,
-  "body_start": "Natural selection has shaped the genetic",
-  "body_end": " to oppose the accrual of new mutations.",
+  "body_start": [
+   40,
+   "fa738ff022603b8f"
+  ],
+  "body_end": [
+   40,
+   "82760c5ace71da0e"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-plenary-0014",
   "page": 16,
-  "title_prefix": "Age- and BMI-dependent genetic architecture of blood lipids in 2.5 mi",
+  "title_prefix": [
+   69,
+   "05b558cc3495e92f"
+  ],
   "senior_name": "Gina M. Peloso",
   "n_authors": 16,
-  "body_start": "Blood lipid levels are heritable and mod",
-  "body_end": "d advancing precision prevention of CVD.",
+  "body_start": [
+   40,
+   "a3d2bbedcd571201"
+  ],
+  "body_end": [
+   40,
+   "9eedfcdad1e9a342"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-poster-9017T",
   "page": 305,
-  "title_prefix": "An update on APC p.I1307K Homozygosity: Observations from 74 Individu",
+  "title_prefix": [
+   69,
+   "685400bb5e698e47"
+  ],
   "senior_name": "Aimee Lucas",
   "n_authors": 7,
-  "body_start": "Background and Aim APC c.3902T>A (I1307K",
-  "body_end": "clarify the risk of CRC in these groups.",
+  "body_start": [
+   40,
+   "4d68316afdff6832"
+  ],
+  "body_end": [
+   40,
+   "57c00535e37b78c3"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-poster-9043T",
   "page": 336,
-  "title_prefix": "Polygenic risk scores in Latina women with breast cancer",
+  "title_prefix": [
+   56,
+   "7f35e1692720c86e"
+  ],
   "senior_name": "Elad Ziv",
   "n_authors": 20,
-  "body_start": "Purpose: Polygenic risk scores (PRS) are",
-  "body_end": " across age among Hispanic/Latina women.",
+  "body_start": [
+   40,
+   "25170629e4cf598b"
+  ],
+  "body_end": [
+   40,
+   "7f5dc253b7d4fcb2"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-poster-9114W",
   "page": 531,
-  "title_prefix": "Multi-omics of liver disease in Hispanic/Latino populations at risk f",
+  "title_prefix": [
+   69,
+   "562cd2bb749305c7"
+  ],
   "senior_name": "Jennifer E. Below",
   "n_authors": 13,
-  "body_start": "Metabolic-associated steatotic liver dis",
-  "body_end": "ntial therapeutic targets for treatment.",
+  "body_start": [
+   40,
+   "3213dea7b808eb52"
+  ],
+  "body_end": [
+   40,
+   "4404c0472bb321c3"
+  ],
   "review_note": "last author is Jennifer E. Below, there are 13 total authors"
  },
  {
   "abstract_id": "2025-poster-9146W",
   "page": 581,
-  "title_prefix": "Unraveling the Genetic Landscape of Sleep Traits: A Whole-Genome Stud",
+  "title_prefix": [
+   69,
+   "b082c5a1f40a1e45"
+  ],
   "senior_name": "Jintai Yu",
   "n_authors": 7,
-  "body_start": "Sleep is essential for physiological, ps",
-  "body_end": "thways as promising therapeutic targets.",
+  "body_start": [
+   40,
+   "255e825b527e1d16"
+  ],
+  "body_end": [
+   40,
+   "99aeda1e2c8bb6bd"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-poster-9149W",
   "page": 584,
-  "title_prefix": "Uncovering the host genetic determinants of Staphylococcus aureus col",
+  "title_prefix": [
+   69,
+   "4725beb654501dbf"
+  ],
   "senior_name": "Ewan M Harrison",
   "n_authors": 29,
-  "body_start": "Staphylococcus aureus is a common human ",
-  "body_end": "nfection prevention and risk prediction.",
+  "body_start": [
+   40,
+   "d95034cfb9610655"
+  ],
+  "body_end": [
+   40,
+   "5c79c38a67abbad9"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-poster-9171W",
   "page": 616,
-  "title_prefix": "Fine-mapping studies identify cell- and genotype-specific regulation ",
+  "title_prefix": [
+   69,
+   "10836d017dd257c2"
+  ],
   "senior_name": "Carole Ober",
   "n_authors": 5,
-  "body_start": "Asthma is the most common chronic respir",
-  "body_end": "UM1 AI160040, U19 AI162310, T32 GM139782",
+  "body_start": [
+   40,
+   "05cc9220f655357e"
+  ],
+  "body_end": [
+   40,
+   "f7cfecdb21e86519"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-poster-9143T",
   "page": 852,
-  "title_prefix": "De Novo Variation in Newly Identified Autism Genes Shows Variable Phe",
+  "title_prefix": [
+   69,
+   "50ecfc58e0431db2"
+  ],
   "senior_name": "Elise B. Robinson",
   "n_authors": 8,
-  "body_start": "BACKGROUND: Autistic people show substan",
-  "body_end": "rm personalized interventions in autism.",
+  "body_start": [
+   40,
+   "cf4bd2e877f4ea2a"
+  ],
+  "body_end": [
+   40,
+   "0c89cdc7ce2933e2"
+  ],
   "review_note": "ok except that final author reports affiliation as \"Massachusetts General Hospital/Broad Institute\" instead of separate affiliations"
  },
  {
   "abstract_id": "2025-poster-9275T",
   "page": 1045,
-  "title_prefix": "Deciphering the genetic architecture of childhood emotional and behav",
+  "title_prefix": [
+   69,
+   "d7afe03c306c2c44"
+  ],
   "senior_name": "Po-Hsiu Kuo",
   "n_authors": 2,
-  "body_start": "Background: Emotional and behavioral pro",
-  "body_end": "determinants of childhood mental health.",
+  "body_start": [
+   40,
+   "79d5035886f4c1cb"
+  ],
+  "body_end": [
+   40,
+   "bba3213bcd80c1f5"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-poster-9144F",
   "page": 1137,
-  "title_prefix": "Characterizing the genetic architecture of age-related frailty throug",
+  "title_prefix": [
+   69,
+   "51eb960767783f61"
+  ],
   "senior_name": "Luke M Evans",
   "n_authors": 4,
-  "body_start": "Frailty, an age-related state of reduced",
-  "body_end": "on and promotes inflammatory cytokines).",
+  "body_start": [
+   40,
+   "2006ecab064894d3"
+  ],
+  "body_end": [
+   40,
+   "f58982872d9c628b"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-poster-9268F",
   "page": 1310,
-  "title_prefix": "Homoplasmic and Heteroplasmic mitochondrial-tRNA variants in Parkinso",
+  "title_prefix": [
+   69,
+   "6d4b805ace4968a7"
+  ],
   "senior_name": "Roy Alcalay",
   "n_authors": 7,
-  "body_start": "Parkinson’s disease (PD) is a heterogene",
-  "body_end": "effect on disease risk and modification.",
+  "body_start": [
+   40,
+   "41f5dd6ddc777b25"
+  ],
+  "body_end": [
+   40,
+   "c7b4109e1a7f96a2"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-poster-8074W",
   "page": 1379,
-  "title_prefix": "Enrichment of DNA hypomethylated regions for biomarker discovery usin",
+  "title_prefix": [
+   69,
+   "e71990f50438b4ac"
+  ],
   "senior_name": "Chuan He",
   "n_authors": 9,
-  "body_start": "DNA 5-methylcytosine (5mC), one of the m",
-  "body_end": " other disease detection and management.",
+  "body_start": [
+   40,
+   "9827f66501fe7e10"
+  ],
+  "body_end": [
+   40,
+   "bda429b387880ee1"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-poster-3031T",
   "page": 1700,
-  "title_prefix": "Patient Perceptions of Polygenic Risk Score Reports for Prostate Canc",
+  "title_prefix": [
+   69,
+   "e9278a73ef6e6c44"
+  ],
   "senior_name": "Jason L. Vassy",
   "n_authors": 8,
-  "body_start": "Introduction Polygenic risk scores (PRS)",
-  "body_end": " more customizable information delivery.",
+  "body_start": [
+   40,
+   "cead5c9a5b08a99b"
+  ],
+  "body_end": [
+   40,
+   "a48a62704b0acdf3"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-poster-6009W",
   "page": 1751,
-  "title_prefix": "Trading One Problem for Another: Suspected Donor-Derived Fabry's afte",
+  "title_prefix": [
+   69,
+   "fc0cfc7787cdd0b2"
+  ],
   "senior_name": "Matthew Taylor",
   "n_authors": 7,
-  "body_start": "Introduction: We describe a 58-year-old ",
-  "body_end": "table cardiac disease and its treatment.",
+  "body_start": [
+   40,
+   "fce7102dc8645f46"
+  ],
+  "body_end": [
+   40,
+   "9dd076ab8040ce56"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-poster-7008F",
   "page": 2321,
-  "title_prefix": "Leveraging large-scale biobank data to understand the landscape of co",
+  "title_prefix": [
+   69,
+   "d875cc7dce4a0e6c"
+  ],
   "senior_name": "Megan M. Shuey",
   "n_authors": 3,
-  "body_start": "Congenital anomalies (CAs) affect 3-6% o",
-  "body_end": "ights the complex, shared nature of CAs.",
+  "body_start": [
+   40,
+   "3860fd7f9b240f9b"
+  ],
+  "body_end": [
+   40,
+   "0dcaa364948ea8c7"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-poster-8026W",
   "page": 2466,
-  "title_prefix": "Holmes: High-Throughput Genetic Variant Interpretation with an Automa",
+  "title_prefix": [
+   69,
+   "e25a49007efe7b44"
+  ],
   "senior_name": "Jui-Hung Hung",
   "n_authors": 6,
-  "body_start": "Background: The rapid expansion of genom",
-  "body_end": "loc guideline, high-throughput screening",
+  "body_start": [
+   40,
+   "e0bbbb29b8dba280"
+  ],
+  "body_end": [
+   40,
+   "bec2392ef38a4445"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-poster-4034F",
   "page": 3193,
-  "title_prefix": "Benchmarking and integrative detection of low frequency somatic mobil",
+  "title_prefix": [
+   69,
+   "575a0bc93d8ef75e"
+  ],
   "senior_name": "Eunjung Alice Lee",
   "n_authors": 30,
-  "body_start": "Growing evidence supports the somatic ac",
-  "body_end": " sequencing platforms and study designs.",
+  "body_start": [
+   40,
+   "866fa3cd203fc6e6"
+  ],
+  "body_end": [
+   40,
+   "59f2620bde173665"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-poster-4079F",
   "page": 3255,
-  "title_prefix": "Polygenic and metagenomic risk scores for bone mineral density predic",
+  "title_prefix": [
+   69,
+   "942bb0cab4632a86"
+  ],
   "senior_name": "Hong-Wen Deng",
   "n_authors": 8,
-  "body_start": "Introduction Osteoporosis (OP) affects o",
-  "body_end": "dictive approaches in clinical practice.",
+  "body_start": [
+   40,
+   "4d78dccf0ce477ed"
+  ],
+  "body_end": [
+   40,
+   "c99168420f092424"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-poster-3059F",
   "page": 3455,
-  "title_prefix": "Genetic regulation of the early-life proteome and its impact on child",
+  "title_prefix": [
+   69,
+   "851590dd9205b977"
+  ],
   "senior_name": "Ruth J.F. Loos",
   "n_authors": 8,
-  "body_start": "Early life is a critical window for grow",
-  "body_end": "ial roles in childhood metabolic health.",
+  "body_start": [
+   40,
+   "735052c30a5b0cd7"
+  ],
+  "body_end": [
+   40,
+   "ca62263f77c58751"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-poster-1004F",
   "page": 3805,
-  "title_prefix": "Quantification of individual dataset contributions to prediction accu",
+  "title_prefix": [
+   69,
+   "5284ea13010cf26c"
+  ],
   "senior_name": "Georg Hahn",
   "n_authors": 5,
-  "body_start": "We consider cooperative learning, a rece",
-  "body_end": "tic data, and metabolites, respectively.",
+  "body_start": [
+   40,
+   "69af0832b21d1fdd"
+  ],
+  "body_end": [
+   40,
+   "b9e62c26f72e91fc"
+  ],
   "review_note": "ok"
  },
  {
   "abstract_id": "2025-poster-1032F",
   "page": 3840,
-  "title_prefix": "Efficient Heritability-Based Validation of Longitudinal Digital Pheno",
+  "title_prefix": [
+   69,
+   "a3d6f951b5c82321"
+  ],
   "senior_name": "Brunilda Balliu",
   "n_authors": 4,
-  "body_start": "Psychiatric disorders exhibit substantia",
-  "body_end": "yses of longitudinal digital phenotypes.",
+  "body_start": [
+   40,
+   "d25a64e22d948085"
+  ],
+  "body_end": [
+   40,
+   "e77c2776b7ebba12"
+  ],
   "review_note": "ok - although note the affiliations are \"UCLA\" followed by the specific departments within UCLA."
  }
 ]
