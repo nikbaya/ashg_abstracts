@@ -555,7 +555,7 @@ const talkScore = (() => {
   // groups: [label, [other variants], or, talks, posters]; returns the groups the text contains, with the variant found
   const match = (text, groups) => {
     const g = grams(tokenize(text));
-    return groups.map(([label, also, or]) => ({ label, or, found: [label, ...also].find(v => g.has(v)) })).filter(m => m.found);
+    return groups.map(([label, also, or, talks, posters]) => ({ label, or, talks, posters, found: [label, ...also].find(v => g.has(v)) })).filter(m => m.found);
   };
   // whole-number percentile among abstracts (counts per score), ties counted half
   const percentile = (s, talks, posters) => {
@@ -618,6 +618,21 @@ const talkScore = (() => {
     }
   }
 
+  // instant tooltip for a found phrase: its odds ratio and the abstracts behind it
+  const chipTip = Object.assign(document.createElement("div"), { className: "tip", hidden: true });
+  chipTip.setAttribute("role", "tooltip");
+  document.body.appendChild(chipTip);
+  function showChipTip(ev, chip, label, m) {
+    const line = t => Object.assign(document.createElement("div"), { textContent: t });
+    chipTip.replaceChildren(Object.assign(document.createElement("strong"), { textContent: `“${label}”: odds ratio ${m.or.toFixed(2)}` }),
+      line(`${m.talks} talks and ${m.posters} posters use it (all years)`),
+      line("Odds of a talk with the phrase vs without it."));
+    chipTip.hidden = false;
+    const r = chip.getBoundingClientRect(), x = ev.type === "focus" ? r.left : ev.clientX + 12, y = ev.type === "focus" ? r.bottom + 6 : ev.clientY + 12;
+    chipTip.style.left = Math.max(8, Math.min(x, innerWidth - chipTip.offsetWidth - 8)) + "px";
+    chipTip.style.top = Math.min(y, innerHeight - chipTip.offsetHeight - 8) + "px";
+  }
+
   function render() {
     const t = text.value.trim();
     const words = t ? talkScore.tokenize(t).length : 0;
@@ -634,8 +649,14 @@ const talkScore = (() => {
     list.replaceChildren(...found.sort((a, b) => b.or - a.or).map(m => {
       const chip = document.createElement("span");
       chip.className = "chip";
+      chip.tabIndex = 0;
       chip.textContent = m.found.replace(/<num>/g, "N");
-      chip.title = `${m.label.replace(/<num>/g, "N")}: odds ratio ${m.or.toFixed(2)} (talks vs posters, all years)`;
+      const label = m.label.replace(/<num>/g, "N");
+      chip.addEventListener("pointermove", ev => showChipTip(ev, chip, label, m));
+      chip.addEventListener("pointerdown", ev => showChipTip(ev, chip, label, m));
+      chip.addEventListener("focus", ev => showChipTip(ev, chip, label, m));
+      chip.addEventListener("pointerleave", () => { chipTip.hidden = true; });
+      chip.addEventListener("blur", () => { chipTip.hidden = true; });
       return chip;
     }));
     document.getElementById("sc-none").hidden = s > 0;

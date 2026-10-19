@@ -287,7 +287,7 @@ table.match th.group { text-align: center; border-bottom: 1px solid var(--rule);
 .sc-headline { font-size: 18px; color: var(--text-primary); margin: 16px 0 4px; }
 .sc-headline strong { font-size: 22px; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; max-width: 780px; }
-.chip { font-size: 13px; color: var(--text-primary); background: var(--surface-2); border-radius: 12px; padding: 2px 10px; }
+.chip { cursor: default; font-size: 13px; color: var(--text-primary); background: var(--surface-2); border-radius: 12px; padding: 2px 10px; }
 #sc-chart { display: block; width: 100%; max-width: 640px; height: auto; }
 #sc-chart .grid { stroke: var(--rule); }
 #sc-chart .axis { fill: var(--text-secondary); font-size: 11px; }
