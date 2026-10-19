@@ -21,7 +21,7 @@
   <nav class="site-nav" aria-label="Sections">
     <div class="nav-item has-menu">
     <a href="index.html" aria-current="page"><svg class="nav-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="9" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="9" width="4.5" height="4.5" rx="1"/><rect x="9" y="9" width="4.5" height="4.5" rx="1"/></svg>Overview<span class="caret" aria-hidden="true"></span></a>
-    <div class="nav-menu"><a href="index.html#hot">What's hot</a><a href="index.html#search">Phrase search</a><a href="index.html#talk-leaning">Talk-leaning phrases</a><a href="index.html#wording">Wording</a><a href="index.html#institutions">Institutions</a></div>
+    <div class="nav-menu"><a href="index.html#search">Phrase search</a><a href="index.html#hot">What's hot</a><a href="index.html#talk-leaning">Talk-leaning phrases</a><a href="index.html#wording">Wording</a><a href="index.html#institutions">Institutions</a></div>
     </div>
     <div class="nav-item has-menu">
     <a href="phrases.html"><svg class="nav-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"/><path d="M5.5 6.5h5"/></svg>Phrases<span class="caret" aria-hidden="true"></span></a>
@@ -58,10 +58,49 @@ place goes with a talk, not that it earns one (adding a phrase to your abstract 
 differences can reflect topic, field or what authors chose to submit. Not every affiliation could be matched to an
 institution or place: see the <a href="methods.html#match-rates">match rates</a>.</p>
 
-<p class="search-jump"><a href="#search"><svg class="nav-icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg>Search for a phrase<span class="go" aria-hidden="true">↓</span></a></p>
+
+<div class="vignette" id="search">
+<section class="explorer in-vignette">
+<h2 id="explorer"><span class="num">1</span>Search a phrase</h2>
+<p>Type a word or phrase to see how often talks and posters mention it each year, then which first-author institutions
+and metro areas write about it. Hover or focus a row for that institution's own mention rate and odds of a talk.</p>
+
+<div class="filters">
+  <label>Find <span class="sg-wrap"><input type="search" id="drv-search" placeholder="e.g. enhancer" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="drv-suggest" aria-autocomplete="list"><ul id="drv-suggest" role="listbox" hidden></ul></span></label>
+  <label>Phrase <select id="drv-phrase"></select></label>
+  <span class="lbl">Plot</span><span class="seg" id="drv-mode" role="group" aria-label="Plot">
+    <button type="button" data-mode="abs" aria-pressed="true">Shares</button><button type="button" data-mode="rel" aria-pressed="false">Odds of a talk</button>
+  </span>
+</div>
+<div class="drv-trend">
+  <svg id="drv-chart" role="img" viewBox="0 0 360 150"></svg>
+  <div><p id="drv-or"></p>
+  <div class="legend" id="drv-legend"><span><i style="background: var(--talk)"></i>share of talks</span><span><i style="background: var(--poster)"></i>share of posters</span></div>
+  <p class="legend" id="drv-ratio-note" hidden>Odds of a talk with vs without it each year, with 95% CIs; above 1× it is more common in talks.</p></div>
+</div>
+<p id="drv-none" class="empty" hidden>No institution or metro breakdown for this phrase: that is kept for the phrases listed before you search.</p>
+<div id="drv-who">
+<div class="filters"><span class="lbl">Who writes about it</span><span class="seg" id="drv-year" role="group" aria-label="Year"></span>
+  <span class="lbl">Bars</span><span class="seg" id="drv-bar-mode" role="group" aria-label="Bars">
+    <button type="button" data-mode="abs" aria-pressed="true">Counts</button><button type="button" data-mode="rel" aria-pressed="false">Odds of a talk</button>
+  </span>
+</div>
+<p id="drv-summary"></p>
+<div class="legend" id="drv-bar-legend"><span><i style="background: var(--talk)"></i>talks</span><span><i style="background: var(--poster)"></i>posters</span></div>
+<p class="legend" id="drv-bar-note" hidden>Odds of a talk for that institution's (or metro's) abstracts with vs without it, as for the phrase overall above: dot and 95% CI, log scale; the dashed line is 1×, no difference. Few abstracts make for wide intervals.</p>
+<div class="cols bars">
+  <div><h4>Institutions</h4><div id="drv-institutes"></div></div>
+  <div><h4>Metro areas</h4><div id="drv-metros"></div></div>
+</div>
+</div>
+<div class="tip" id="drv-tip" role="tooltip" hidden></div>
+<script type="application/json" id="drv-data" data-src="data/explorer.json?v=24fe376d"></script>
+</section>
+<p class="more-link"><a href="phrases.html#explorer">About the search, and phrase trends →</a></p>
+</div>
 
 <section class="vignette" id="hot">
-<h2><span class="num">1</span>What's hot at ASHG 2026</h2>
+<h2><span class="num">2</span>What's hot at ASHG 2026</h2>
 <p class="lead">Five shifts in what ASHG abstracts mention, 2022–2026. Scroll through them; the
 chart shows the share of each year's accepted abstracts that mention a topic.</p>
 <div class="story" data-story>
@@ -138,46 +177,6 @@ and abbreviations count). Click a topic to look it up in talks and posters.</p>
 <p class="more-link"><a href="#explorer">Look up any phrase, year by year →</a></p>
 <p class="more-link"><a href="phrases.html#phrase-trends">Phrase trends and biobanks →</a></p>
 </section>
-
-<div class="vignette" id="search">
-<section class="explorer in-vignette">
-<h2 id="explorer"><span class="num">2</span>Search a phrase</h2>
-<p>Type a word or phrase to see how often talks and posters mention it each year, then which first-author institutions
-and metro areas write about it. Hover or focus a row for that institution's own mention rate and odds of a talk.</p>
-
-<div class="filters">
-  <label>Find <span class="sg-wrap"><input type="search" id="drv-search" placeholder="e.g. enhancer" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="drv-suggest" aria-autocomplete="list"><ul id="drv-suggest" role="listbox" hidden></ul></span></label>
-  <label>Phrase <select id="drv-phrase"></select></label>
-  <span class="lbl">Plot</span><span class="seg" id="drv-mode" role="group" aria-label="Plot">
-    <button type="button" data-mode="abs" aria-pressed="true">Shares</button><button type="button" data-mode="rel" aria-pressed="false">Odds of a talk</button>
-  </span>
-</div>
-<div class="drv-trend">
-  <svg id="drv-chart" role="img" viewBox="0 0 360 150"></svg>
-  <div><p id="drv-or"></p>
-  <div class="legend" id="drv-legend"><span><i style="background: var(--talk)"></i>share of talks</span><span><i style="background: var(--poster)"></i>share of posters</span></div>
-  <p class="legend" id="drv-ratio-note" hidden>Odds of a talk with vs without it each year, with 95% CIs; above 1× it is more common in talks.</p></div>
-</div>
-<p id="drv-none" class="empty" hidden>No institution or metro breakdown for this phrase: that is kept for the phrases listed before you search.</p>
-<div id="drv-who">
-<div class="filters"><span class="lbl">Who writes about it</span><span class="seg" id="drv-year" role="group" aria-label="Year"></span>
-  <span class="lbl">Bars</span><span class="seg" id="drv-bar-mode" role="group" aria-label="Bars">
-    <button type="button" data-mode="abs" aria-pressed="true">Counts</button><button type="button" data-mode="rel" aria-pressed="false">Odds of a talk</button>
-  </span>
-</div>
-<p id="drv-summary"></p>
-<div class="legend" id="drv-bar-legend"><span><i style="background: var(--talk)"></i>talks</span><span><i style="background: var(--poster)"></i>posters</span></div>
-<p class="legend" id="drv-bar-note" hidden>Odds of a talk for that institution's (or metro's) abstracts with vs without it, as for the phrase overall above: dot and 95% CI, log scale; the dashed line is 1×, no difference. Few abstracts make for wide intervals.</p>
-<div class="cols bars">
-  <div><h4>Institutions</h4><div id="drv-institutes"></div></div>
-  <div><h4>Metro areas</h4><div id="drv-metros"></div></div>
-</div>
-</div>
-<div class="tip" id="drv-tip" role="tooltip" hidden></div>
-<script type="application/json" id="drv-data" data-src="data/explorer.json?v=24fe376d"></script>
-</section>
-<p class="more-link"><a href="phrases.html#explorer">About the search, and phrase trends →</a></p>
-</div>
 
 <section class="vignette" id="talk-leaning">
 <h2><span class="num">3</span>What phrases are overrepresented in talks</h2>

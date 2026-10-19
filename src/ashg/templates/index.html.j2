@@ -35,11 +35,19 @@ place goes with a talk, not that it earns one (adding a phrase to your abstract 
 differences can reflect topic, field or what authors chose to submit. Not every affiliation could be matched to an
 institution or place: see the <a href="methods.html#match-rates">match rates</a>.</p>
 
-{% if drivers_json %}
-<p class="search-jump"><a href="#search"><svg class="nav-icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg>Search for a phrase<span class="go" aria-hidden="true">↓</span></a></p>
-{% endif %}
 
 {% set ns = namespace(n=0) %}
+{% if drivers_json %}
+<div class="vignette" id="search">
+{% set ns.n = ns.n + 1 %}
+{% call m.explorer(None, explorer_src, ns.n, "Search a phrase") %}
+<p>Type a word or phrase to see how often talks and posters mention it each year, then which first-author institutions
+and metro areas write about it. Hover or focus a row for that institution's own mention rate and odds of a talk.</p>
+{% endcall %}
+<p class="more-link"><a href="phrases.html#explorer">About the search, and phrase trends →</a></p>
+</div>
+{% endif %}
+
 {% if h %}
 <section class="vignette" id="hot">
 <h2>{% set ns.n = ns.n + 1 %}<span class="num">{{ ns.n }}</span>What's hot at ASHG {{ h.latest }}</h2>
@@ -101,17 +109,6 @@ and abbreviations count). Click a topic to look it up in talks and posters.</p>
 <p class="more-link"><a href="#explorer">Look up any phrase, year by year →</a></p>
 <p class="more-link"><a href="phrases.html#phrase-trends">Phrase trends and biobanks →</a></p>
 </section>
-
-{% if drivers_json %}
-<div class="vignette" id="search">
-{% set ns.n = ns.n + 1 %}
-{% call m.explorer(None, explorer_src, ns.n, "Search a phrase") %}
-<p>Type a word or phrase to see how often talks and posters mention it each year, then which first-author institutions
-and metro areas write about it. Hover or focus a row for that institution's own mention rate and odds of a talk.</p>
-{% endcall %}
-<p class="more-link"><a href="phrases.html#explorer">About the search, and phrase trends →</a></p>
-</div>
-{% endif %}
 
 <section class="vignette" id="talk-leaning">
 <h2>{% set ns.n = ns.n + 1 %}<span class="num">{{ ns.n }}</span>What phrases are overrepresented in talks</h2>

@@ -36,7 +36,7 @@ PAGES = [  # (file, nav label, page title)
     ("methods.html", "Methods", "Methods and caveats"),
 ]
 SECTIONS = {  # nav dropdown: file -> [(anchor, label)]
-    "index.html": [("hot", "What's hot"), ("search", "Phrase search"), ("talk-leaning", "Talk-leaning phrases"),
+    "index.html": [("search", "Phrase search"), ("hot", "What's hot"), ("talk-leaning", "Talk-leaning phrases"),
                    ("wording", "Wording"), ("institutions", "Institutions")],
     "phrases.html": [("explorer", "Search for a phrase"), ("by-year", "Overrepresented in talks"), ("phrase-trends", "Phrase trends"), ("biobanks", "Biobanks"), ("shift", "What changed"),
                      ("sample-size", "Sample size"), ("words", "Words, A to Z"), ("words-enriched", "Words more common now"), ("genes", "Genes"), ("score", "Score your text")],
