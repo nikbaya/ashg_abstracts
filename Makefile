@@ -6,7 +6,7 @@ TYPES := platform plenary poster
 PY := PYTHONPATH=src/ashg mamba run -n ashg python
 ABSTRACTS = $(foreach t,$(TYPES),data/abstracts/$(YEAR)_$(t).parquet)
 
-.PHONY: year spans abstracts validate institutions people geography features analysis figures pooled trends center naturalearth writing site test review genedata manhattan score
+.PHONY: year spans abstracts validate institutions people geography features analysis figures pooled trends center naturalearth writing site test review genedata manhattan score preprints
 year: validate institutions people geography features analysis figures
 
 spans:
@@ -88,6 +88,10 @@ manhattan: genedata
 # overrepresented-phrase score per abstract, for the site's score page (after `make pooled`)
 score:
 	$(PY) src/ashg/talk_score.py
+
+# which abstracts were already preprinted (analysis only, not on the site); `search` takes ~40 min, `analyze` reuses it
+preprints:
+	$(PY) src/ashg/preprints.py analyze --year 2026
 
 writing:
 	$(PY) src/ashg/writing.py data/abstracts/*.parquet
