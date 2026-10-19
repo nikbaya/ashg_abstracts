@@ -19,7 +19,7 @@ a { color: var(--talk); }
 .brand span { font-weight: 400; color: var(--text-secondary); }
 .site-nav { display: flex; flex-wrap: wrap; gap: 2px; margin: 0 -8px; min-width: 0; }
 .nav-item { position: relative; }
-.site-nav > .nav-item > a { padding: 10px 8px 12px; color: var(--text-secondary); text-decoration: none; white-space: nowrap;
+.site-nav > .nav-item > a { display: block; padding: 10px 8px 12px; color: var(--text-secondary); text-decoration: none; white-space: nowrap;
   border-bottom: 2px solid transparent; }
 .nav-icon { width: 16px; height: 16px; margin-right: 6px; vertical-align: -3px; fill: none; stroke: currentColor;
   stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }

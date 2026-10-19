@@ -23,17 +23,12 @@
 <h1>{{ page.title }}, {{ years[0].year }}–{{ latest.year }}</h1>
 <p class="lede">This site parses the abstracts published for the American Society of Human Genetics annual meeting
 ({{ years[0].year }}–{{ latest.year }}{% if pooled %}: {{ "{:,}".format(p.summary.abstracts) }} abstracts{% endif %}) and
-asks what the field is writing about: which topics and wording are rising or fading, and who presents. Every year
-ASHG picks a few hundred of its several thousand accepted abstracts for a talk{% if pooled %}
-({{ "{:,}".format(p.summary.talks) }} over these years){% endif %}; the rest become posters. So it also asks which phrases,
-institutions and places show up more often among talks.</p>
-<p class="caveat"><strong>Read this first.</strong> Only <em>accepted</em> abstracts are published, so rejected
-submissions never appear here, and authors can request a poster instead of a talk, so a poster does not mean an
-abstract was passed over for a talk. “Talk rate” is the fraction of accepted abstracts presented as a talk, not an
-acceptance rate or a quality score. Every number here is an association: it says how often a phrase, institution or
-place goes with a talk, not that it earns one (adding a phrase to your abstract will not make it a talk), and
-differences can reflect topic, field or what authors chose to submit. Not every affiliation could be matched to an
-institution or place: see the <a href="methods.html#match-rates">match rates</a>.</p>
+asks which topics and wording are rising or fading, who presents, and which phrases, institutions and places are
+overrepresented among the few hundred abstracts a year chosen for talks; the rest become posters.</p>
+<p class="caveat"><strong>Read this first.</strong> Only <em>accepted</em> abstracts are published, and authors can
+request a poster, so “talk rate” is the fraction of accepted abstracts presented as talks, not an acceptance rate or
+a quality score. Every number is an association, not a recipe for getting a talk. Not every affiliation could be
+matched: see the <a href="methods.html#match-rates">match rates</a>.</p>
 
 
 {% set ns = namespace(n=0) %}
