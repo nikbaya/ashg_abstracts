@@ -2,7 +2,7 @@
 {% block content %}
 <h1>{{ page.title }}</h1>
 
-<h2>What the numbers mean</h2>
+<h2 id="numbers">What the numbers mean</h2>
 <ul>
 <li><strong>Accepted abstracts only.</strong> The booklets list abstracts that were accepted, and authors can ask for
 a poster. “Talk rate” is the fraction of accepted abstracts presented as a talk (platform or plenary); it is not an
@@ -50,7 +50,7 @@ compared with its own year's rate, or with the pooled rate for all years.</p>
 <figure class="fig"><a href="img/trends_talk_rate.png"><img src="img/trends_talk_rate.png" alt="Talk rate per year: the share of accepted abstracts presented as a talk, with each year's talk and abstract counts and host city." loading="lazy"></a></figure>
 {% endif %}
 
-<h2>How it's built</h2>
+<h2 id="built">How it's built</h2>
 <ul>
 <li><strong>Parsing.</strong> Text is extracted with PyMuPDF and split into abstracts using each booklet's layout
 (session headers, titles, author blocks, “Abstract:” labels). Every parsed abstract is checked against the booklet's
@@ -112,7 +112,7 @@ odds ratios across years are Mantel–Haenszel estimates stratified by year (eac
 cell, Robins–Breslow–Greenland variance), because the baseline talk rate differs by year.</li>
 <li><strong>Intervals.</strong> Talk rates use 95% Wilson intervals.</li>
 </ul>
-<h2>About this site</h2>
+<h2 id="about">About this site</h2>
 <div class="about">
 <img src="img/nikolas_baya.jpg" alt="Headshot of Nikolas Baya" width="110" height="126">
 <p>This website was created by <a href="https://www.linkedin.com/in/nikolas-baya/">Nikolas Baya</a>. Although his abstract had 10 talk-enriched words, this year he will be

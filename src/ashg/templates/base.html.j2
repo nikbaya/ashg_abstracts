@@ -28,7 +28,12 @@
   <a class="brand" href="index.html">ASHG abstracts</a>
   <nav class="site-nav" aria-label="Sections">
   {% for p in pages %}
-    <a href="{{ p.file }}"{% if p.file == page.file %} aria-current="page"{% endif %}>{% if icons[p.file] %}<svg class="nav-icon" viewBox="0 0 16 16" aria-hidden="true">{{ icons[p.file] }}</svg>{% endif %}{{ p.label }}</a>
+    <div class="nav-item{% if p.sections %} has-menu{% endif %}">
+    <a href="{{ p.file }}"{% if p.file == page.file %} aria-current="page"{% endif %}>{% if icons[p.file] %}<svg class="nav-icon" viewBox="0 0 16 16" aria-hidden="true">{{ icons[p.file] }}</svg>{% endif %}{{ p.label }}{% if p.sections %}<span class="caret" aria-hidden="true"></span>{% endif %}</a>
+    {% if p.sections %}
+    <div class="nav-menu">{% for a, l in p.sections %}<a href="{{ p.file }}#{{ a }}">{{ l }}</a>{% endfor %}</div>
+    {% endif %}
+    </div>
   {% endfor %}
   </nav>
 </div></header>

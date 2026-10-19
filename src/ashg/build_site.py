@@ -35,6 +35,16 @@ PAGES = [  # (file, nav label, page title)
     ("authors.html", "Senior authors", "Senior authors with the highest talk rate"),
     ("methods.html", "Methods", "Methods and caveats"),
 ]
+SECTIONS = {  # nav dropdown: file -> [(anchor, label)]
+    "index.html": [("hot", "What's hot"), ("search", "Phrase search"), ("talk-leaning", "Talk-leaning phrases"),
+                   ("wording", "Wording"), ("institutions", "Institutions")],
+    "phrases.html": [("phrase-trends", "Phrase trends"), ("biobanks", "Biobanks"), ("shift", "What changed"),
+                     ("sample-size", "Sample size"), ("words", "Words, A to Z"), ("genes", "Genes"), ("score", "Score your text")],
+    "geography.html": [("center", "Center of mass"), ("regions", "World regions"), ("countries", "Countries"),
+                       ("metros", "Metro areas")],
+    "methods.html": [("numbers", "What the numbers mean"), ("match-rates", "Match rates"), ("talk-rate", "Talk rate by year"),
+                     ("built", "How it's built"), ("about", "About this site")],
+}
 YEAR_FIGURES = ("headline", "institutions", "metros", "regions", "senior_authors")
 TREND_FIGURES = ("trends_talk_rate", "trends_phrases", "trends_biobanks", "trends_shift", "trends_talk_score",
                  "trends_words_enriched", "trends_genes", "trends_sample_size", "trends_regions", "trends_metros", "trends_center_na",
@@ -343,7 +353,7 @@ def main():
 
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATES), autoescape=False,
                              trim_blocks=True, lstrip_blocks=True)
-    pages = [{"file": f, "label": label, "title": title} for f, label, title in PAGES]
+    pages = [{"file": f, "label": label, "title": title, "sections": SECTIONS.get(f, [])} for f, label, title in PAGES]
     shared = {"years": [year_context(out, y) for y in years], "trends": trends, "pages": pages,
               "pooled": year_context(out, "all", f"{years[0]}–{years[-1]}") if pooled else None,
               "drivers_json": explorer_data if drivers.exists() else None, "explorer_src": explorer_src,
