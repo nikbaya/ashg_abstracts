@@ -180,7 +180,7 @@ document.querySelectorAll("table.sortable").forEach(table => {
   });
 
   function drawChart(p) {
-    const W = 360, H = 150, L = 40, R = 18, T = 12, B = 24;
+    const W = 360, H = 150, L = 40, R = 52, T = 12, B = 24;
     const shares = [0, 1].map(i => p.counts.map((c, y) => c[i] / data.totals[y][i]));
     // in "rel" mode a year with no poster mentions has no odds ratio and is skipped
     const ci = p.counts.map(([a, c], y) => {
@@ -220,6 +220,15 @@ document.querySelectorAll("table.sortable").forEach(table => {
         chart.appendChild(dot);
       });
     });
+    if (mode === "abs") {  // name each line at its last point, nudged apart where they end close together
+      const ends = series.map(([k, v]) => [k, y(v[v.length - 1])]).sort((a, b) => a[1] - b[1]);
+      if (ends.length > 1 && ends[1][1] - ends[0][1] < 13) {
+        const mid = (ends[0][1] + ends[1][1]) / 2;
+        ends[0][1] = mid - 6.5; ends[1][1] = mid + 6.5;
+      }
+      ends.forEach(([k, yy]) => chart.appendChild(svg("text",
+        { x: x(data.years.length - 1) + 9, y: yy + 4, class: "end " + k }, k === "talk" ? "Talks" : "Posters")));
+    }
     document.getElementById("drv-legend").hidden = mode !== "abs";
     document.getElementById("drv-ratio-note").hidden = mode !== "rel";
     chart.setAttribute("aria-label", mode === "abs"
@@ -653,7 +662,8 @@ const talkScore = (() => {
   const search = document.getElementById("we-search"), body = document.getElementById("we-body");
   const count = document.getElementById("we-count"), heads = [...document.querySelectorAll("#we-table th")];
   const sig = data.rows.filter(r => r[4] < data.alpha).length;
-  let key = 4, asc = true;
+  let key = 4, asc = true, shown = [];
+  const box = document.getElementById("we-table").parentElement;
   // abstracts columns sort by share, so the two periods compare
   const value = (r, k) => k === 1 ? r[1] / data.n1 : k === 2 ? r[2] / data.n0 : r[k];
   const share = (k, n) => `${k.toLocaleString()} (${(100 * k / n).toFixed(k / n < 0.1 ? 1 : 0)}%)`;
@@ -670,15 +680,21 @@ const talkScore = (() => {
     const q = search.value.trim().toLowerCase();
     const rows = data.rows.filter(r => !q || r[0].includes(q))
       .sort((a, b) => { const x = value(a, key), y = value(b, key); return (x > y ? 1 : x < y ? -1 : 0) * (asc ? 1 : -1); });
-    body.replaceChildren(...rows.slice(0, SHOW).map(r => {
+    shown = rows; box.scrollTop = 0; body.replaceChildren(); more();
+    count.textContent = q ? `${rows.length.toLocaleString()} matching word${rows.length === 1 ? "" : "s"}`
+      : `${data.rows.length.toLocaleString()} words, ${sig} significant · scroll for more`;
+  }
+  // The table scrolls inside its box; rows are added SHOW at a time as the bottom comes into reach.
+  function more() {
+    const from = body.rows.length;
+    body.append(...shown.slice(from, from + SHOW).map(r => {
       const tr = document.createElement("tr"), p = cell(fmtP(r[4]));
       if (r[4] < data.alpha) p.style.fontWeight = "700";
       tr.append(cell(r[0], "text"), cell(share(r[1], data.n1)), cell(share(r[2], data.n0)), cell(r[3].toFixed(2)), p);
       return tr;
     }));
-    count.textContent = (q ? `${rows.length.toLocaleString()} matching word${rows.length === 1 ? "" : "s"}`
-      : `${data.rows.length.toLocaleString()} words, ${sig} significant`) + (rows.length > SHOW ? ` · showing ${SHOW}` : "");
   }
+  box.addEventListener("scroll", () => { if (box.scrollTop + box.clientHeight > box.scrollHeight - 200 && body.rows.length < shown.length) more(); });
   heads.forEach(th => th.addEventListener("click", () => {
     const k = +th.dataset.k;
     asc = k === key ? !asc : k === 0 || k === 4;  // words A to Z and p smallest first; the rest largest first
@@ -753,7 +769,7 @@ const talkScore = (() => {
     holder.append(canvas, tip);
     const ctx = canvas.getContext("2d");
     let pts = [], year = m.follows ? yearNow() : null, hover = -1;
-    const L = 44, R = 12, T = 30, B = 26;
+    const L = 58, R = 12, T = 30, B = 26;
 
     function draw() {
       const W = holder.clientWidth, H = Math.round(Math.min(340, Math.max(240, W * 0.42))), dpr = devicePixelRatio || 1;
@@ -769,6 +785,8 @@ const talkScore = (() => {
         ctx.strokeStyle = RULE; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(L, Math.round(Y(v)) + 0.5); ctx.lineTo(W - R, Math.round(Y(v)) + 0.5); ctx.stroke();
         ctx.fillStyle = INK_2; ctx.fillText(m.fmt === pct ? `${+(100 * v).toFixed(2)}%` : m.fmt(+v.toFixed(6)), L - 6, Y(v));
       }
+      ctx.save(); ctx.translate(12, T + (H - T - B) / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillStyle = INK_2; ctx.fillText(kind === "enriched" ? "−log₁₀ p" : "Share of abstracts", 0, 0); ctx.restore();
       ctx.textAlign = "center"; ctx.textBaseline = "top";
       m.ticks.forEach(([x, label]) => label && ctx.fillText(label, X(x), H - B + 8));
       if (m.line) {

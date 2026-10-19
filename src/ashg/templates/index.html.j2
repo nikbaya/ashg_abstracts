@@ -35,6 +35,10 @@ place goes with a talk, not that it earns one (adding a phrase to your abstract 
 differences can reflect topic, field or what authors chose to submit. Not every affiliation could be matched to an
 institution or place: see the <a href="methods.html#match-rates">match rates</a>.</p>
 
+{% if drivers_json %}
+<p class="search-jump"><a href="#search"><svg class="nav-icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg>Search for a phrase<span class="go" aria-hidden="true">↓</span></a></p>
+{% endif %}
+
 {% set ns = namespace(n=0) %}
 {% if h %}
 <section class="vignette" id="hot">
@@ -111,12 +115,12 @@ and metro areas write about it. Hover or focus a row for that institution's own 
 
 <section class="vignette" id="talk-leaning">
 <h2>{% set ns.n = ns.n + 1 %}<span class="num">{{ ns.n }}</span>What phrases are overrepresented in talks</h2>
-<p class="lead">Among phrases in at least 10 talks, an abstract mentioning “{{ h.hot.rows[0].label }}” had
-{{ h.hot.rows[0].val }} the odds of a talk of one that didn't.</p>
-{{ rate_table(h.hot, "Phrase", count_head="Talks / posters", val_head="Odds of a talk · 95% CI", link=True) }}
-<p class="table-note">The {{ h.hot.rows | length }} phrases with the strongest evidence of leaning toward talks (largest
-z-score), sorted by odds of a talk with versus without the phrase; log scale, dashed line = 1× (as common in talks as
-in posters). Click a phrase to look it up.</p>
+<p class="lead">For each phrase of one to three words, we compare the odds of a talk (versus a poster) among abstracts
+that mention it and those that don't. Above 1×, the phrase is overrepresented in talks. A few from {{ h.latest }}:</p>
+{{ rate_table(h.hot, "Phrase", count_head="Talks vs posters mentioning it", val_head="Odds of a talk · 95% CI", link=True) }}
+<p class="table-note">Four {{ h.latest }} phrases that lean toward talks, sorted by odds of a talk with versus without the
+phrase; log scale, dashed line = 1× (as common in talks as in posters). Few abstracts make for wide intervals. Click a
+phrase to look it up.</p>
 {% if h.shift %}
 <p><strong>Clinical work stopped leaning toward posters.</strong> Through {{ years[-2].year }},
 {% for r in h.shift %}“{{ r.phrase }}”{{ ", " if loop.revindex > 2 else (" and " if not loop.last else "") }}{% endfor %} came up more often in posters than in talks; in {{ h.latest }} they were at least as common in talks.</p>
@@ -153,14 +157,14 @@ the topic and whether it was a talk or a poster.</p>
 <div class="mh" data-manhattan="enriched" data-src="{{ manhattan_src }}" data-label="Manhattan-style plot of every word, alphabetically, by minus log10 p for being more common in {{ h.latest }} abstracts than in earlier years, with a Bonferroni line.">
 <img class="mh-fallback" src="img/trends_words_enriched.png" alt="Manhattan-style plot of every word, alphabetically, by minus log10 p for being more common in {{ h.latest }} abstracts than in earlier years, with a Bonferroni line; framework stands far above the rest." loading="lazy">
 </div>
-<p class="table-note">Every word, alphabetically, by how strongly it is overrepresented in {{ h.latest }}; dashed line: Bonferroni correction. Hover a point for its word, click it to look it up.</p>
+<p class="table-note">Every word, alphabetically, by how strongly it is overrepresented in {{ h.latest }} (p from a one-sided Fisher's exact test per word); dashed line: Bonferroni correction. Hover a point for its word, click it to look it up.</p>
 {% else %}
 {{ m.figure("img/trends_words_enriched.png", "Manhattan-style plot of every word, alphabetically, by minus log10 p for being more common in %s abstracts than in earlier years, with a Bonferroni line; framework stands far above the rest." % h.latest) }}
 {% endif %}
 {% endif %}
 
 {% if words_enriched_json %}
-{{ m.words_table(years, words_enriched_json, words_enriched_src, 10) }}
+{{ m.words_table(years, words_enriched_json, words_enriched_src, 50) }}
 {% endif %}
 <p class="more-link"><a href="phrases.html#words-enriched">Every word, interactive →</a></p>
 <p class="more-link"><a href="#explorer">Look up any word in talks and posters, year by year →</a></p>

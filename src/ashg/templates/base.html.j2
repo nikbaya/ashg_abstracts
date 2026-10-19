@@ -25,7 +25,7 @@
   "methods.html": '<path d="M6 2.5h4M6.75 2.5v4L3 12.5c-.5.9.1 1.5 1 1.5h8c.9 0 1.5-.6 1-1.5L9.25 6.5v-4M4.75 10h6.5"/>'
 } %}
 <header class="site-header"><div class="wrap">
-  <a class="brand" href="index.html">ASHG abstracts <span>an analysis</span></a>
+  <a class="brand" href="index.html">ASHG abstracts</a>
   <nav class="site-nav" aria-label="Sections">
   {% for p in pages %}
     <a href="{{ p.file }}"{% if p.file == page.file %} aria-current="page"{% endif %}>{% if icons[p.file] %}<svg class="nav-icon" viewBox="0 0 16 16" aria-hidden="true">{{ icons[p.file] }}</svg>{% endif %}{{ p.label }}</a>

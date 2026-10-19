@@ -7,8 +7,17 @@ an odds ratio: how much more likely an abstract containing it is to be a talk.</
 <p>Phrases are 1–3-word sequences from the abstract text. Variants of one idea that turn up in mostly the same
 abstracts (“massively parallel reporter”, “parallel reporter assay”, “MPRA”) are grouped under the
 best-scoring one, with the rest listed beneath it in small type.</p>
-<nav class="toc" aria-label="On this page"><a href="#by-year">Phrases overrepresented in talks</a>
-{% if drivers_json %}<a href="#explorer">Look up a phrase</a>{% endif %}
+{% if drivers_json %}
+{% call m.explorer(drivers_json, None, None, "Search for a phrase") %}
+<p>The phrases in the figures below (trends, biobanks, what changed in {{ years[-1].year }}) plus the top 50 each way
+across all years. See how often talks and posters mention a phrase
+each year, then which first-author institutions and metro areas write about it (among those with at least one
+talk mentioning it; an abstract counts for each of its institutions). Hover or focus a row for that institution's
+own mention rate and odds of a talk. Searching also finds every other phrase in at least 5 talks over all years; for those the counts
+are exact matches in the abstract text (no titles or plurals), and there is no institution breakdown.</p>
+{% endcall %}
+{% endif %}
+<nav class="toc" aria-label="On this page">{% if drivers_json %}<a href="#explorer">Search for a phrase</a>{% endif %}<a href="#by-year">Phrases overrepresented in talks</a>
 {% if "trends_phrases" in trends %}<a href="#phrase-trends">Phrase trends</a>{% endif %}
 {% if "trends_biobanks" in trends %}<a href="#biobanks">Biobanks</a>{% endif %}
 {% if "trends_shift" in trends %}<a href="#shift">What changed in {{ years[-1].year }}</a>{% endif %}
@@ -58,16 +67,6 @@ left out of the phrase counts.{% endif %}</p>
 {% endfor %}
 {% endcall %}
 
-{% if drivers_json %}
-{% call m.explorer(drivers_json) %}
-<p>The phrases in the figures below (trends, biobanks, what changed in {{ years[-1].year }}) plus the top 50 each way
-across all years. See how often talks and posters mention a phrase
-each year, then which first-author institutions and metro areas write about it (among those with at least one
-talk mentioning it; an abstract counts for each of its institutions). Hover or focus a row for that institution's
-own mention rate and odds of a talk. Searching also finds every other phrase in at least 5 talks over all years; for those the counts
-are exact matches in the abstract text (no titles or plurals), and there is no institution breakdown.</p>
-{% endcall %}
-{% endif %}
 
 {% if "trends_phrases" in trends %}
 <h2 id="phrase-trends">Phrase trends</h2>
@@ -88,8 +87,8 @@ talks with posters for any of them, <a href="#explorer">look it up</a> above.</p
 <h2 id="shift">What changed in {{ years[-1].year }}</h2>
 {% macro lookup(phrase, shown=None) %}<a href="phrases.html?phrase={{ phrase | urlencode }}#explorer">{{ shown or phrase }}</a>{% endmacro %}
 <p>Clinical vocabulary stopped leaning toward posters. “{{ lookup("patients", "Patients") }}”, “{{ lookup("likely pathogenic") }}”
-and “{{ lookup("next-generation sequencing") }}” leaned toward posters over {{ years[0].year }}–{{ years[-2].year }} (pooled
-odds ratios 0.4–0.7); in {{ years[-1].year }} all three were at least as common in talks. Scanning every phrase for the
+and “{{ lookup("diagnosis") }}” leaned toward posters over {{ years[0].year }}–{{ years[-2].year }} (pooled
+odds ratios 0.6–0.8); in {{ years[-1].year }} all three were at least as common in talks. Scanning every phrase for the
 largest {{ years[-1].year }} shifts turns up more of the same: “{{ lookup("idiopathic") }}”, “{{ lookup("genetic disease") }}”
 and “{{ lookup("therapy") }}”. Click one to look it up.</p>
 <p class="caveat"><strong>Suggestive, not established.</strong> The top row was chosen before looking at

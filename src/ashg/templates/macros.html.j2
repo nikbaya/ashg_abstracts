@@ -112,7 +112,7 @@
 <th data-k="2">{{ years[0].year }}–{{ years[-2].year }} abstracts</th><th data-k="3">Odds ratio</th>
 <th data-k="4" aria-sort="ascending">p</th></tr></thead>
 <tbody id="we-body"></tbody></table></div>
-<p class="table-note">Every word in the figure, the most overrepresented first; click a heading to sort. Bold p:
+<p class="table-note">Every word in the figure, the most overrepresented first; scroll the table for more, click a heading to sort. Bold p:
 significant after Bonferroni correction. A word less common in {{ years[-1].year }} has an odds ratio below 1 and p near 1.</p>
 {% if src %}<script type="application/json" id="we-data" data-src="{{ src }}" data-show="{{ show }}"></script>
 {% else %}<script type="application/json" id="we-data" data-show="{{ show }}">{{ words_enriched_json }}</script>{% endif %}

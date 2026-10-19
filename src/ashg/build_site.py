@@ -169,7 +169,10 @@ def sparkline_pair(talks, posters, w=120, h=40, pad=4):
     return svg + "</svg>"
 
 
-def highlights(out, years, n_hot=6, min_hot_talks=10, n_rows=6):
+HOT_PHRASES = ["neanderthal", "rare damaging", "autoimmune diseases", "qtls"]  # the overview's talk-leaning examples
+
+
+def highlights(out, years, n_rows=6):
     """Numbers for the overview's vignettes: topics that rose or fell and 2026's talk-leaning phrases, the clinical
     shift, the institutions with the highest pooled talk rate, and the host-city pull on the center of mass."""
     latest = years[-1]
@@ -182,7 +185,7 @@ def highlights(out, years, n_hot=6, min_hot_talks=10, n_rows=6):
 
     prem = pd.read_csv(out / f"{latest}_premium.csv")
     prem["ngram"] = prem.ngram.str.replace("<num>", "N", regex=False)  # as the explorer and tables show it
-    hot = prem[(prem.direction == "talk") & (prem.talk_docs >= min_hot_talks)].head(n_hot)
+    hot = prem[prem.ngram.isin(HOT_PHRASES) & (prem.direction == "talk")]  # hand-picked examples, any talk count
     shift = pd.read_csv(out / "trends_shift.csv")
     prespecified = set(t[t.group.str.startswith("Poster-leaning")].phrase)  # picked before looking at the latest year
     shift = shift[shift.phrase.isin(prespecified)].to_dict("records")
@@ -236,9 +239,10 @@ def rate_rows(df, key, baseline):
 
 def odds_rows(df):
     """Rows for an overview odds-ratio table, like rate_rows but on a log scale with the line at 1×."""
+    pct = lambda v: f"{100 * v:.{0 if v >= 0.1 else 1}f}%"  # share of talks, of posters mentioning the phrase
     lo, hi = np.log(min(df.or_lo.min(), 1) / 1.1), np.log(df.or_hi.max() * 1.05)
     pos = lambda v: 100 * (np.log(v) - lo) / (hi - lo)
-    rows = [{**r, "label": r["ngram"], "count": f"{r['talk_docs']} / {r['poster_docs']}", "val": f"{r['or']:.1f}×",
+    rows = [{**r, "label": r["ngram"], "count": f"{pct(r['talk_frac'])} vs {pct(r['poster_frac'])}", "val": f"{r['or']:.1f}×",
              "bar": pos(r["or"]), "ci_left": pos(r["or_lo"]), "ci_width": pos(r["or_hi"]) - pos(r["or_lo"])}
             for r in df.to_dict("records")]
     return {"rows": rows, "base": pos(1)}

@@ -54,7 +54,7 @@ PHRASES = {
 # in the posters group above before 2026; the second came from scanning every phrase for the largest 2026 shift,
 # so its p-values are optimistic. No single shift survives an FDR correction over all phrases.
 SHIFT = {
-    "Poster-leaning through 2025 (pre-specified)": ["patients", "likely pathogenic", "next-generation sequencing"],
+    "Poster-leaning through 2025 (pre-specified)": ["patients", "likely pathogenic", "diagnosis|diagnoses"],
     "Largest 2026 shifts among clinical terms (found by scanning every phrase)": [
         "idiopathic", "genetic disease", "therapy"],
 }
@@ -75,7 +75,6 @@ STORIES = {
 }
 TOP_DRIVERS = 50  # rows kept per list; the site shows the top 10 with at least one talk
 EXPLORER_TOP = 50  # pooled top phrases each way added to the explorer
-SHORT = {"next-generation sequencing": "next-gen sequencing"}
 
 
 def contains(tokens, phrase):
@@ -294,7 +293,7 @@ def phrases_figure(t, years, path, groups=None, title=None, subtitle=None, notes
             series(ax, xs, r.poster_share, POSTER)
             series(ax, xs, r.talk_share, TALK)
             ax.set_ylim(0, max(r.talk_share.max(), r.poster_share.max()) * 1.25)
-            panel_title(ax, SHORT.get(p, p), width=19)  # wrapped titles must stay clear of the group label
+            panel_title(ax, p, width=19)  # wrapped titles must stay clear of the group label
             if notes and p in notes:
                 ax.set_xlabel(notes[p], color=INK_2, fontsize=8.5, labelpad=4)
             if col == 0:  # group label above the row, aligned with the figure margin
