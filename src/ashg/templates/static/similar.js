@@ -171,18 +171,19 @@
     history.replaceState(null, "", `#n=${state.id}`);
   }
 
-  function go(id) {
+  function go(id, fresh) {
     hideTip();
-    if (id !== state.id) { if (state.history.at(-1) !== state.id) state.history.push(state.id); state.id = id; }
+    if (fresh) { state.history = []; state.id = id; } else if (id !== state.id) { if (state.history.at(-1) !== state.id) state.history.push(state.id); state.id = id; }
     render();
   }
 
-  const TRAIL_SHOWN = 10;
+  const TRAIL_SHOWN = 6;
   function renderTrail() {
     const h = state.history;
     $("#sim-trail").hidden = !h.length;
     $("#sim-trail-list").innerHTML = (h.length > TRAIL_SHOWN ? "<i>…</i>" : "") +
       h.map((id, i) => [id, i]).slice(-TRAIL_SHOWN).map(([id, i]) => `<button type="button" data-id="${id}" data-i="${i}">${short(author(nodes[id]))}</button>`).join("<i>›</i>") + "<i>›</i><b>now</b>";
+    $("#sim-trail-list").scrollLeft = 1e6; // keep the current end in view
   }
 
   function resize() {
@@ -250,7 +251,7 @@
     $("#sim-results").addEventListener("click", (e) => {
       const b = e.target.closest("button");
       if (b && b.dataset.more !== undefined) { b.nextElementSibling.hidden = false; b.remove(); return; }
-      if (b) { $("#sim-results").hidden = true; $("#sim-q").value = ""; go(Number(b.dataset.id)); }
+      if (b) { $("#sim-results").hidden = true; $("#sim-q").value = ""; go(Number(b.dataset.id), true); } // a new search starts a fresh path
     });
     $("#sim-random").addEventListener("click", () => go(Math.floor(Math.random() * nodes.length)));
     stage.addEventListener("click", (e) => { if (!e.target.closest(".node")) hideTip(); });
