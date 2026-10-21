@@ -329,9 +329,19 @@ table.match th.group { text-align: center; border-bottom: 1px solid var(--rule);
   border: 0; border-bottom: 1px solid var(--rule); padding: 7px 4px; cursor: pointer; }
 .sim-side button:hover { background: var(--surface-2); }
 .sim-side button.past { opacity: 0.55; }
+.sim-side button.live { box-shadow: inset 4px 0 0 var(--poster); }
 .sim-side li { position: relative; }
-.sim-side a.ext { position: absolute; top: 7px; right: 4px; font-size: 12px; }
+.sim-side a.ext { position: absolute; z-index: 1; top: 7px; right: 4px; font-size: 12px; }
 .sim-card a.ext { font-size: 13px; font-weight: 400; margin-left: 6px; }
+.sim-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.sim-head h2 { margin: 0; }
+.sim-sort { gap: 0; }
+.sim-sort button { font-size: 12px; padding: 1px 8px; border-radius: 0; }
+.sim-sort button:first-child { border-radius: 6px 0 0 6px; }
+.sim-sort button:last-child { border-radius: 0 6px 6px 0; margin-left: -1px; }
+.sim-side em.kind { font-style: normal; font-size: 10px; font-weight: 700; line-height: 1; padding: 2px 5px; margin-left: 6px; border-radius: 8px; vertical-align: 1px; color: #fff; }
+.sim-side em.kind.talk { background: var(--talk); }
+.sim-side em.kind.poster { background: var(--poster); }
 .sim-side b { display: inline-block; min-width: 3em; color: var(--talk); }
 .sim-side span { display: block; margin-left: 3em; font-size: 12px; color: var(--text-secondary); }
 .sim-stage .node.hl circle { stroke: var(--text-primary); stroke-width: 3; }
@@ -388,6 +398,6 @@ table.match th.group { text-align: center; border-bottom: 1px solid var(--rule);
   .sim-search { order: 9; }
   #similar .toolbar .lbl { display: none; }
   [data-sim=degrees] button::after { content: "°"; }
-  .sim-main .sim-stage { flex: none; width: calc(100% + 40px); margin: 0 -20px; border-radius: 0; height: max(400px, calc(100svh - var(--header-h, 56px) - 175px)); }
+  .sim-main .sim-stage { flex: none; width: calc(100% + 40px); margin: 0 -20px; border-radius: 0; height: max(340px, calc(100svh - var(--header-h, 56px) - 235px)); }
   .sim-card h2 { font-size: 18px; }
 }

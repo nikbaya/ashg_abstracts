@@ -10,7 +10,7 @@
   const now = Number(params.get("now")) || Date.now() / 1000; // ?now=<unix seconds> previews another moment
 
   const FANOUT = [15, 4, 2]; // new neighbors per node at each degree: 15 + 15*4 + 60*2 = 195 bubbles at most
-  const state = { id: null, by: "nt", hidePast: false, selected: null, degrees: 1, history: [] }; // history: abstracts visited before the current one, oldest first
+  const state = { id: null, by: "nt", sort: "match", hidePast: false, selected: null, degrees: 1, history: [] }; // history: abstracts visited before the current one, oldest first
   let data, nodes, tracks, color;
 
   const svg = d3.select("#sim-graph");
@@ -151,10 +151,14 @@
       `<p class="sub">${data_.length > 1 ? `Showing ${data_.length - 1} abstracts within ${state.degrees} degree${state.degrees > 1 ? "s" : ""} by ${by}` : `No abstracts to show by ${by}`}` +
       `${state.by === "na" && !total ? ": no other abstract shares an author with this one" : ""}` +
       `${hidden && state.hidePast ? ` (${hidden} already past are hidden)` : ""}.</p>`;
-    const ranked = data_.slice(1).sort((a, b) => b.match - a.match);
+    // by time: sessions still ahead first, soonest on top, then the ones already past, most recent first
+    const ranked = data_.slice(1).sort(state.sort === "time"
+      ? (a, b) => { const x = nodes[a.id], y = nodes[b.id];
+          return isPast(x) !== isPast(y) ? isPast(x) - isPast(y) : isPast(x) ? y.s - x.s : x.s - y.s; }
+      : (a, b) => b.match - a.match);
     $("#sim-list").innerHTML = ranked.map((d) => { const n = nodes[d.id];
-      return `<li>${planner(n)}<button type="button" data-id="${d.id}"${isPast(n) ? ' class="past"' : ""}><b>${d.match}%</b> ${author(n)}` +
-        `<span>${tracks[n.k]}${n.inf ? " (inferred)" : ""}<br>${TYPES[n.t]} · ${n.w}${n.b ? ` · ${n.b}` : ""}${d.depth > 1 ? ` · ${d.depth} degrees` : ""}</span></button></li>`; }).join("");
+      return `<li>${planner(n)}<button type="button" data-id="${d.id}"${isPast(n) ? ' class="past"' : n.s <= now ? ' class="live"' : ""}><b>${d.match}%</b> ${author(n)}<em class="kind ${n.t === "poster" ? "poster" : "talk"}">${n.t === "poster" ? "Poster" : "Talk"}</em>` +
+        `<span>${tracks[n.k]}${n.inf ? " (inferred)" : ""}<br>${n.w}${n.b ? ` · ${n.b}` : ""}${d.depth > 1 ? ` · ${d.depth} degrees` : ""}</span></button></li>`; }).join("");
     renderTrail();
     history.replaceState(null, "", `#n=${state.id}`);
   }
@@ -170,7 +174,7 @@
     const h = state.history;
     $("#sim-trail").hidden = !h.length;
     $("#sim-trail-list").innerHTML = (h.length > TRAIL_SHOWN ? "<i>…</i>" : "") +
-      h.slice(-TRAIL_SHOWN).map((id) => `<button type="button" data-id="${id}">${author(nodes[id])}</button>`).join("<i>›</i>") + "<i>›</i><b>now</b>";
+      h.map((id, i) => [id, i]).slice(-TRAIL_SHOWN).map(([id, i]) => `<button type="button" data-id="${id}" data-i="${i}">${author(nodes[id])}</button>`).join("<i>›</i>") + "<i>›</i><b>now</b>";
   }
 
   function resize() {
@@ -206,6 +210,11 @@
       root.querySelectorAll("[data-sim=by] button").forEach((o) => o.setAttribute("aria-pressed", o === b));
       hideTip(); render();
     }));
+    root.querySelectorAll("[data-sim=sort] button").forEach((b) => b.addEventListener("click", () => {
+      state.sort = b.dataset.value;
+      root.querySelectorAll("[data-sim=sort] button").forEach((o) => o.setAttribute("aria-pressed", o === b));
+      render();
+    }));
     root.querySelectorAll("[data-sim=degrees] button").forEach((b) => b.addEventListener("click", () => {
       state.degrees = Number(b.dataset.value);
       root.querySelectorAll("[data-sim=degrees] button").forEach((o) => o.setAttribute("aria-pressed", o === b));
@@ -224,7 +233,11 @@
     $("#sim-random").addEventListener("click", () => go(Math.floor(Math.random() * nodes.length)));
     stage.addEventListener("click", (e) => { if (!e.target.closest(".node")) hideTip(); });
     new ResizeObserver(() => { const b = stage.getBoundingClientRect(); if (b.width !== width || b.height !== height) resize(); }).observe(stage);
-    $("#sim-trail-list").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) go(Number(b.dataset.id)); });
+    $("#sim-trail-list").addEventListener("click", (e) => { // unravel: drop the clicked name and everything after it from the path
+      const b = e.target.closest("button");
+      if (!b) return;
+      hideTip(); state.history.length = Number(b.dataset.i); state.id = Number(b.dataset.id); render();
+    });
     $("#sim-clear").addEventListener("click", () => { state.history = []; renderTrail(); render(); });
   }
 
