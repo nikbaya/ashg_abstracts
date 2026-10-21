@@ -5,7 +5,8 @@
   if (!root) return;
   const $ = (sel) => root.querySelector(sel);
   const PALETTE = [...d3.schemeTableau10, ...d3.schemeDark2, "#7a5195"];
-  const TYPES = { poster: "Poster", platform: "Platform talk", plenary: "Plenary" };
+  const TYPES = { poster: "Poster", platform: "Platform talk", plenary: "Plenary", symposium: "Symposium talk", session: "Session" };
+  const KINDS = { poster: "Poster", symposium: "Symposium", session: "Session" }; // list badge; everything else is a "Talk"
   const params = new URLSearchParams(location.search);
   const now = Number(params.get("now")) || Date.now() / 1000; // ?now=<unix seconds> previews another moment
 
@@ -22,14 +23,20 @@
   const pos = new Map(); // id -> {x, y}, kept between states so nodes glide instead of jumping
 
   const isPast = (n) => n.e < now;
-  const author = (n) => n.a || "Unknown author";
+  const author = (n) => n.a || n.n || "Unknown author"; // symposium talks without a named speaker fall back to their session
+  const short = (s) => (s.length > 26 ? s.slice(0, 25) + "…" : s);
   const PLANNER = "https://ashg.floq.live/event/ashg-2026/dailyprogramme?objectClass=person&type=detail&objectId=";
-  const planner = (n) => n.p.length ? `<a class="ext" href="${PLANNER}${n.p[0]}" target="_blank" rel="noopener" title="Presenter in the online planner">Planner ↗</a>` : "";
+  const ENTRY = "https://ashg.floq.live/event/ashg-2026/search?objectClass=timeslot&type=detail&objectId=";
+  const planner = (n) => n.u ? `<a class="ext" href="${ENTRY}${n.u}" target="_blank" rel="noopener" title="This entry in the online program">Program ↗</a>`
+    : n.p.length ? `<a class="ext" href="${PLANNER}${n.p[0]}" target="_blank" rel="noopener" title="Presenter in the online planner">Planner ↗</a>` : "";
   const touch = () => matchMedia("(pointer: coarse)").matches;
 
   function details(n, match, depth) {
-    const rows = [["Author", author(n)], ["Track", tracks[n.k] + (n.inf ? " (inferred from text)" : "")],
-      ["Type", TYPES[n.t]], ["Location", n.b ? `Board ${n.b}` : "Room not in the data"], ["Time", n.w]];
+    const rows = [[n.t === "symposium" || n.t === "session" ? "Speaker" : "Author", author(n)]];
+    if (n.n && n.n !== n.a) rows.push(["Session", n.n]);
+    rows.push(["Track", tracks[n.k] + (n.inf ? " (inferred from text)" : "")], ["Type", TYPES[n.t]],
+      ["Location", n.b ? `Board ${n.b}` : "Room not in the data"], ["Time", n.w]);
+    if (n.lw) rows.push(["Lightning talk", n.lw]);
     if (match != null) rows.push(["Match", `${match}%${depth > 1 ? " to the one it links from" : ""}`]);
     return rows.map(([k, v]) => `<div><span>${k}</span>${v.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</div>`).join("");
   }
@@ -122,7 +129,7 @@
       });
     all.transition().duration(400).style("opacity", (d) => (isPast(nodes[d.id]) && !d.center ? 0.55 : 1));
     all.select("circle").attr("fill", (d) => color(nodes[d.id].k)).transition().duration(500).attr("r", (d) => d.r);
-    all.select("text").text((d) => (d.depth < 2 ? nodes[d.id].a : "")).attr("dy", (d) => d.r + 12);
+    all.select("text").text((d) => (d.depth < 2 ? short(author(nodes[d.id])) : "")).attr("dy", (d) => d.r + 12);
 
     const link = linkLayer.selectAll("line").data(links, (d) => d.target.id);
     link.exit().remove();
@@ -151,14 +158,15 @@
       `<p class="sub">${data_.length > 1 ? `Showing ${data_.length - 1} abstracts within ${state.degrees} degree${state.degrees > 1 ? "s" : ""} by ${by}` : `No abstracts to show by ${by}`}` +
       `${state.by === "na" && !total ? ": no other abstract shares an author with this one" : ""}` +
       `${hidden && state.hidePast ? ` (${hidden} already past are hidden)` : ""}.</p>`;
-    // by time: sessions still ahead first, soonest on top, then the ones already past, most recent first
+    // upcoming: chronological, scrolled so the current or next session is at the top; earlier sessions sit above
     const ranked = data_.slice(1).sort(state.sort === "time"
-      ? (a, b) => { const x = nodes[a.id], y = nodes[b.id];
-          return isPast(x) !== isPast(y) ? isPast(x) - isPast(y) : isPast(x) ? y.s - x.s : x.s - y.s; }
+      ? (a, b) => nodes[a.id].s - nodes[b.id].s
       : (a, b) => b.match - a.match);
     $("#sim-list").innerHTML = ranked.map((d) => { const n = nodes[d.id];
-      return `<li>${planner(n)}<button type="button" data-id="${d.id}"${isPast(n) ? ' class="past"' : n.s <= now ? ' class="live"' : ""}><b>${d.match}%</b> ${author(n)}<em class="kind ${n.t === "poster" ? "poster" : "talk"}">${n.t === "poster" ? "Poster" : "Talk"}</em>` +
-        `<span>${tracks[n.k]}${n.inf ? " (inferred)" : ""}<br>${n.w}${n.b ? ` · ${n.b}` : ""}${d.depth > 1 ? ` · ${d.depth} degrees` : ""}</span></button></li>`; }).join("");
+      return `<li>${planner(n)}<button type="button" data-id="${d.id}"${isPast(n) ? ' class="past"' : n.s <= now ? ' class="live"' : ""}><b>${d.match}%</b> ${author(n)}<em class="kind ${n.t === "poster" ? "poster" : "talk"}">${KINDS[n.t] || "Talk"}</em>` +
+        `<span>${tracks[n.k]}${n.inf ? " (inferred)" : ""}<br>${n.w}${n.lw ? ` · lightning ${n.lw}` : ""}${n.b ? ` · ${n.b}` : ""}${d.depth > 1 ? ` · ${d.depth} degrees` : ""}</span></button></li>`; }).join("");
+    const side = $("#sim-list"), first = state.sort === "time" && ranked.findIndex((d) => !isPast(nodes[d.id]));
+    side.scrollTop = first > 0 ? side.children[first].getBoundingClientRect().top - side.getBoundingClientRect().top + side.scrollTop : 0;
     renderTrail();
     history.replaceState(null, "", `#n=${state.id}`);
   }
@@ -174,7 +182,7 @@
     const h = state.history;
     $("#sim-trail").hidden = !h.length;
     $("#sim-trail-list").innerHTML = (h.length > TRAIL_SHOWN ? "<i>…</i>" : "") +
-      h.map((id, i) => [id, i]).slice(-TRAIL_SHOWN).map(([id, i]) => `<button type="button" data-id="${id}" data-i="${i}">${author(nodes[id])}</button>`).join("<i>›</i>") + "<i>›</i><b>now</b>";
+      h.map((id, i) => [id, i]).slice(-TRAIL_SHOWN).map(([id, i]) => `<button type="button" data-id="${id}" data-i="${i}">${short(author(nodes[id]))}</button>`).join("<i>›</i>") + "<i>›</i><b>now</b>";
   }
 
   function resize() {
@@ -198,20 +206,20 @@
     const rank = (name) => { const t = toks(name), sur = name.toLowerCase().split(",")[0].trim();
       return t.length === words.length && t.every((x) => words.includes(x)) ? -1 : words.includes(sur) ? 0 : words.some((w) => sur.startsWith(w)) ? 1 : 2; };
     const hits = [];
-    for (let i = 0; i < nodes.length; i++) if (ok(nodes[i].a)) hits.push(i);
-    hits.sort((a, b) => rank(nodes[a].a) - rank(nodes[b].a)).splice(8);
-    const row = (i) => `<button type="button" data-id="${i}">${author(nodes[i])}<span>${TYPES[nodes[i].t]} · ${nodes[i].w}${nodes[i].b ? ` · ${nodes[i].b}` : ""}</span></button>`;
+    for (let i = 0; i < nodes.length; i++) if (ok(author(nodes[i]))) hits.push(i);
+    hits.sort((a, b) => rank(author(nodes[a])) - rank(author(nodes[b]))).splice(8);
+    const row = (i, last) => `<button type="button" data-id="${i}">${author(nodes[i])}${last ? '<em class="kind last">Last author</em>' : ""}<span>${TYPES[nodes[i].t]} · ${nodes[i].w}${nodes[i].b ? ` · ${nodes[i].b}` : ""}</span></button>`;
     // co-authors (names are "First M. Last"): each match lists the first authors of the abstracts they appear on
     const sn = (name) => name.replace(/^(.*)\s(\S+)$/, "$2, $1");
     const cos = data.co.filter(([name]) => ok(sn(name))).sort((a, b) => rank(sn(a[0])) - rank(sn(b[0]))).slice(0, 4);
     // last-author abstracts come first in ids: show those, or the first three if there are none; the rest sit behind a button
     const shown = (ids, nl) => { const k = nl || Math.min(3, ids.length);
-      return ids.slice(0, k).map(row).join("") + (ids.length > k ? `<button type="button" class="more" data-more>Show ${ids.length - k} more</button><div hidden>${ids.slice(k).map(row).join("")}</div>` : ""); };
+      return ids.slice(0, k).map((i, j) => row(i, j < nl)).join("") + (ids.length > k ? `<button type="button" class="more" data-more>Show ${ids.length - k} more</button><div hidden>${ids.slice(k).map((i) => row(i)).join("")}</div>` : ""); };
     // sections in order of their best match, first author before co-author on a tie, so an exact co-author
     // match is not buried under looser first-author hits
     const secs = cos.map(([name, ids, nl]) => ({ r: rank(sn(name)), k: 1, html: `<p class="sub">${name}, co-author on ${ids.length === 1 ? "1 abstract" : ids.length + " abstracts"}${nl ? ` (last author on ${nl})` : ""}</p>` +
       shown(ids, nl) }));
-    if (hits.length) secs.push({ r: Math.min(...hits.map((i) => rank(nodes[i].a))), k: 0, html: `<p class="sub">First author</p>` + hits.map(row).join("") });
+    if (hits.length) secs.push({ r: Math.min(...hits.map((i) => rank(author(nodes[i])))), k: 0, html: `<p class="sub">First author</p>` + hits.map((i) => row(i)).join("") });
     secs.sort((x, y) => x.r - y.r || x.k - y.k);
     out.innerHTML = secs.length ? secs.map((x) => x.html).join("") : "<p class=\"sub\">No author matches.</p>";
     out.hidden = false;

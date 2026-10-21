@@ -18,6 +18,7 @@ import html
 import json
 import re
 import time
+import urllib.error
 import urllib.request
 
 import pandas as pd
@@ -30,14 +31,25 @@ Q_SESSIONS = f"""query($type: String!, $limit: Int, $nextToken: String) {{
   getTimeslotsWithType(type: $type, limit: $limit, nextToken: $nextToken) {{ items {{ {FIELDS} }} nextToken }} }}"""
 Q_CHILDREN = f"""query($parent: String!, $limit: Int, $nextToken: String) {{
   getChildrenOf(parent: $parent, limit: $limit, nextToken: $nextToken) {{ items {{ {FIELDS} }} nextToken }} }}"""
+Q_PERSON = "query($id: String!) { getPersons(id: $id) { id name type } }"
+Q_PEOPLE = """query($type: String!, $limit: Int, $nextToken: String) {
+  getPersonsWithType(type: $type, limit: $limit, nextToken: $nextToken) { items { id name } nextToken } }"""
 PAUSE = 1.0  # seconds between requests
+
+
+def page(url, timeout):
+    try:
+        return urllib.request.urlopen(url, timeout=timeout).read().decode()
+    except urllib.error.HTTPError as e:  # the single-page app answers its routes with the HTML shell and a 404
+        if e.code == 404 and e.headers.get_content_type() == "text/html":
+            return e.read().decode()
+        raise
 
 
 def api_config():
     """(GraphQL endpoint, API key) read from the web app's JS bundle, as a browser gets them."""
-    page = urllib.request.urlopen(f"{APP}/event/ashg-2026/abstracts", timeout=60).read().decode()
-    bundle = urllib.request.urlopen(APP + re.search(r'src="(/static/js/main\.[^"]+\.js)"', page).group(1),
-                                    timeout=120).read().decode()
+    shell = page(f"{APP}/event/ashg-2026/abstracts", 60)
+    bundle = page(APP + re.search(r'src="(/static/js/main\.[^"]+\.js)"', shell).group(1), 120)
     url, key = (re.search(rf'{name}:"([^"]+)"', bundle).group(1)
                 for name in ("REACT_APP_AWS_APPSYNC_GRAPHQL_ENDPOINT", "REACT_APP_AWS_APPSYNC_API_KEY"))
     return url, key
@@ -75,6 +87,30 @@ def fetch(out):
     print(f"{len(sessions)} sessions, {sum(map(len, children))} timeslots -> {out}")
 
 
+def role_ids(item, kind=None):
+    """Floq person ids on a timeslot's roles (all, or only "role:speaker" / "role:moderator"), in program order."""
+    roles = sorted(json.loads(item["roles"] or "[]"), key=lambda r: r.get("ordering", 0))
+    return [r["actor"] for r in roles if kind in (None, r.get("configuratorType"))]
+
+
+def fetch_people(raw_path, out):
+    """Names for the people on the roles of sessions and talks that carry no author block (symposia), in a few
+    requests: one lookup to learn the person type, then the type's people 1000 at a time until all are found."""
+    raw = json.load(open(raw_path))
+    want = {a for s, kids in zip(raw["sessions"], raw["children"]) for t in [s, *kids]
+            if "Author Block" not in (t["info"] or "") and "Poster" not in s["name"] for a in role_ids(t)}
+    ptype = gql(Q_PERSON, {"id": sorted(want)[0]})["getPersons"]["type"]
+    names, tok = {}, None
+    while want - set(names):
+        d = gql(Q_PEOPLE, {"type": ptype, "limit": 1000, "nextToken": tok})["getPersonsWithType"]
+        names.update({p["id"]: p["name"] for p in d["items"] if p["id"] in want})
+        tok = d.get("nextToken")
+        if not tok:
+            break
+    json.dump(names, open(out, "w"), ensure_ascii=False)
+    print(f"{len(names)} of {len(want)} people -> {out}")
+
+
 def text(fragment):
     fragment = re.sub(r"<br\s*/?>", "\n", fragment)
     paras = [html.unescape(re.sub(r"<[^>]+>", "", p)).strip() for p in re.split(r"</p>\s*<p>|</?p>", fragment)]
@@ -88,6 +124,7 @@ def split_authors(raw):
     out, buf, depth = [], "", 0
     for ch in raw + ",":
         if ch in ",\n" and depth == 0:
+            buf = re.sub(r"^\s*(?:\d+\s+)?and\s+", "", buf, flags=re.I)  # "A, B, and C" leaves "and C"
             if buf.strip():
                 m = re.match(r"(.*?)\s*\((.*)\)$", buf.strip())
                 out.append((m.group(1), m.group(2)) if m else (buf.strip(), None))
@@ -181,6 +218,9 @@ def main():
     sub = ap.add_subparsers(dest="cmd", required=True)
     f = sub.add_parser("fetch")
     f.add_argument("out")
+    p = sub.add_parser("people")
+    p.add_argument("raw")
+    p.add_argument("out")
     b = sub.add_parser("build")
     b.add_argument("raw")
     b.add_argument("year", type=int)
@@ -193,6 +233,8 @@ def main():
     args = ap.parse_args()
     if args.cmd == "fetch":
         fetch(args.out)
+    elif args.cmd == "people":
+        fetch_people(args.raw, args.out)
     elif args.cmd == "build":
         build(args.raw, args.year, args.outdir)
     else:

@@ -324,9 +324,9 @@ table.match th.group { text-align: center; border-bottom: 1px solid var(--rule);
 .sim-results span { display: block; font-size: 12px; color: var(--text-secondary); }
 .sim-main { display: flex; gap: 16px; align-items: flex-start; margin: 12px 0; }
 .sim-main .sim-stage { flex: 1; min-width: 0; margin: 0; }
-.sim-side { width: 270px; flex: none; max-height: clamp(360px, 62vh, 620px); overflow-y: auto; }
+.sim-side { width: 270px; flex: none; max-height: clamp(360px, 62vh, 620px); display: flex; flex-direction: column; }
 .sim-side h2 { margin: 0 0 6px; font-size: 16px; }
-.sim-side ol { list-style: none; margin: 0; padding: 0; }
+.sim-side ol { list-style: none; margin: 0; padding: 0; flex: 1; min-height: 0; overflow-y: auto; position: relative; }
 .sim-side button { display: block; width: 100%; text-align: left; font: inherit; font-size: 13px; color: var(--text-primary); background: none;
   border: 0; border-bottom: 1px solid var(--rule); padding: 7px 4px; cursor: pointer; }
 .sim-side button:hover { background: var(--surface-2); }
@@ -335,15 +335,17 @@ table.match th.group { text-align: center; border-bottom: 1px solid var(--rule);
 .sim-side li { position: relative; }
 .sim-side a.ext { position: absolute; z-index: 1; top: 7px; right: 4px; font-size: 12px; }
 .sim-card a.ext { font-size: 13px; font-weight: 400; margin-left: 6px; }
-.sim-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.sim-head { gap: 8px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
 .sim-head h2 { margin: 0; }
 .sim-sort { gap: 0; }
-.sim-sort button { font-size: 12px; padding: 1px 8px; border-radius: 0; }
+.sim-sort { flex: none; }
+.sim-sort button { width: auto; display: inline-block; white-space: nowrap; font-size: 12px; padding: 1px 8px; border-radius: 0; }
 .sim-sort button:first-child { border-radius: 6px 0 0 6px; }
 .sim-sort button:last-child { border-radius: 0 6px 6px 0; margin-left: -1px; }
-.sim-side em.kind { font-style: normal; font-size: 10px; font-weight: 700; line-height: 1; padding: 2px 5px; margin-left: 6px; border-radius: 8px; vertical-align: 1px; color: #fff; }
+.sim-side em.kind, .sim-results em.kind { font-style: normal; font-size: 10px; font-weight: 700; line-height: 1; padding: 2px 5px; margin-left: 6px; border-radius: 8px; vertical-align: 1px; color: #fff; }
 .sim-side em.kind.talk { background: var(--talk); }
 .sim-side em.kind.poster { background: var(--poster); }
+.sim-side em.kind.last, .sim-results em.kind.last { background: #efe9fb; color: #5b3aa8; letter-spacing: .02em; }
 .sim-side b { display: inline-block; min-width: 3em; color: var(--talk); }
 .sim-side span { display: block; margin-left: 3em; font-size: 12px; color: var(--text-secondary); }
 .sim-stage .node.hl circle { stroke: var(--text-primary); stroke-width: 3; }

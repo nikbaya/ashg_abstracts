@@ -4,6 +4,11 @@ Per abstract: its nearest neighbors by text (BM25-weighted cosine on title + bod
 the author sets), and a 2-D layout of all of them for the minimap. Titles and abstract text are used here but never
 written out: the JSON holds only the first author, track, type, board, session time, coordinates and neighbor ids.
 
+Besides the abstracts, the featured symposia (one node per talk, speaker as author) and the other CME sessions the program
+describes only as a whole (workshops, short courses, symposia without per-talk entries) are nodes too; their text is the
+program description. Speaker names come from data/raw/floq_2026_people.json (`floq.py people`). Lightning talks
+(new in 2026) are not nodes: each one is a poster's abstract, so the poster just gets its lightning-talk time.
+
 Poster tracks come from the session name ("Cancer Poster Friday Session"). Talk sessions have no track in the program,
 so a talk gets the majority track of its nearest posters and is flagged as inferred.
 
@@ -12,6 +17,7 @@ Usage: python src/ashg/network.py outputs/network.json
 
 import argparse
 import json
+import os
 import re
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -28,9 +34,48 @@ from sklearn.preprocessing import normalize
 
 YEAR = 2026
 TYPES = ("plenary", "platform", "poster")
+PEOPLE = f"data/raw/floq_{YEAR}_people.json"
 TEXT_K, AUTHOR_K, SHOWN_K = 30, 15, 15  # stored text neighbors leave SHOWN_K after "hide past sessions" drops some
 BM25_K1, BM25_B = 1.5, 0.75
 TZ = ZoneInfo("America/Toronto")  # Montréal
+
+
+def norm_title(title):
+    return re.sub(r"\W+", " ", title.lower()).strip()
+
+
+def program_rows(raw, speakers):
+    """Nodes for talks and sessions with no author block: symposium talks (one per talk with a description), and
+    sessions that carry CME credit but no abstracts or talk entries. A multi-part short course is one node (part 1)."""
+    names = json.load(open(PEOPLE)) if os.path.exists(PEOPLE) else {}
+    if not names:
+        print(f"warning: {PEOPLE} missing, symposium speakers stay unnamed (python src/ashg/floq.py people ...)")
+    who = lambda item: [n for n in (names.get(a, "") for a in floq.role_ids(item, "role:speaker")) if n]
+    rows, seen = [], set()
+    for s, kids in zip(raw["sessions"], raw["children"]):
+        if "Poster" in s["name"] or any("Author Block" in (t["info"] or "") for t in kids):
+            continue
+        talks = [t for t in kids if len(t["info"] or "") > 80 and not t.get("deleted")]
+        if not talks and "CME" in (s["info"] or ""):
+            base = re.sub(r"\s*\(Part \d of \d\)", "", s["name"])
+            if base not in seen:
+                seen.add(base)
+                rows.append(program_row(s, s, "session", who(s), speakers))
+        rows += [program_row(s, t, "symposium", who(t), speakers) for t in talks]
+    return rows
+
+
+def program_row(session, item, type_, speaker_names, speakers):
+    """A session-level node with no named speaker is labelled by the session name."""
+    label = speaker_names or ([session["name"]] if type_ == "session" else [""])
+    return {"id": f"{YEAR}-{type_}-{item['id']}", "first": label[0], "authors": [author_key(n) for n in speaker_names],
+            "full": [clean_name(n) for n in speaker_names], "type": type_, "session": session["name"], "board": "",
+            "text": f"{item['name']} {text_of(item['info'])}", "start": item["start"], "end": item["end"],
+            "speakers": speakers.get(item["id"], []), "url": item["id"], "lightning": None}
+
+
+def text_of(info):
+    return floq.text(re.sub(r"<b>(Learning Objectives|CME Credits)</b>.*", "", info or "", flags=re.S))
 
 
 def load_abstracts():
@@ -38,7 +83,10 @@ def load_abstracts():
     raw = json.load(open("data/raw/floq_2026.json"))
     talks = [t for kids in raw["children"] for t in kids]
     times = {t["id"]: (t["start"], t["end"]) for t in talks}
-    speakers = {t["id"]: [r["actor"] for r in json.loads(t["roles"] or "[]")] for t in talks}  # Floq person ids
+    speakers = {t["id"]: floq.role_ids(t) for t in talks + raw["sessions"]}  # Floq person ids
+    lightning = {norm_title(re.sub(r"^Board \S+:\s*", "", t["name"])): t["start"]
+                 for s, kids in zip(raw["sessions"], raw["children"]) if "Poster" not in s["name"] and len(kids) > 10
+                 for t in kids if "Author Block" in (t["info"] or "")}
     sessions = {s["name"]: (s["start"], s["end"]) for s in raw["sessions"]}
     rows = []
     for t in TYPES:
@@ -51,8 +99,9 @@ def load_abstracts():
             rows.append({"id": r.abstract_id, "first": names[0] if names else "", "authors": [author_key(n) for n in names], "full": [clean_name(n) for n in names],
                           "type": t, "session": r.session, "board": rec.get("board") or "",
                          "text": f"{r.title} {r.body}", "start": start, "end": end,
-                         "speakers": speakers.get(rec["floq_id"], [])})
-    return pd.DataFrame(rows)
+                         "speakers": speakers.get(rec["floq_id"], []), "url": None,
+                         "lightning": lightning.get(norm_title(r.title)) if t == "poster" else None})
+    return pd.DataFrame(rows + program_rows(raw, speakers))
 
 
 def clean_name(name):
@@ -158,6 +207,12 @@ def main():
         })
         if r.type != "poster":
             nodes[-1]["inf"] = 1  # track inferred from the nearest posters
+        if isinstance(r.url, str):  # NaN for abstracts
+            nodes[-1]["u"] = r.url  # symposium talks and sessions link to their own program entry
+            nodes[-1]["n"] = r.session
+        if isinstance(r.lightning, str):
+            t1 = local(r.lightning)
+            nodes[-1]["lw"] = f"{t1:%a} {t1:%-I:%M %p}"
     json.dump({"tracks": tracks, "shown": SHOWN_K, "nodes": nodes, "co": co_authors(d)}, open(args.out, "w"),
               separators=(",", ":"), ensure_ascii=False)
     print(f"{n} abstracts, {sum(bool(x) for x in author_nb)} with a co-author link -> {args.out}")

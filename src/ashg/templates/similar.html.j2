@@ -1,7 +1,7 @@
 {% extends "base.html.j2" %}
 {% block content %}
 <h1>{{ page.title }}</h1>
-<p class="lede sim-help">Pick an abstract and see which others at ASHG {{ years[-1].year }} read most like it, or share its authors.</p>
+<p class="lede sim-help">Pick an abstract, symposium talk or session and see which others at ASHG {{ years[-1].year }} read most like it, or share its authors.</p>
 <p class="sim-help">Search by author (first authors, or co-authors to find their abstracts), or take a random one; hover (or tap) a bubble for its details and click (or tap twice) to
 move on to it. Bubbles are colored by track and sized by how close the match is. Degrees widen the view to neighbors of neighbors (up to 3; past that it would reach nearly every abstract). Titles and abstract text are not
 shown here (see <a href="methods.html#similar">how the match is made</a>).</p>
@@ -31,7 +31,7 @@ shown here (see <a href="methods.html#similar">how the match is made</a>).</p>
   <svg id="sim-graph" role="img" aria-label="Abstracts most similar to the selected one"></svg>
   <div id="sim-tip" class="sim-tip" hidden></div>
 </div>
-<aside class="sim-side" aria-label="Most similar abstracts"><div class="sim-head"><h2>Related</h2><div class="seg sim-sort" role="group" aria-label="Sort by" data-sim="sort"><button type="button" data-value="match" aria-pressed="true">Match</button><button type="button" data-value="time" aria-pressed="false">Time</button></div></div><ol id="sim-list"></ol></aside>
+<aside class="sim-side" aria-label="Most similar abstracts"><div class="sim-head"><h2>Related</h2><div class="seg sim-sort" role="group" aria-label="Sort by" data-sim="sort"><button type="button" data-value="match" aria-pressed="true">Most similar</button><button type="button" data-value="time" aria-pressed="false">Upcoming</button></div></div><ol id="sim-list"></ol></aside>
 </div>
 <div id="sim-card" class="sim-card">Loading…</div>
 <details class="table"><summary>Track colors</summary><ul id="sim-legend" class="sim-legend"></ul></details>
