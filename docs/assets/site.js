@@ -1019,6 +1019,26 @@ const talkScore = (() => {
   new ResizeObserver(set).observe(header);
 })();
 
+// Desktop: the tabs scroll sideways instead of wrapping, so each dropdown is fixed under its tab and the current tab is scrolled into view.
+(() => {
+  const nav = document.getElementById("site-nav");
+  if (!nav) return;
+  nav.querySelectorAll(".nav-item.has-menu").forEach(item => {
+    const place = () => {
+      const r = item.getBoundingClientRect(), menu = item.querySelector(".nav-menu");
+      menu.style.left = Math.min(r.left, innerWidth - 220) + "px";
+      menu.style.top = r.bottom + "px";
+    };
+    item.addEventListener("mouseenter", place);
+    item.addEventListener("focusin", place);
+  });
+  const cur = nav.querySelector('[aria-current="page"]');
+  if (cur) {
+    const c = cur.getBoundingClientRect(), n = nav.getBoundingClientRect();
+    nav.scrollLeft += c.left - n.left - (n.width - c.width) / 2;
+  }
+})();
+
 // Phone layout: the section links collapse into a menu button.
 (() => {
   const btn = document.querySelector(".nav-toggle"), nav = document.getElementById("site-nav");

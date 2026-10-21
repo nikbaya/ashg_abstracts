@@ -1,4 +1,4 @@
-// "Find talks": a local ego-network of the abstracts most similar to one abstract, plus a minimap of all of them.
+// "Find talks": a local ego-network of the abstracts most similar to one abstract.
 // Data is outputs/network.json from network.py: first author, track, type, board, time and neighbor ids. No titles.
 (() => {
   const root = document.getElementById("similar");
@@ -18,8 +18,6 @@
   const nodeLayer = svg.append("g").attr("class", "nodes");
   const tip = $("#sim-tip");
   const stage = $("#sim-stage");
-  const mini = $("#sim-mini canvas.dots"), pathCanvas = $("#sim-mini canvas.path");
-  const dot = $("#sim-here");
   let width = 0, height = 0, sy = 1, vh = 0; // the layout runs in width x vh space and is stretched vertically by sy to fill tall (phone) panes
   const pos = new Map(); // id -> {x, y}, kept between states so nodes glide instead of jumping
 
@@ -83,6 +81,26 @@
     }
     const reach = Math.min(width, vh) / 2 - 40;
 
+    // First-ring neighbors sit at evenly spaced angles (keeping their current order around the center, so a
+    // re-center glides) with the radius set by match, so the ring never has big radial gaps.
+    const cx = width / 2, cy = vh / 2, ring = data_.filter((d) => d.depth === 1), known = new Set(ring.filter((d) => pos.has(d.id)));
+    const angle = (d) => Math.atan2(d.y - cy, d.x - cx);
+    const order = [...[...known].sort((a, b) => angle(a) - angle(b)), ...ring.filter((d) => !known.has(d))];
+    const a0 = order.length && known.size ? angle(order[0]) : -Math.PI / 2;
+    order.forEach((d, i) => {
+      const a = a0 + (2 * Math.PI * i) / order.length, R = reach * Math.min(1, 1.05 - 0.6 * d.match / 100);
+      d.tx = cx + R * Math.cos(a); d.ty = cy + R * Math.sin(a);
+      if (!known.has(d)) { d.x = d.tx; d.y = d.ty; }
+    });
+    for (const l of links) { // deeper new nodes start just outside their parent
+      const d = l.target, p = l.source;
+      if (d.depth > 1 && !pos.has(d.id)) {
+        const dx = p.x - cx, dy = p.y - cy, n = Math.hypot(dx, dy) || 1;
+        d.x = p.x + (dx / n) * 30 + (Math.random() - 0.5) * 20; d.y = p.y + (dy / n) * 30 + (Math.random() - 0.5) * 20;
+      }
+    }
+    const pinRing = () => { for (const d of ring) { d.vx += (d.tx - d.x) * 0.25; d.vy += (d.ty - d.y) * 0.25; } };
+
     const g = nodeLayer.selectAll("g.node").data(data_, (d) => d.id);
     g.exit().transition().duration(250).style("opacity", 0).remove();
     const enter = g.enter().append("g").attr("class", "node").attr("tabindex", 0).attr("role", "button").style("opacity", 0);
@@ -111,7 +129,8 @@
     const lines = link.enter().append("line").merge(link);
 
     sim.nodes(data_)
-      .force("link", d3.forceLink(links).distance((l) => reach / l.target.depth * (1.05 - 0.6 * l.target.match / 100)).strength(0.6))
+      .force("link", d3.forceLink(links).distance((l) => reach / l.target.depth * (1.05 - 0.6 * l.target.match / 100)).strength((l) => (l.target.depth === 1 ? 0.05 : 0.6)))
+      .force("ring", pinRing)
       .force("charge", d3.forceManyBody().strength(state.degrees > 1 ? -35 : -60))
       .force("collide", d3.forceCollide((d) => d.r + (d.depth > 1 ? 2 : 10)))
       .force("x", d3.forceX(width / 2).strength((d) => (d.center ? 0.5 : 0.03)))
@@ -137,8 +156,6 @@
       return `<li>${planner(n)}<button type="button" data-id="${d.id}"${isPast(n) ? ' class="past"' : ""}><b>${d.match}%</b> ${author(n)}` +
         `<span>${tracks[n.k]}${n.inf ? " (inferred)" : ""}<br>${TYPES[n.t]} · ${n.w}${n.b ? ` · ${n.b}` : ""}${d.depth > 1 ? ` · ${d.depth} degrees` : ""}</span></button></li>`; }).join("");
     renderTrail();
-    const dotPos = (n) => ({ left: `${100 * n.x}%`, top: `${100 * n.y}%` });
-    Object.assign(dot.style, dotPos(center));
     history.replaceState(null, "", `#n=${state.id}`);
   }
 
@@ -154,18 +171,6 @@
     $("#sim-trail").hidden = !h.length;
     $("#sim-trail-list").innerHTML = (h.length > TRAIL_SHOWN ? "<i>…</i>" : "") +
       h.slice(-TRAIL_SHOWN).map((id) => `<button type="button" data-id="${id}">${author(nodes[id])}</button>`).join("<i>›</i>") + "<i>›</i><b>now</b>";
-    drawPath();
-  }
-
-  function drawPath() { // grey line through the visited abstracts on the minimap, ending at the current one
-    const size = pathCanvas.clientWidth, dpr = window.devicePixelRatio || 1;
-    pathCanvas.width = pathCanvas.height = size * dpr;
-    const c = pathCanvas.getContext("2d");
-    c.scale(dpr, dpr);
-    const pts = [...state.history, state.id].map((id) => [nodes[id].x * (size - 2), nodes[id].y * (size - 2)]);
-    c.strokeStyle = "rgb(60 60 60 / 0.6)"; c.lineWidth = 1;
-    c.beginPath(); pts.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y))); c.stroke();
-    c.fillStyle = "rgb(60 60 60 / 0.8)"; pts.slice(0, -1).forEach(([x, y]) => c.fillRect(x - 1.5, y - 1.5, 3, 3));
   }
 
   function resize() {
@@ -174,18 +179,6 @@
     sy = Math.min(1.8, Math.max(1, height / width * 0.9)); vh = height / sy;
     svg.attr("viewBox", `0 0 ${width} ${height}`);
     if (data) { pos.clear(); render(); }
-  }
-
-  function drawMini() {
-    const size = mini.clientWidth, dpr = window.devicePixelRatio || 1;
-    mini.width = mini.height = size * dpr;
-    const c = mini.getContext("2d");
-    c.scale(dpr, dpr);
-    nodes.forEach((n) => {
-      c.globalAlpha = state.hidePast && isPast(n) ? 0.12 : 0.8;
-      c.fillStyle = color(n.k);
-      c.fillRect(n.x * (size - 2), n.y * (size - 2), 2, 2);
-    });
   }
 
   function search(q) {
@@ -222,7 +215,7 @@
     list.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) go(Number(b.dataset.id)); });
     list.addEventListener("pointerover", (e) => { const b = e.target.closest("button"); if (b) mark(Number(b.dataset.id), true); });
     list.addEventListener("pointerleave", () => mark(-1, false));
-    $("#sim-past").addEventListener("change", (e) => { state.hidePast = e.target.checked; drawMini(); hideTip(); render(); });
+    $("#sim-past").addEventListener("change", (e) => { state.hidePast = e.target.checked; hideTip(); render(); });
     $("#sim-q").addEventListener("input", (e) => search(e.target.value));
     $("#sim-results").addEventListener("click", (e) => {
       const b = e.target.closest("button");
@@ -230,14 +223,7 @@
     });
     $("#sim-random").addEventListener("click", () => go(Math.floor(Math.random() * nodes.length)));
     stage.addEventListener("click", (e) => { if (!e.target.closest(".node")) hideTip(); });
-    $("#sim-mini").addEventListener("click", (e) => { // jump to the abstract nearest the tapped spot
-      const r = mini.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
-      let best = 0, bd = Infinity;
-      nodes.forEach((n, i) => { const d = (n.x - x) ** 2 + (n.y - y) ** 2; if (d < bd) { bd = d; best = i; } });
-      go(best);
-    });
     new ResizeObserver(() => { const b = stage.getBoundingClientRect(); if (b.width !== width || b.height !== height) resize(); }).observe(stage);
-    window.addEventListener("resize", () => { drawMini(); drawPath(); });
     $("#sim-trail-list").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) go(Number(b.dataset.id)); });
     $("#sim-clear").addEventListener("click", () => { state.history = []; renderTrail(); render(); });
   }
@@ -249,6 +235,6 @@
     const m = /^#n=(\d+)$/.exec(location.hash);
     state.id = m && Number(m[1]) < nodes.length ? Number(m[1]) : Math.floor(Math.random() * nodes.length);
     root.classList.add("ready");
-    bind(); resize(); drawMini(); render();
+    bind(); resize(); render();
   }).catch(() => { $("#sim-card").textContent = "Couldn't load the abstract network. Try reloading."; });
 })();
