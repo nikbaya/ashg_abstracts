@@ -28,7 +28,15 @@
   const PLANNER = "https://ashg.floq.live/event/ashg-2026/dailyprogramme?objectClass=person&type=detail&objectId=";
   const ENTRY = "https://ashg.floq.live/event/ashg-2026/search?objectClass=timeslot&type=detail&objectId=";
   const planner = (n) => n.u ? `<a class="ext" href="${ENTRY}${n.u}" target="_blank" rel="noopener" title="This entry in the online program">Program ↗</a>`
-    : n.p.length ? `<a class="ext" href="${PLANNER}${n.p[0]}" target="_blank" rel="noopener" title="Presenter in the online planner">Planner ↗</a>` : "";
+    : n.p.length ? `<a class="ext" href="${PLANNER}${n.p[0]}" target="_blank" rel="noopener" title="Presenter in the online planner">ASHG Planner ↗</a>` : "";
+  const gcal = (n, match, to) => { // Google Calendar "create event" link; times are unix seconds, written as UTC
+    const t = (x) => new Date(x * 1000).toISOString().replace(/[-:]|\.\d+/g, "");
+    const q = new URLSearchParams({ action: "TEMPLATE", text: `ASHG 2026: ${author(n)} (${TYPES[n.t]})`, dates: `${t(n.s)}/${t(n.e)}` });
+    if (n.b) q.set("location", `Board ${n.b}`);
+    const url = n.u ? ENTRY + n.u : n.p.length ? PLANNER + n.p[0] : "";
+    q.set("details", [match != null ? `Similarity to ${author(to)}: ${match}%` : "", url].filter(Boolean).join("\n"));
+    return `<a class="cal" href="https://calendar.google.com/calendar/render?${q}" target="_blank" rel="noopener" title="Add this to Google Calendar">+ Google Calendar</a>`;
+  };
   const touch = () => matchMedia("(pointer: coarse)").matches;
 
   function details(n, match, depth) {
@@ -154,7 +162,7 @@
       .alpha(0.9).restart();
 
     const by = state.by === "nt" ? "text" : "co-authors";
-    $("#sim-card").innerHTML = `<h2>${author(center)} ${planner(center)}</h2><dl>${details(center)}</dl>` +
+    $("#sim-card").innerHTML = `<h2>${author(center)} ${planner(center)}</h2><dl>${details(center)}</dl><p>${gcal(center)}</p>` +
       `<p class="sub">${data_.length > 1 ? `Showing ${data_.length - 1} abstracts within ${state.degrees} degree${state.degrees > 1 ? "s" : ""} by ${by}` : `No abstracts to show by ${by}`}` +
       `${state.by === "na" && !total ? ": no other abstract shares an author with this one" : ""}` +
       `${hidden && state.hidePast ? ` (${hidden} already past are hidden)` : ""}.</p>`;
@@ -163,8 +171,9 @@
       ? (a, b) => nodes[a.id].s - nodes[b.id].s
       : (a, b) => b.match - a.match);
     $("#sim-list").innerHTML = ranked.map((d) => { const n = nodes[d.id];
-      return `<li>${planner(n)}<button type="button" data-id="${d.id}"${isPast(n) ? ' class="past"' : n.s <= now ? ' class="live"' : ""}><b>${d.match}%</b> ${author(n)}<em class="kind ${n.t === "poster" ? "poster" : "talk"}">${KINDS[n.t] || "Talk"}</em>` +
-        `<span>${tracks[n.k]}${n.inf ? " (inferred)" : ""}<br>${n.w}${n.lw ? ` · lightning ${n.lw}` : ""}${n.b ? ` · ${n.b}` : ""}${d.depth > 1 ? ` · ${d.depth} degrees` : ""}</span></button></li>`; }).join("");
+      return `<li data-id="${d.id}"${isPast(n) ? ' class="past"' : n.s <= now ? ' class="live"' : ""}>${planner(n)}<button type="button" data-id="${d.id}"><b>${d.match}%</b> ${author(n)}<em class="kind ${n.t === "poster" ? "poster" : "talk"}">${KINDS[n.t] || "Talk"}</em>` +
+        `<span>${tracks[n.k]}${n.inf ? " (inferred)" : ""}</span></button>` +
+        `<div class="when">${n.w}${n.lw ? ` · lightning ${n.lw}` : ""}${n.b ? ` · ${n.b}` : ""}${d.depth > 1 ? ` · ${d.depth} degrees` : ""} · ${gcal(n, d.depth === 1 ? d.match : null, center)}</div></li>`; }).join("");
     const side = $("#sim-list"), first = state.sort === "time" && ranked.findIndex((d) => !isPast(nodes[d.id]));
     side.scrollTop = first > 0 ? side.children[first].getBoundingClientRect().top - side.getBoundingClientRect().top + side.scrollTop : 0;
     renderTrail();
@@ -243,8 +252,8 @@
       hideTip(); render();
     }));
     const list = $("#sim-list"), mark = (id, on) => nodeLayer.selectAll("g.node").classed("hl", (d) => on && d.id === id);
-    list.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) go(Number(b.dataset.id)); });
-    list.addEventListener("pointerover", (e) => { const b = e.target.closest("button"); if (b) mark(Number(b.dataset.id), true); });
+    list.addEventListener("click", (e) => { const b = e.target.closest("li"); if (b && !e.target.closest("a")) go(Number(b.dataset.id)); });
+    list.addEventListener("pointerover", (e) => { const b = e.target.closest("li"); if (b) mark(Number(b.dataset.id), true); });
     list.addEventListener("pointerleave", () => mark(-1, false));
     $("#sim-past").addEventListener("change", (e) => { state.hidePast = e.target.checked; hideTip(); render(); });
     $("#sim-q").addEventListener("input", (e) => search(e.target.value));
