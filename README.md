@@ -1,5 +1,7 @@
 # ashg_abstracts
 
+**Website:** https://nikbaya.github.io/ashg_abstracts/
+
 Analysis of ASHG annual meeting abstract booklets (2023–2025): which institutions and senior authors present most often, and which phrases are over-represented in talks vs posters, and how topics and wording change over the years.
 
 **Caveat:** the booklets list only *accepted* abstracts, and authors can request poster-only presentation. "Talk rate" here means the fraction of accepted abstracts presented as a talk (platform or plenary). It is not an acceptance or success rate.
