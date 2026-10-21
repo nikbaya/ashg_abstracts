@@ -1039,9 +1039,17 @@ const talkScore = (() => {
   }
 })();
 
-// Phone layout: the section links collapse into a menu button.
+// Phone layout: the section links become a drawer that slides in from the right.
 (() => {
   const btn = document.querySelector(".nav-toggle"), nav = document.getElementById("site-nav");
   if (!btn || !nav) return;
-  btn.addEventListener("click", () => btn.setAttribute("aria-expanded", String(nav.classList.toggle("open"))));
+  const scrim = document.createElement("div");
+  scrim.className = "nav-scrim";
+  document.body.appendChild(scrim);
+  const set = (open) => { nav.classList.toggle("open", open); scrim.classList.toggle("open", open); btn.setAttribute("aria-expanded", String(open)); };
+  btn.addEventListener("click", () => set(!nav.classList.contains("open")));
+  scrim.addEventListener("click", () => set(false));
+  nav.addEventListener("click", (e) => { if (e.target.closest("a")) set(false); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") set(false); });
+  matchMedia("(min-width: 761px)").addEventListener("change", () => set(false));
 })();

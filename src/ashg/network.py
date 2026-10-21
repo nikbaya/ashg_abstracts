@@ -48,7 +48,7 @@ def load_abstracts():
         for r, rec in zip(df.itertuples(), recs):
             start, end = times.get(rec["floq_id"]) or sessions[r.session]
             names = [n for n, _ in floq.split_authors(r.authors_raw)]
-            rows.append({"id": r.abstract_id, "first": names[0] if names else "", "authors": [author_key(n) for n in names],
+            rows.append({"id": r.abstract_id, "first": names[0] if names else "", "authors": [author_key(n) for n in names], "full": [clean_name(n) for n in names],
                           "type": t, "session": r.session, "board": rec.get("board") or "",
                          "text": f"{r.title} {r.body}", "start": start, "end": end,
                          "speakers": speakers.get(rec["floq_id"], [])})
@@ -158,9 +158,32 @@ def main():
         })
         if r.type != "poster":
             nodes[-1]["inf"] = 1  # track inferred from the nearest posters
-    json.dump({"tracks": tracks, "shown": SHOWN_K, "nodes": nodes}, open(args.out, "w"), separators=(",", ":"),
-              ensure_ascii=False)
+    json.dump({"tracks": tracks, "shown": SHOWN_K, "nodes": nodes, "co": co_authors(d)}, open(args.out, "w"),
+              separators=(",", ":"), ensure_ascii=False)
     print(f"{n} abstracts, {sum(bool(x) for x in author_nb)} with a co-author link -> {args.out}")
+
+
+def co_authors(d):
+    """Every non-first author as [name, [node ids of the abstracts they are on], n_last], so the page can search
+    co-authors. The ids list the abstracts where they are last author first (n_last of them), then the rest.
+    People are merged on author_key; the name shown is the longest spelling seen."""
+    people = {}
+    last = {}
+    for i, r in enumerate(d.itertuples()):
+        for key, full in list(zip(r.authors, r.full))[1:]:
+            if not key:
+                continue
+            name, ids = people.setdefault(key, ["", []])
+            people[key][0] = max(name, full, key=len)
+            if i not in ids:
+                ids.append(i)
+                if key == r.authors[-1]:
+                    last.setdefault(key, []).append(i)
+    out = []
+    for key, (name, ids) in people.items():
+        lead = last.get(key, [])
+        out.append([name, lead + [i for i in ids if i not in lead], len(lead)])
+    return sorted(out, key=lambda p: p[0].lower())
 
 
 def top_neighbors_to(vec, i, mask, k=10):

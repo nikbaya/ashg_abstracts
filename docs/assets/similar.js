@@ -193,14 +193,27 @@
     const words = q.split(/[\s,.]+/).filter(Boolean);
     const ok = (name) => { const t = name.toLowerCase().split(/[\s,.]+/).filter(Boolean);
       return words.every((w) => t.some((x) => x.startsWith(w)) || (w.length > 1 && t.some((x) => x.length === 1 && x === w[0]))); };
-    // surname matches first (exact, then prefix), then matches on the initial or a first name
-    const rank = (name) => { const sur = name.toLowerCase().split(",")[0].trim();
-      return words.includes(sur) ? 0 : words.some((w) => sur.startsWith(w)) ? 1 : 2; };
+    // exact full-name match first, then surname matches (exact, then prefix), then matches on the initial or a first name
+    const toks = (name) => name.toLowerCase().split(/[\s,.]+/).filter(Boolean);
+    const rank = (name) => { const t = toks(name), sur = name.toLowerCase().split(",")[0].trim();
+      return t.length === words.length && t.every((x) => words.includes(x)) ? -1 : words.includes(sur) ? 0 : words.some((w) => sur.startsWith(w)) ? 1 : 2; };
     const hits = [];
     for (let i = 0; i < nodes.length; i++) if (ok(nodes[i].a)) hits.push(i);
     hits.sort((a, b) => rank(nodes[a].a) - rank(nodes[b].a)).splice(8);
-    out.innerHTML = hits.length ? hits.map((i) => `<button type="button" data-id="${i}">${author(nodes[i])}<span>${TYPES[nodes[i].t]} · ${nodes[i].w}${nodes[i].b ? ` · ${nodes[i].b}` : ""}</span></button>`).join("")
-      : "<p class=\"sub\">No first author matches.</p>";
+    const row = (i) => `<button type="button" data-id="${i}">${author(nodes[i])}<span>${TYPES[nodes[i].t]} · ${nodes[i].w}${nodes[i].b ? ` · ${nodes[i].b}` : ""}</span></button>`;
+    // co-authors (names are "First M. Last"): each match lists the first authors of the abstracts they appear on
+    const sn = (name) => name.replace(/^(.*)\s(\S+)$/, "$2, $1");
+    const cos = data.co.filter(([name]) => ok(sn(name))).sort((a, b) => rank(sn(a[0])) - rank(sn(b[0]))).slice(0, 4);
+    // last-author abstracts come first in ids: show those, or the first three if there are none; the rest sit behind a button
+    const shown = (ids, nl) => { const k = nl || Math.min(3, ids.length);
+      return ids.slice(0, k).map(row).join("") + (ids.length > k ? `<button type="button" class="more" data-more>Show ${ids.length - k} more</button><div hidden>${ids.slice(k).map(row).join("")}</div>` : ""); };
+    // sections in order of their best match, first author before co-author on a tie, so an exact co-author
+    // match is not buried under looser first-author hits
+    const secs = cos.map(([name, ids, nl]) => ({ r: rank(sn(name)), k: 1, html: `<p class="sub">${name}, co-author on ${ids.length === 1 ? "1 abstract" : ids.length + " abstracts"}${nl ? ` (last author on ${nl})` : ""}</p>` +
+      shown(ids, nl) }));
+    if (hits.length) secs.push({ r: Math.min(...hits.map((i) => rank(nodes[i].a))), k: 0, html: `<p class="sub">First author</p>` + hits.map(row).join("") });
+    secs.sort((x, y) => x.r - y.r || x.k - y.k);
+    out.innerHTML = secs.length ? secs.map((x) => x.html).join("") : "<p class=\"sub\">No author matches.</p>";
     out.hidden = false;
   }
 
@@ -228,6 +241,7 @@
     $("#sim-q").addEventListener("input", (e) => search(e.target.value));
     $("#sim-results").addEventListener("click", (e) => {
       const b = e.target.closest("button");
+      if (b && b.dataset.more !== undefined) { b.nextElementSibling.hidden = false; b.remove(); return; }
       if (b) { $("#sim-results").hidden = true; $("#sim-q").value = ""; go(Number(b.dataset.id)); }
     });
     $("#sim-random").addEventListener("click", () => go(Math.floor(Math.random() * nodes.length)));

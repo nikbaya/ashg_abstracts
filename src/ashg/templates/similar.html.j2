@@ -2,7 +2,7 @@
 {% block content %}
 <h1>{{ page.title }}</h1>
 <p class="lede sim-help">Pick an abstract and see which others at ASHG {{ years[-1].year }} read most like it, or share its authors.</p>
-<p class="sim-help">Search by first author, or take a random one; hover (or tap) a bubble for its details and click (or tap twice) to
+<p class="sim-help">Search by author (first authors, or co-authors to find their abstracts), or take a random one; hover (or tap) a bubble for its details and click (or tap twice) to
 move on to it. Bubbles are colored by track and sized by how close the match is. Degrees widen the view to neighbors of neighbors (up to 3; past that it would reach nearly every abstract). Titles and abstract text are not
 shown here (see <a href="methods.html#similar">how the match is made</a>).</p>
 <div id="similar" data-src="{{ network_src }}">
@@ -20,7 +20,7 @@ shown here (see <a href="methods.html#similar">how the match is made</a>).</p>
   </span>
   <label><input type="checkbox" id="sim-past"> Hide past sessions</label>
   <span class="sim-search">
-    <input id="sim-q" type="search" placeholder="First author, e.g. Smith" autocomplete="off" aria-label="Search by first author">
+    <input id="sim-q" type="search" placeholder="Author, e.g. Smith" autocomplete="off" aria-label="Search by author">
     <button type="button" id="sim-random">Random</button>
     <div id="sim-results" class="sim-results" hidden></div>
   </span>
