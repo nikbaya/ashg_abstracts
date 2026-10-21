@@ -374,3 +374,30 @@ table.match th.group { text-align: center; border-bottom: 1px solid var(--rule);
 @keyframes sim-pulse { 50% { box-shadow: 0 0 16px 8px rgb(227 73 72 / 0.25); } }
 @media (max-width: 600px) { .sim-mini { width: 112px; height: 112px; right: 8px; bottom: 8px; } .sim-search { margin-left: 0; width: 100%; } .sim-search input { flex: 1; } }
 @media (prefers-reduced-motion: reduce) { .sim-here { animation: none; } }
+
+/* phones: hamburger menu, and the Find talks graph gets the screen */
+.nav-toggle { display: none; margin-left: auto; padding: 6px; background: none; border: 1px solid var(--rule); border-radius: 8px; cursor: pointer; color: var(--text-primary); }
+.nav-toggle svg { display: block; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+@media (max-width: 760px) {
+  .site-header .wrap { flex-wrap: wrap; align-items: center; gap: 0 12px; padding-top: 8px; padding-bottom: 8px; }
+  .nav-toggle { display: block; }
+  .site-nav { display: none; flex-direction: column; width: 100%; margin: 6px 0 0; max-height: calc(100vh - 70px); overflow-y: auto; }
+  .site-nav.open { display: flex; }
+  .site-nav > .nav-item > a { padding: 12px 8px; border-bottom: 0; border-left: 3px solid transparent; font-size: 16px; }
+  .site-nav a[aria-current="page"] { border-left-color: var(--talk); }
+  .nav-menu, .nav-item:hover .nav-menu, .nav-item:focus-within .nav-menu, .caret { display: none; }
+  main { padding-top: 12px; }
+}
+@media (max-width: 800px) {
+  #similar .toolbar { position: static; gap: 8px 14px; margin-top: 4px; padding: 8px 0; }
+  .sim-help { display: none; }
+  main:has(#similar) h1 { font-size: 20px; margin: 2px 0 0; }
+  #similar .seg button { padding: 3px 9px; }
+  #similar .toolbar { gap: 6px 10px; }
+  .sim-search { order: 9; }
+  #similar .toolbar .lbl { display: none; }
+  [data-sim=degrees] button::after { content: "°"; }
+  .sim-main .sim-stage { flex: none; width: calc(100% + 40px); margin: 0 -20px; border-radius: 0; height: max(400px, calc(100svh - var(--header-h, 56px) - 175px)); }
+  .sim-card h2 { font-size: 18px; }
+  .sim-mini { width: 92px; height: 92px; padding: 4px; opacity: 0.88; }
+}

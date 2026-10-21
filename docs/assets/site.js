@@ -1018,3 +1018,10 @@ const talkScore = (() => {
   set();
   new ResizeObserver(set).observe(header);
 })();
+
+// Phone layout: the section links collapse into a menu button.
+(() => {
+  const btn = document.querySelector(".nav-toggle"), nav = document.getElementById("site-nav");
+  if (!btn || !nav) return;
+  btn.addEventListener("click", () => btn.setAttribute("aria-expanded", String(nav.classList.toggle("open"))));
+})();

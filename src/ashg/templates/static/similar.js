@@ -20,7 +20,7 @@
   const stage = $("#sim-stage");
   const mini = $("#sim-mini canvas.dots"), pathCanvas = $("#sim-mini canvas.path");
   const dot = $("#sim-here");
-  let width = 0, height = 0;
+  let width = 0, height = 0, sy = 1, vh = 0; // the layout runs in width x vh space and is stretched vertically by sy to fill tall (phone) panes
   const pos = new Map(); // id -> {x, y}, kept between states so nodes glide instead of jumping
 
   const isPast = (n) => n.e < now;
@@ -41,8 +41,8 @@
     tip.innerHTML = details(n, d.match, d.depth) + (touch() && d.id !== state.id ? "<em>Tap again to center on this one</em>" : "");
     tip.hidden = false;
     const box = stage.getBoundingClientRect();
-    const x = Math.min(Math.max(d.x - tip.offsetWidth / 2, 4), box.width - tip.offsetWidth - 4);
-    const y = d.y + d.r + 8 + tip.offsetHeight > box.height ? d.y - d.r - 8 - tip.offsetHeight : d.y + d.r + 8;
+    const x = Math.min(Math.max(d.x - tip.offsetWidth / 2, 4), box.width - tip.offsetWidth - 4), dy = d.y * sy;
+    const y = dy + d.r + 8 + tip.offsetHeight > box.height ? dy - d.r - 8 - tip.offsetHeight : dy + d.r + 8;
     tip.style.transform = `translate(${x}px, ${Math.max(y, 4)}px)`;
   }
 
@@ -79,9 +79,9 @@
     const total = nodes[state.id][state.by].length, hidden = total - usable(state.id).length;
     for (const d of data_) {
       const p = pos.get(d.id);
-      d.x = p ? p.x : width / 2; d.y = p ? p.y : height / 2;
+      d.x = p ? p.x : width / 2; d.y = p ? p.y : vh / 2;
     }
-    const reach = Math.min(width, height) / 2 - 40;
+    const reach = Math.min(width, vh) / 2 - 40;
 
     const g = nodeLayer.selectAll("g.node").data(data_, (d) => d.id);
     g.exit().transition().duration(250).style("opacity", 0).remove();
@@ -115,15 +115,15 @@
       .force("charge", d3.forceManyBody().strength(state.degrees > 1 ? -35 : -60))
       .force("collide", d3.forceCollide((d) => d.r + (d.depth > 1 ? 2 : 10)))
       .force("x", d3.forceX(width / 2).strength((d) => (d.center ? 0.5 : 0.03)))
-      .force("y", d3.forceY(height / 2).strength((d) => (d.center ? 0.5 : 0.03)))
+      .force("y", d3.forceY(vh / 2).strength((d) => (d.center ? 0.5 : 0.03)))
       .on("tick", () => {
         for (const d of data_) {
           d.x = Math.max(d.r + 6, Math.min(width - d.r - 6, d.x));
-          d.y = Math.max(d.r + 6, Math.min(height - d.r - 18, d.y));
+          d.y = Math.max(d.r + 6, Math.min(vh - d.r - 18 / sy, d.y));
           pos.set(d.id, { x: d.x, y: d.y });
         }
-        all.attr("transform", (d) => `translate(${d.x},${d.y})`);
-        lines.attr("x1", (l) => l.source.x).attr("y1", (l) => l.source.y).attr("x2", (l) => l.target.x).attr("y2", (l) => l.target.y);
+        all.attr("transform", (d) => `translate(${d.x},${d.y * sy})`);
+        lines.attr("x1", (l) => l.source.x).attr("y1", (l) => l.source.y * sy).attr("x2", (l) => l.target.x).attr("y2", (l) => l.target.y * sy);
       })
       .alpha(0.9).restart();
 
@@ -171,6 +171,7 @@
   function resize() {
     const box = stage.getBoundingClientRect();
     width = box.width; height = box.height;
+    sy = Math.min(1.8, Math.max(1, height / width * 0.9)); vh = height / sy;
     svg.attr("viewBox", `0 0 ${width} ${height}`);
     if (data) { pos.clear(); render(); }
   }

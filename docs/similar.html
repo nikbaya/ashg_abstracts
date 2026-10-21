@@ -13,12 +13,13 @@
 <meta property="og:url" content="https://nikbaya.github.io/ashg_abstracts/similar.html">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='5' cy='8' r='4' fill='%232a78d6'/%3E%3Ccircle cx='11' cy='8' r='4' fill='%23e34948' fill-opacity='.85'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/site.css?v=009c6cb0">
+<link rel="stylesheet" href="assets/site.css?v=5bb4ccf9">
 </head>
 <body>
 <header class="site-header"><div class="wrap">
   <a class="brand" href="index.html">ASHG abstracts</a>
-  <nav class="site-nav" aria-label="Sections">
+  <button type="button" class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5.5h14M3 10h14M3 14.5h14"/></svg></button>
+  <nav class="site-nav" id="site-nav" aria-label="Sections">
     <div class="nav-item has-menu">
     <a href="index.html"><svg class="nav-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="9" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="9" width="4.5" height="4.5" rx="1"/><rect x="9" y="9" width="4.5" height="4.5" rx="1"/></svg>Overview<span class="caret" aria-hidden="true"></span></a>
     <div class="nav-menu"><a href="index.html#search">Phrase search</a><a href="index.html#hot">What's hot</a><a href="index.html#talk-leaning">Talk-leaning phrases</a><a href="index.html#wording">Wording</a><a href="index.html#institutions">Institutions</a></div>
@@ -48,8 +49,8 @@
 </div></header>
 <main class="wrap">
 <h1>Find related abstracts</h1>
-<p class="lede">Pick an abstract and see which others at ASHG 2026 read most like it, or share its authors.</p>
-<p>Search by first author, or take a random one; hover (or tap) a bubble for its details and click (or tap twice) to
+<p class="lede sim-help">Pick an abstract and see which others at ASHG 2026 read most like it, or share its authors.</p>
+<p class="sim-help">Search by first author, or take a random one; hover (or tap) a bubble for its details and click (or tap twice) to
 move on to it. Bubbles are colored by track and sized by how close the match is. Degrees widen the view to neighbors of neighbors (up to 3; past that it would reach nearly every abstract). Titles and abstract text are not
 shown here (see <a href="methods.html#similar">how the match is made</a>).</p>
 <div id="similar" data-src="data/network.json?v=15251a28">
@@ -87,7 +88,7 @@ shown here (see <a href="methods.html#similar">how the match is made</a>).</p>
 </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
-<script src="assets/similar.js?v=009c6cb0"></script>
+<script src="assets/similar.js?v=5bb4ccf9"></script>
 <nav class="pager" aria-label="Previous and next page">
 <a class="prev" href="index.html"><span>← Previous</span>Overview</a><a class="next" href="phrases.html"><span>Next →</span>Phrases</a></nav>
 </main>
@@ -95,7 +96,7 @@ shown here (see <a href="methods.html#similar">how the match is made</a>).</p>
   <p>Parsed from the ASHG annual meeting abstracts (2022–2026). Abstracts © their authors; the collection © ASHG. No abstract text is reproduced here, only counts and rates.</p>
   <p>Code and full aggregate tables: <a href="https://github.com/nikbaya/ashg_abstracts">github.com/nikbaya/ashg_abstracts</a> · <a href="methods.html">Methods and caveats</a></p>
 </div></footer>
-<script src="assets/site.js?v=009c6cb0"></script>
+<script src="assets/site.js?v=5bb4ccf9"></script>
 <script data-goatcounter="https://ashg-abstracts.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
