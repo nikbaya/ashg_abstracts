@@ -51,6 +51,7 @@ p, li { color: var(--text-secondary); max-width: 72ch; }
 .seg button:hover { border-color: var(--text-secondary); }
 .seg button[aria-pressed="true"] { background: var(--surface-2); border-color: var(--text-secondary); font-weight: 600; }
 .toolbar input { width: 15em; }
+.toolbar input[type=checkbox] { width: auto; }
 
 /* figures */
 figure.fig { margin: 16px 0 24px; }
@@ -308,3 +309,68 @@ table.match th.group { text-align: center; border-bottom: 1px solid var(--rule);
 .about { display: flex; gap: 16px; align-items: center; margin: 8px 0 24px; }
 .about img { width: 110px; height: auto; border-radius: 6px; border: 1px solid var(--rule); flex: none; }
 .about p { margin: 0; }
+
+/* Find talks: ego-network and minimap */
+.sim-search { position: relative; display: inline-flex; gap: 6px; margin-left: auto; }
+.sim-search input { width: 14em; max-width: 100%; }
+.sim-search button { font: inherit; font-size: 14px; background: var(--surface-1); border: 1px solid var(--rule); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.sim-results { position: absolute; top: 100%; left: 0; right: 0; z-index: 6; margin-top: 4px; min-width: 16em; background: var(--surface-1);
+  border: 1px solid var(--rule); border-radius: 8px; box-shadow: 0 6px 16px rgb(0 0 0 / 0.12); }
+.sim-results button { display: block; width: 100%; text-align: left; border: 0; border-radius: 0; padding: 7px 12px; }
+.sim-results button:hover { background: var(--surface-2); }
+.sim-results span { display: block; font-size: 12px; color: var(--text-secondary); }
+.sim-main { display: flex; gap: 16px; align-items: flex-start; margin: 12px 0; }
+.sim-main .sim-stage { flex: 1; min-width: 0; margin: 0; }
+.sim-side { width: 270px; flex: none; max-height: clamp(360px, 62vh, 620px); overflow-y: auto; }
+.sim-side h2 { margin: 0 0 6px; font-size: 16px; }
+.sim-side ol { list-style: none; margin: 0; padding: 0; }
+.sim-side button { display: block; width: 100%; text-align: left; font: inherit; font-size: 13px; color: var(--text-primary); background: none;
+  border: 0; border-bottom: 1px solid var(--rule); padding: 7px 4px; cursor: pointer; }
+.sim-side button:hover { background: var(--surface-2); }
+.sim-side button.past { opacity: 0.55; }
+.sim-side li { position: relative; }
+.sim-side a.ext { position: absolute; top: 7px; right: 4px; font-size: 12px; }
+.sim-card a.ext { font-size: 13px; font-weight: 400; margin-left: 6px; }
+.sim-side b { display: inline-block; min-width: 3em; color: var(--talk); }
+.sim-side span { display: block; margin-left: 3em; font-size: 12px; color: var(--text-secondary); }
+.sim-stage .node.hl circle { stroke: var(--text-primary); stroke-width: 3; }
+@media (max-width: 800px) { .sim-main { flex-direction: column; } .sim-main .sim-stage { width: 100%; } .sim-side { width: 100%; max-height: 360px; } }
+.sim-stage { position: relative; height: clamp(360px, 62vh, 620px); margin: 12px 0; background: var(--surface-2); border-radius: 10px; overflow: hidden; touch-action: manipulation; }
+.sim-stage svg { width: 100%; height: 100%; display: block; }
+.sim-stage .node { cursor: pointer; }
+.sim-stage .node circle { stroke: var(--surface-1); stroke-width: 2; }
+.sim-stage .node.center circle { stroke: var(--text-primary); stroke-width: 3; }
+.sim-stage .node:focus { outline: none; }
+.sim-stage .node:focus circle { stroke: var(--text-primary); }
+.sim-stage .node text { font-size: 11px; fill: var(--text-primary); paint-order: stroke; stroke: var(--surface-2); stroke-width: 3px; pointer-events: none; }
+.sim-stage .links line { stroke: #b8b6b0; stroke-width: 1.5; }
+.sim-tip { position: absolute; left: 0; top: 0; z-index: 3; width: max-content; max-width: min(260px, 90%); padding: 8px 12px; font-size: 13px;
+  background: var(--surface-1); border: 1px solid #d6d4cf; border-radius: 8px; box-shadow: 0 4px 14px rgb(0 0 0 / 0.15); pointer-events: none; }
+.sim-tip div span { display: inline-block; width: 4.8em; color: var(--text-secondary); }
+.sim-tip em { display: block; margin-top: 4px; font-size: 12px; color: var(--text-secondary); }
+.sim-card h2 { margin: 8px 0 4px; }
+.sim-card dl { margin: 0 0 6px; }
+.sim-card div { display: inline-block; margin-right: 18px; color: var(--text-secondary); }
+.sim-card div span { color: var(--text-primary); font-weight: 600; margin-right: 6px; }
+.sim-legend { columns: 2 260px; list-style: none; padding: 0; margin: 8px 0; }
+.sim-legend li { font-size: 13px; padding: 2px 0; }
+.sim-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+.sim-mini { position: fixed; right: 12px; bottom: 12px; z-index: 8; width: 168px; height: 168px; padding: 6px; background: rgb(252 252 251 / 0.94);
+  border: 1px solid #d6d4cf; border-radius: 10px; box-shadow: 0 4px 14px rgb(0 0 0 / 0.18); cursor: crosshair; }
+.sim-mini .inner { position: relative; width: 100%; height: 100%; }
+.sim-trail { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin: 10px 0 0; font-size: 13px; color: var(--text-secondary); }
+.sim-trail button { font: inherit; font-size: 13px; color: var(--text-secondary); background: var(--surface-2); border: 1px solid var(--rule); border-radius: 12px; padding: 1px 10px; cursor: pointer; filter: grayscale(1); }
+.sim-trail button:hover { color: var(--text-primary); border-color: var(--text-secondary); }
+.sim-trail #sim-clear { margin-left: auto; background: none; border-radius: 6px; filter: none; }
+.sim-trail i { font-style: normal; opacity: 0.6; }
+.sim-trail b { font-weight: 600; color: var(--text-primary); }
+.sim-stage .node.visited circle { filter: grayscale(1); opacity: 0.6; }
+.sim-stage .node.visited text { fill: var(--text-secondary); }
+.sim-mini canvas { position: absolute; inset: 0; }
+.sim-mini canvas.path { pointer-events: none; }
+.sim-mini canvas { width: 100%; height: 100%; display: block; }
+.sim-here { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: #fff; border: 2px solid var(--poster);
+  box-shadow: 0 0 10px 4px rgb(227 73 72 / 0.55); transition: left 0.7s ease, top 0.7s ease; animation: sim-pulse 1.8s ease-in-out infinite; pointer-events: none; }
+@keyframes sim-pulse { 50% { box-shadow: 0 0 16px 8px rgb(227 73 72 / 0.25); } }
+@media (max-width: 600px) { .sim-mini { width: 112px; height: 112px; right: 8px; bottom: 8px; } .sim-search { margin-left: 0; width: 100%; } .sim-search input { flex: 1; } }
+@media (prefers-reduced-motion: reduce) { .sim-here { animation: none; } }

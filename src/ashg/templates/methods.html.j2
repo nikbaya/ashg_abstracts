@@ -50,6 +50,23 @@ compared with its own year's rate, or with the pooled rate for all years.</p>
 <figure class="fig"><a href="img/trends_talk_rate.png"><img src="img/trends_talk_rate.png" alt="Talk rate per year: the share of accepted abstracts presented as a talk, with each year's talk and abstract counts and host city." loading="lazy"></a></figure>
 {% endif %}
 
+<h2 id="similar">Find talks</h2>
+<p>The <a href="similar.html">Find talks</a> page links each ASHG 2026 abstract to its closest neighbors. It shows only
+the first author, track, type, poster board, time (Montréal) and a match percentage; no titles or abstract text are
+published, and the data file contains none.</p>
+<ul>
+<li><strong>Text match.</strong> Title and abstract are turned into word and two-word counts, weighted with BM25 (so common
+words count less and long abstracts don't dominate) and compared by cosine similarity. The match percentage is that
+similarity scaled so that 100 is the 95th percentile of abstracts' closest pairs (the few above it are capped); it is a relative score, not a probability of anything.</li>
+<li><strong>Co-author match.</strong> The Jaccard index of two abstracts' author lists (shared authors over all authors),
+over every author on the abstract, matched by first + last name (middle initials ignored). Two people with the same
+first and last name merge, and a different spelling of one name is missed.</li>
+<li><strong>Minimap.</strong> A t-SNE layout of the text vectors; nearby dots read alike, but distances between far-apart dots mean little.</li>
+<li><strong>Track.</strong> Posters take the track in their session name. The program gives talks no track, so a talk gets
+the most common track among its ten closest posters, marked “inferred” in the tooltip. Rooms for talks aren't in the data.</li>
+<li><strong>Planner link.</strong> “Planner” opens the presenter's page in the online program. The presenter is not always the first author.</li>
+</ul>
+
 <h2 id="built">How it's built</h2>
 <ul>
 <li><strong>Parsing.</strong> Text is extracted with PyMuPDF and split into abstracts using each booklet's layout

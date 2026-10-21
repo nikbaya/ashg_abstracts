@@ -29,6 +29,7 @@ from manhattan import AMBIGUOUS
 TEMPLATES = pathlib.Path(__file__).resolve().parent / "templates"
 PAGES = [  # (file, nav label, page title)
     ("index.html", "Overview", "Analyzing ASHG abstracts"),
+    ("similar.html", "Find talks", "Find related abstracts"),
     ("phrases.html", "Phrases", "Phrases overrepresented in talks"),
     ("institutions.html", "Institutions", "Institutions"),
     ("geography.html", "Geography", "Regions, countries and metro areas"),
@@ -42,7 +43,7 @@ SECTIONS = {  # nav dropdown: file -> [(anchor, label)]
                      ("sample-size", "Sample size"), ("words", "Words, A to Z"), ("words-enriched", "Words more common now"), ("genes", "Genes"), ("score", "Score your text")],
     "geography.html": [("center", "Center of mass"), ("regions", "World regions"), ("countries", "Countries"),
                        ("metros", "Metro areas")],
-    "methods.html": [("numbers", "What the numbers mean"), ("match-rates", "Match rates"), ("talk-rate", "Talk rate by year"),
+    "methods.html": [("similar", "Find talks"), ("numbers", "What the numbers mean"), ("match-rates", "Match rates"), ("talk-rate", "Talk rate by year"),
                      ("built", "How it's built"), ("about", "About this site")],
 }
 YEAR_FIGURES = ("headline", "institutions", "metros", "regions", "senior_authors")
@@ -345,6 +346,13 @@ def main():
         (docs / "data" / "explorer.json").write_text(explorer_data.replace("<\\/", "</"))
         explorer_src = f"data/explorer.json?v={hashlib.sha1(explorer_data.encode()).hexdigest()[:8]}"
 
+    network_src = None  # the Find talks page fetches the 2026 similarity network from network.py
+    if (out / "network.json").exists():
+        (docs / "data").mkdir(exist_ok=True)
+        shutil.copy(out / "network.json", docs / "data" / "network.json")
+        network_src = f"data/network.json?v={hashlib.sha1((out / 'network.json').read_bytes()).hexdigest()[:8]}"
+    pages_all = PAGES if network_src else [p for p in PAGES if p[0] != "similar.html"]
+
     words_enriched = words_enriched_json(out / "trends_words_enriched.csv", years) if (out / "trends_words_enriched.csv").exists() else None
     words_enriched_src = None  # the overview page fetches the table data; the phrases page inlines it
     if words_enriched:
@@ -353,13 +361,13 @@ def main():
 
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATES), autoescape=False,
                              trim_blocks=True, lstrip_blocks=True)
-    pages = [{"file": f, "label": label, "title": title, "sections": SECTIONS.get(f, [])} for f, label, title in PAGES]
+    pages = [{"file": f, "label": label, "title": title, "sections": SECTIONS.get(f, [])} for f, label, title in pages_all]
     shared = {"years": [year_context(out, y) for y in years], "trends": trends, "pages": pages,
               "pooled": year_context(out, "all", f"{years[0]}–{years[-1]}") if pooled else None,
               "drivers_json": explorer_data if drivers.exists() else None, "explorer_src": explorer_src,
               "center_json": center.read_text().replace("</", "<\\/") if center.exists() else None,
               "highlights": highlights(out, years) if pooled and (out / "trends_phrases.csv").exists() else None,
-              "words": words, "manhattan_src": manhattan_src, "words_enriched_json": words_enriched, "words_enriched_src": words_enriched_src,
+              "words": words, "network_src": network_src, "manhattan_src": manhattan_src, "words_enriched_json": words_enriched, "words_enriched_src": words_enriched_src,
               "score": score_context(out / "talk_score.json") if (out / "talk_score.json").exists() else None,
               "repo_url": args.repo_url, "site_url": args.site_url, "asset_v": asset_v,
               "n_institutes": pd.read_csv(args.aliases, comment="#").institute.nunique(), "n_ambiguous": len(AMBIGUOUS)}
