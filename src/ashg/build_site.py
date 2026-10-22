@@ -30,6 +30,7 @@ TEMPLATES = pathlib.Path(__file__).resolve().parent / "templates"
 PAGES = [  # (file, nav label, page title)
     ("index.html", "Overview", "Analyzing ASHG abstracts"),
     ("similar.html", "Find talks", "Find related abstracts"),
+    ("compare.html", "Compare", "Compare two abstracts"),
     ("phrases.html", "Phrases", "Phrases overrepresented in talks"),
     ("institutions.html", "Institutions", "Institutions"),
     ("geography.html", "Geography", "Regions, countries and metro areas"),
@@ -351,7 +352,15 @@ def main():
         (docs / "data").mkdir(exist_ok=True)
         shutil.copy(out / "network.json", docs / "data" / "network.json")
         network_src = f"data/network.json?v={hashlib.sha1((out / 'network.json').read_bytes()).hexdigest()[:8]}"
-    pages_all = PAGES if network_src else [p for p in PAGES if p[0] != "similar.html"]
+    pairs_src = None  # pairwise text matches, fetched only when a deeper degree is picked
+    if (out / "network_sim.bin.gz").exists():
+        shutil.copy(out / "network_sim.bin.gz", docs / "data" / "network_sim.bin.gz")
+        pairs_src = f"data/network_sim.bin.gz?v={hashlib.sha1((out / 'network_sim.bin.gz').read_bytes()).hexdigest()[:8]}"
+    terms_src = None  # every abstract's term weights, for the compare page's "why" list
+    if (out / "network_terms.json.gz").exists():
+        shutil.copy(out / "network_terms.json.gz", docs / "data" / "network_terms.json.gz")
+        terms_src = f"data/network_terms.json.gz?v={hashlib.sha1((out / 'network_terms.json.gz').read_bytes()).hexdigest()[:8]}"
+    pages_all = PAGES if network_src else [p for p in PAGES if p[0] not in ("similar.html", "compare.html")]
 
     words_enriched = words_enriched_json(out / "trends_words_enriched.csv", years) if (out / "trends_words_enriched.csv").exists() else None
     words_enriched_src = None  # the overview page fetches the table data; the phrases page inlines it
@@ -367,7 +376,7 @@ def main():
               "drivers_json": explorer_data if drivers.exists() else None, "explorer_src": explorer_src,
               "center_json": center.read_text().replace("</", "<\\/") if center.exists() else None,
               "highlights": highlights(out, years) if pooled and (out / "trends_phrases.csv").exists() else None,
-              "words": words, "network_src": network_src, "manhattan_src": manhattan_src, "words_enriched_json": words_enriched, "words_enriched_src": words_enriched_src,
+              "words": words, "network_src": network_src, "pairs_src": pairs_src, "terms_src": terms_src, "manhattan_src": manhattan_src, "words_enriched_json": words_enriched, "words_enriched_src": words_enriched_src,
               "score": score_context(out / "talk_score.json") if (out / "talk_score.json").exists() else None,
               "repo_url": args.repo_url, "site_url": args.site_url, "asset_v": asset_v,
               "n_institutes": pd.read_csv(args.aliases, comment="#").institute.nunique(), "n_ambiguous": len(AMBIGUOUS)}

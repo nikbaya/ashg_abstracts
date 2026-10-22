@@ -11,8 +11,37 @@
   const now = Number(params.get("now")) || Date.now() / 1000; // ?now=<unix seconds> previews another moment
 
   const FANOUT = [15, 4, 2]; // new neighbors per node at each degree: 15 + 15*4 + 60*2 = 195 bubbles at most
-  const state = { id: null, by: "nt", sort: "match", hidePast: false, selected: null, degrees: 1, history: [] }; // history: abstracts visited before the current one, oldest first
+  const state = { id: null, by: "nt", sort: "match", hidePast: false, hideCo: false, open: new Set(), selected: null, degrees: 1, history: [] }; // history: abstracts visited before the current one, oldest first
   let data, nodes, tracks, color;
+  let pairs = null, pairsLoading = false; // pairs: n*n bytes, any pair's text match (0 = under 10%); fetched the first time a deeper degree needs it
+  let vecs = null, vecsLoading = false; // vecs: {terms, rows}, rows[i] = [term, weight, term, weight, ...]; fetched the first time a "Why?" is opened
+  const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  function sharedTerms(a, b, k = 6) { // terms both abstracts use, by share of the match between them
+    const w = new Map(); for (let i = 0; i < vecs.rows[b].length; i += 2) w.set(vecs.rows[b][i], vecs.rows[b][i + 1]);
+    const r = vecs.rows[a], hits = [];
+    for (let i = 0; i < r.length; i += 2) if (w.has(r[i])) hits.push([vecs.terms[r[i]], r[i + 1] * w.get(r[i])]);
+    const total = hits.reduce((s, h) => s + h[1], 0);
+    return { n: hits.length, top: hits.sort((x, y) => y[1] - x[1]).slice(0, k).map(([t, p]) => [t, Math.round(100 * p / total)]) };
+  }
+  function whyHtml(id) {
+    if (!vecs) return "<div class=\"why-terms\">Loading…</div>";
+    const { n, top } = sharedTerms(state.id, id);
+    return `<div class="why-terms">${n ? `${top.map(([t, p]) => `<span>${esc(t)} <i>${p}%</i></span>`).join("")}${n > top.length ? `<em>+${n - top.length} more</em>` : ""}` : "No shared words or phrases with the center."}</div>`;
+  }
+  function paintWhy(li) { // sync one row's open/closed state without re-rendering the graph or list
+    const id = Number(li.dataset.id), open = state.open.has(id);
+    li.querySelector("button.why").setAttribute("aria-expanded", open);
+    const old = li.querySelector(".why-terms");
+    if (old) old.remove();
+    if (open) li.insertAdjacentHTML("beforeend", whyHtml(id));
+  }
+  function loadVecs() {
+    if (vecs || vecsLoading || !root.dataset.terms) return;
+    vecsLoading = true;
+    fetch(root.dataset.terms).then((r) => new Response(r.body.pipeThrough(new DecompressionStream("gzip"))).json())
+      .then((v) => { vecs = v; $("#sim-list").querySelectorAll("li").forEach((li) => paintWhy(li)); }).catch(() => { vecsLoading = false; });
+  }
+  const pct = (m) => (m ? `${m}%` : "<10%");
 
   const svg = d3.select("#sim-graph");
   const linkLayer = svg.append("g").attr("class", "links");
@@ -29,29 +58,30 @@
   const ENTRY = "https://ashg.floq.live/event/ashg-2026/search?objectClass=timeslot&type=detail&objectId=";
   const planner = (n) => n.u ? `<a class="ext" href="${ENTRY}${n.u}" target="_blank" rel="noopener" title="This entry in the online program">Program ↗</a>`
     : n.p.length ? `<a class="ext" href="${PLANNER}${n.p[0]}" target="_blank" rel="noopener" title="Presenter in the online planner">ASHG Planner ↗</a>` : "";
-  const gcal = (n, match, to) => { // Google Calendar "create event" link; times are unix seconds, written as UTC
+  const CAL = '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3M8 8.5v3.5M6.25 10.25h3.5"/></svg>';
+  const gcal = (n, match, to, short) => { // Google Calendar "create event" link; times are unix seconds, written as UTC
     const t = (x) => new Date(x * 1000).toISOString().replace(/[-:]|\.\d+/g, "");
     const q = new URLSearchParams({ action: "TEMPLATE", text: `ASHG 2026: ${author(n)} (${TYPES[n.t]})`, dates: `${t(n.s)}/${t(n.e)}` });
     if (n.b) q.set("location", `Board ${n.b}`);
     const url = n.u ? ENTRY + n.u : n.p.length ? PLANNER + n.p[0] : "";
     q.set("details", [match != null ? `Similarity to ${author(to)}: ${match}%` : "", url].filter(Boolean).join("\n"));
-    return `<a class="cal" href="https://calendar.google.com/calendar/render?${q}" target="_blank" rel="noopener" title="Add this to Google Calendar">+ Google Calendar</a>`;
+    return `<a class="cal" href="https://calendar.google.com/calendar/render?${q}" target="_blank" rel="noopener" title="Add this to Google Calendar" aria-label="Add this to Google Calendar">${CAL}${short ? "Add" : "Google Calendar"}</a>`;
   };
   const touch = () => matchMedia("(pointer: coarse)").matches;
 
-  function details(n, match, depth) {
+  function details(n, match, depth, via) {
     const rows = [[n.t === "symposium" || n.t === "session" ? "Speaker" : "Author", author(n)]];
     if (n.n && n.n !== n.a) rows.push(["Session", n.n]);
     rows.push(["Track", tracks[n.k] + (n.inf ? " (inferred from text)" : "")], ["Type", TYPES[n.t]],
       ["Location", n.b ? `Board ${n.b}` : "Room not in the data"], ["Time", n.w]);
     if (n.lw) rows.push(["Lightning talk", n.lw]);
-    if (match != null) rows.push(["Match", `${match}%${depth > 1 ? " to the one it links from" : ""}`]);
+    if (match != null) rows.push(["Match", depth > 1 && via != null ? `${pct(match)} to the center · ${via}% to the one it links from` : `${pct(match)}${depth > 1 ? " to the one it links from" : ""}`]);
     return rows.map(([k, v]) => `<div><span>${k}</span>${v.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</div>`).join("");
   }
 
   function showTip(event, d) {
     const n = nodes[d.id];
-    tip.innerHTML = details(n, d.match, d.depth) + (touch() && d.id !== state.id ? "<em>Tap again to center on this one</em>" : "");
+    tip.innerHTML = details(n, d.match, d.depth, d.via) + (touch() && d.id !== state.id ? "<em>Tap again to center on this one</em>" : "");
     tip.hidden = false;
     const box = stage.getBoundingClientRect();
     const x = Math.min(Math.max(d.x - tip.offsetWidth / 2, 4), box.width - tip.offsetWidth - 4), dy = d.y * sy;
@@ -61,7 +91,8 @@
 
   function hideTip() { tip.hidden = true; state.selected = null; }
 
-  const usable = (id) => nodes[id][state.by].filter(([j]) => !state.hidePast || !isPast(nodes[j]));
+  const shares = (j) => nodes[state.id].fa != null && nodes[j].au.includes(nodes[state.id].fa); // the center's first author is on j
+  const usable = (id) => nodes[id][state.by].filter(([j]) => (!state.hidePast || !isPast(nodes[j])) && (!state.hideCo || !shares(j)));
 
   // breadth-first from the center, each node adding its closest not-yet-seen neighbors; links run parent -> child
   function expand() {
@@ -75,13 +106,22 @@
           if (added === FANOUT[depth - 1]) break;
           if (seen.has(id)) continue;
           seen.add(id); added++;
-          const d = { id, match, depth, r: d3.scaleSqrt().domain([0, 100]).range([4, 19 - 3 * depth])(match) };
+          const toCenter = depth > 1 && state.by === "nt" && pairs ? pairs[state.id * nodes.length + id] : null; // text match to the center, not to the parent
+          const d = { id, match: toCenter ?? match, via: toCenter != null ? match : null, depth, r: d3.scaleSqrt().domain([0, 100]).range([4, 19 - 3 * depth])(match) };
           next.push(d); list.push(d); links.push({ source: parent, target: d });
         }
       }
       ring = next;
     }
     return { list, links };
+  }
+
+  function loadPairs() { // center-to-node matches for degrees 2-3 (text only); until they arrive the page shows parent matches
+    if (pairs || pairsLoading || state.degrees < 2 || !root.dataset.pairs) return;
+    pairsLoading = true;
+    fetch(root.dataset.pairs).then((r) => new Response(r.body.pipeThrough(new DecompressionStream("gzip"))).arrayBuffer())
+      .then((buf) => { pairs = new Uint8Array(buf); render(); })
+      .catch(() => { pairsLoading = false; });
   }
 
   const sim = d3.forceSimulation().alphaDecay(0.04).velocityDecay(0.35);
@@ -124,7 +164,7 @@
     const all = enter.merge(g);
     const visited = new Set(state.history);
     all.classed("center", (d) => d.center).classed("visited", (d) => visited.has(d.id) && !d.center)
-      .attr("aria-label", (d) => `${author(nodes[d.id])}, ${tracks[nodes[d.id].k]}${d.match != null ? `, ${d.match}% match` : ""}`)
+      .attr("aria-label", (d) => `${author(nodes[d.id])}, ${tracks[nodes[d.id].k]}${d.match != null ? `, ${pct(d.match)} match` : ""}`)
       .on("pointerenter", (e, d) => { if (e.pointerType === "mouse") showTip(e, d); })
       .on("pointerleave", (e) => { if (e.pointerType === "mouse") hideTip(); })
       .on("focus", (e, d) => showTip(e, d))
@@ -171,9 +211,9 @@
       ? (a, b) => nodes[a.id].s - nodes[b.id].s
       : (a, b) => b.match - a.match);
     $("#sim-list").innerHTML = ranked.map((d) => { const n = nodes[d.id];
-      return `<li data-id="${d.id}"${isPast(n) ? ' class="past"' : n.s <= now ? ' class="live"' : ""}>${planner(n)}<button type="button" data-id="${d.id}"><b>${d.match}%</b> ${author(n)}<em class="kind ${n.t === "poster" ? "poster" : "talk"}">${KINDS[n.t] || "Talk"}</em>` +
+      return `<li data-id="${d.id}"${isPast(n) ? ' class="past"' : n.s <= now ? ' class="live"' : ""}>${planner(n)}<button type="button" data-id="${d.id}"><b>${pct(d.match)}</b> ${author(n)}<em class="kind ${n.t === "poster" ? "poster" : "talk"}">${KINDS[n.t] || "Talk"}</em>` +
         `<span>${tracks[n.k]}${n.inf ? " (inferred)" : ""}</span></button>` +
-        `<div class="when">${n.w}${n.lw ? ` · lightning ${n.lw}` : ""}${n.b ? ` · ${n.b}` : ""}${d.depth > 1 ? ` · ${d.depth} degrees` : ""} · ${gcal(n, d.depth === 1 ? d.match : null, center)}</div></li>`; }).join("");
+        `<div class="when">${n.w}${n.lw ? ` · lightning ${n.lw}` : ""}${n.b ? ` · ${n.b}` : ""}${d.depth > 1 ? ` · ${d.depth} degrees` : ""} · ${gcal(n, d.depth === 1 ? d.match : null, center, true)} · <button type="button" class="why" data-why="${d.id}" aria-expanded="${state.open.has(d.id)}" title="Show the words and phrases this abstract shares with the center">Why?</button></div>${state.open.has(d.id) ? whyHtml(d.id) : ""}</li>`; }).join("");
     const side = $("#sim-list"), first = state.sort === "time" && ranked.findIndex((d) => !isPast(nodes[d.id]));
     side.scrollTop = first > 0 ? side.children[first].getBoundingClientRect().top - side.getBoundingClientRect().top + side.scrollTop : 0;
     renderTrail();
@@ -181,7 +221,7 @@
   }
 
   function go(id, fresh) {
-    hideTip();
+    hideTip(); state.open.clear(); // shared words are relative to the center
     if (fresh) { state.history = []; state.id = id; } else if (id !== state.id) { if (state.history.at(-1) !== state.id) state.history.push(state.id); state.id = id; }
     render();
   }
@@ -239,7 +279,7 @@
     root.querySelectorAll("[data-sim=by] button").forEach((b) => b.addEventListener("click", () => {
       state.by = b.dataset.value;
       root.querySelectorAll("[data-sim=by] button").forEach((o) => o.setAttribute("aria-pressed", o === b));
-      hideTip(); render();
+      hideTip(); render(); loadPairs();
     }));
     root.querySelectorAll("[data-sim=sort] button").forEach((b) => b.addEventListener("click", () => {
       state.sort = b.dataset.value;
@@ -249,13 +289,19 @@
     root.querySelectorAll("[data-sim=degrees] button").forEach((b) => b.addEventListener("click", () => {
       state.degrees = Number(b.dataset.value);
       root.querySelectorAll("[data-sim=degrees] button").forEach((o) => o.setAttribute("aria-pressed", o === b));
-      hideTip(); render();
+      hideTip(); render(); loadPairs();
     }));
     const list = $("#sim-list"), mark = (id, on) => nodeLayer.selectAll("g.node").classed("hl", (d) => on && d.id === id);
-    list.addEventListener("click", (e) => { const b = e.target.closest("li"); if (b && !e.target.closest("a")) go(Number(b.dataset.id)); });
+    list.addEventListener("click", (e) => { const b = e.target.closest("li"); if (!b || e.target.closest("a")) return;
+      const w = e.target.closest("button.why");
+      if (!w) return go(Number(b.dataset.id));
+      const id = Number(w.dataset.why); // toggle: shared words with the center
+      if (state.open.has(id)) state.open.delete(id); else { state.open.add(id); loadVecs(); }
+      paintWhy(b); });
     list.addEventListener("pointerover", (e) => { const b = e.target.closest("li"); if (b) mark(Number(b.dataset.id), true); });
     list.addEventListener("pointerleave", () => mark(-1, false));
     $("#sim-past").addEventListener("change", (e) => { state.hidePast = e.target.checked; hideTip(); render(); });
+    $("#sim-co").addEventListener("change", (e) => { state.hideCo = e.target.checked; hideTip(); render(); });
     $("#sim-q").addEventListener("input", (e) => search(e.target.value));
     $("#sim-results").addEventListener("click", (e) => {
       const b = e.target.closest("button");

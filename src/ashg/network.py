@@ -16,6 +16,7 @@ Usage: python src/ashg/network.py outputs/network.json
 """
 
 import argparse
+import gzip
 import json
 import os
 import re
@@ -36,6 +37,7 @@ YEAR = 2026
 TYPES = ("plenary", "platform", "poster")
 PEOPLE = f"data/raw/floq_{YEAR}_people.json"
 TEXT_K, AUTHOR_K, SHOWN_K = 30, 15, 15  # stored text neighbors leave SHOWN_K after "hide past sessions" drops some
+SIM_FLOOR = 10  # matches below this are stored as 0 in the pairwise matrix
 BM25_K1, BM25_B = 1.5, 0.75
 TZ = ZoneInfo("America/Toronto")  # Montréal
 
@@ -121,8 +123,9 @@ def author_key(name):
 
 def bm25_vectors(texts):
     """L2-normalized BM25 document vectors; their dot product is a symmetric BM25-style similarity."""
-    tf = CountVectorizer(stop_words="english", ngram_range=(1, 2), min_df=3, max_df=0.4,
-                         token_pattern=r"(?u)\b[a-zA-Z][a-zA-Z0-9-]+\b").fit_transform(texts).tocsr().astype(float)
+    cv = CountVectorizer(stop_words="english", ngram_range=(1, 2), min_df=3, max_df=0.4,
+                         token_pattern=r"(?u)\b[a-zA-Z][a-zA-Z0-9-]+\b")
+    tf = cv.fit_transform(texts).tocsr().astype(float)
     n = tf.shape[0]
     df = np.bincount(tf.indices, minlength=tf.shape[1])
     idf = np.log(1 + (n - df + 0.5) / (df + 0.5))
@@ -130,7 +133,20 @@ def bm25_vectors(texts):
     norm = BM25_K1 * (1 - BM25_B + BM25_B * length / length.mean())
     tf = tf.tocoo()
     tf.data = tf.data * (BM25_K1 + 1) / (tf.data + norm[tf.row]) * idf[tf.col]
-    return normalize(tf.tocsr())
+    return normalize(tf.tocsr()), cv.get_feature_names_out()
+
+
+def term_vectors(vec, vocab):
+    """Every abstract's terms as flat [term id, weight in thousandths, ...] rows, and the terms the ids point to. The
+    weights are the L2-normalized BM25 ones, so two abstracts' score is the sum over shared terms of weight * weight."""
+    used, rows = {}, []
+    for i in range(vec.shape[0]):
+        row = vec.getrow(i)
+        rows.append([x for c, w in zip(row.indices, row.data) if round(1000 * w) for x in (used.setdefault(int(c), len(used)), int(round(1000 * w)))])
+    terms = [""] * len(used)
+    for col, new in used.items():
+        terms[new] = str(vocab[col])
+    return rows, terms
 
 
 def top_neighbors(sim, k):
@@ -178,9 +194,17 @@ def main():
     d = load_abstracts()
     n = len(d)
 
-    vec = bm25_vectors(d.text)
-    text_nb = top_neighbors(vec @ vec.T, TEXT_K)
+    vec, vocab = bm25_vectors(d.text)
+    term_rows, terms = term_vectors(vec, vocab)
+    with gzip.open(os.path.splitext(args.out)[0] + "_terms.json.gz", "wt", compresslevel=9) as f:  # only the compare page fetches it
+        json.dump({"terms": terms, "rows": term_rows}, f, separators=(",", ":"))
+    cos = vec @ vec.T
+    text_nb = top_neighbors(cos, TEXT_K)
     ref = np.percentile([nb[0][1] for nb in text_nb if nb], 95)  # cosines are small; 100 = a very close pair
+    scaled = np.minimum(100, np.rint(100 * cos.toarray() / ref)).astype(np.uint8)  # same scale as "nt"
+    scaled[scaled < SIM_FLOOR] = 0  # weak pairs read as "under SIM_FLOOR%"; zeros are what make the file compress to ~2 MB
+    with gzip.open(os.path.splitext(args.out)[0] + "_sim.bin.gz", "wb", compresslevel=9) as f:
+        f.write(scaled.tobytes())  # n*n bytes, row-major: any pair's match, for center-to-node scores at degrees 2-3
     author_nb = top_neighbors(jaccard(list(d.authors)), AUTHOR_K)
 
     xy = TSNE(n_components=2, perplexity=30, init="pca", random_state=0).fit_transform(
@@ -194,6 +218,16 @@ def main():
         d.loc[i, "track"] = pd.Series(votes).mode().iloc[0]
     tracks = sorted(d.track.unique())
 
+    people = {}  # author_key -> id, so each node can list its authors compactly ("au") for the page's hide-co-authorship box ("fa" is the first author)
+    authors = [sorted({people.setdefault(k, len(people)) for k in ks if k}) for ks in d.authors]
+    spelled, count = {}, {}  # names for the compare page: only authors on 2+ abstracts can be shared, so only they get one
+    for ks, fulls in zip(d.authors, d.full):
+        for k, full in set(zip(ks, fulls)):
+            if k:
+                count[people[k]] = count.get(people[k], 0) + 1
+                spelled[people[k]] = max(spelled.get(people[k], ""), full, key=len)
+    names = {str(i): spelled[i] for i, c in count.items() if c > 1}
+
     local = lambda iso: datetime.fromtimestamp(ts(iso), TZ)
     nodes = []
     for i, r in enumerate(d.itertuples()):
@@ -203,7 +237,8 @@ def main():
             "b": r.board or None, "p": r.speakers, "s": ts(r.start), "e": ts(r.end), "w": f"{t0:%a} {t0:%-I:%M %p}",
             "x": round(float(xy[i, 0]), 4), "y": round(float(xy[i, 1]), 4),
             "nt": [[j, min(100, round(100 * s / ref))] for j, s in text_nb[i]],
-            "na": [[j, round(100 * s)] for j, s in author_nb[i]],
+            "na": [[j, round(100 * s)] for j, s in author_nb[i]], "au": authors[i],
+            **({"fa": people[d.authors[i][0]]} if d.authors[i] and d.authors[i][0] else {}),
         })
         if r.type != "poster":
             nodes[-1]["inf"] = 1  # track inferred from the nearest posters
@@ -213,7 +248,7 @@ def main():
         if isinstance(r.lightning, str):
             t1 = local(r.lightning)
             nodes[-1]["lw"] = f"{t1:%a} {t1:%-I:%M %p}"
-    json.dump({"tracks": tracks, "shown": SHOWN_K, "nodes": nodes, "co": co_authors(d)}, open(args.out, "w"),
+    json.dump({"tracks": tracks, "shown": SHOWN_K, "nodes": nodes, "names": names, "co": co_authors(d)}, open(args.out, "w"),
               separators=(",", ":"), ensure_ascii=False)
     print(f"{n} abstracts, {sum(bool(x) for x in author_nb)} with a co-author link -> {args.out}")
 

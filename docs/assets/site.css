@@ -53,6 +53,8 @@ p, li { color: var(--text-secondary); max-width: 72ch; }
 .seg button[aria-pressed="true"] { background: var(--surface-2); border-color: var(--text-secondary); font-weight: 600; }
 .toolbar input { width: 15em; }
 .toolbar input[type=checkbox] { width: auto; }
+.toolbar .checks { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.toolbar .checks label { flex: 0 0 auto; }
 
 /* figures */
 figure.fig { margin: 16px 0 24px; }
@@ -414,3 +416,29 @@ table.match th.group { text-align: center; border-bottom: 1px solid var(--rule);
   .sim-card h2 { font-size: 18px; }
 }
 .sim-card a.cal { font-size: 13px; }
+a.cal { display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+a.cal svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.cmp-pick { display: flex; flex-wrap: wrap; gap: 14px 28px; margin: 14px 0; }
+.cmp-slot { flex: 1 1 18em; min-width: 0; }
+.cmp-slot .lbl { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; }
+.cmp-slot .sim-search { display: block; margin-left: 0; }
+.cmp-slot .sim-search input { width: 100%; box-sizing: border-box; }
+.cmp-chosen { margin-top: 6px; font-size: 14px; }
+.cmp-chosen span { font-size: 12px; color: var(--text-secondary); }
+.cmp-chosen button { font: inherit; border: 0; background: none; color: var(--text-secondary); cursor: pointer; font-size: 16px; }
+.cmp-score { display: flex; align-items: baseline; gap: 10px; margin: 6px 0; }
+.cmp-score .big { font-size: 36px; font-weight: 700; }
+.cmp-facts { margin: 6px 0 14px; padding-left: 18px; font-size: 14px; }
+.cmp-table { border-collapse: collapse; font-size: 14px; width: 100%; max-width: 40em; }
+.cmp-table th, .cmp-table td { text-align: left; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.cmp-table thead th { font-weight: 600; }
+.cmp-table tbody th { font-weight: 400; color: var(--text-secondary); width: 5.5em; }
+.cmp-why { list-style: none; margin: 6px 0; padding: 0; max-width: 28em; font-size: 14px; }
+.cmp-why li { position: relative; padding: 3px 8px; }
+.cmp-why .bar { position: absolute; left: 0; top: 0; bottom: 0; background: var(--surface-2); z-index: -1; border-radius: 3px; }
+.cmp-why { isolation: isolate; }
+.sim-side button.why { display: inline; width: auto; padding: 0; border: 0; font-size: 12px; color: var(--text-secondary); text-decoration: underline; cursor: pointer; }
+.sim-side .why-terms { margin-left: calc(3em + 4px); padding: 0 4px 7px; font-size: 12px; display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.sim-side .why-terms span { background: var(--surface-2); border-radius: 8px; padding: 1px 7px; }
+.sim-side .why-terms i { font-style: normal; color: var(--text-secondary); }
+.sim-side .why-terms em { font-style: normal; color: var(--text-secondary); }

@@ -13,7 +13,7 @@
 <meta property="og:url" content="https://nikbaya.github.io/ashg_abstracts/similar.html">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='5' cy='8' r='4' fill='%232a78d6'/%3E%3Ccircle cx='11' cy='8' r='4' fill='%23e34948' fill-opacity='.85'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/site.css?v=9c5d168e">
+<link rel="stylesheet" href="assets/site.css?v=845f67b1">
 </head>
 <body>
 <header class="site-header"><div class="wrap">
@@ -26,6 +26,9 @@
     </div>
     <div class="nav-item">
     <a href="similar.html" aria-current="page"><svg class="nav-icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="2"/><circle cx="3" cy="4" r="1.5"/><circle cx="13" cy="5" r="1.5"/><circle cx="11.5" cy="13" r="1.5"/><path d="M6.4 7 4.2 5M10 7.6l1.8-1.6M9 9.8l2 2"/></svg>Find talks</a>
+    </div>
+    <div class="nav-item">
+    <a href="compare.html"><svg class="nav-icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="5" cy="8" r="3.5"/><circle cx="11" cy="8" r="3.5"/></svg>Compare</a>
     </div>
     <div class="nav-item has-menu">
     <a href="phrases.html"><svg class="nav-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"/><path d="M5.5 6.5h5"/></svg>Phrases<span class="caret" aria-hidden="true"></span></a>
@@ -53,7 +56,7 @@
 <p class="sim-help">Search by author (first authors, or co-authors to find their abstracts), or take a random one; hover (or tap) a bubble for its details and click (or tap twice) to
 move on to it. Bubbles are colored by track and sized by how close the match is. Degrees widen the view to neighbors of neighbors (up to 3; past that it would reach nearly every abstract). Titles and abstract text are not
 shown here (see <a href="methods.html#similar">how the match is made</a>).</p>
-<div id="similar" data-src="data/network.json?v=3ba9df55">
+<div id="similar" data-src="data/network.json?v=3fd3d5c3" data-pairs="data/network_sim.bin.gz?v=3c3f9c1b" data-terms="data/network_terms.json.gz?v=12f1e360">
 <div class="toolbar">
   <span class="lbl">Match by</span>
   <span class="seg" role="group" aria-label="Match by" data-sim="by">
@@ -66,7 +69,10 @@ shown here (see <a href="methods.html#similar">how the match is made</a>).</p>
     <button type="button" data-value="2" aria-pressed="false">2</button>
     <button type="button" data-value="3" aria-pressed="false">3</button>
   </span>
-  <label><input type="checkbox" id="sim-past"> Hide past sessions</label>
+  <span class="checks">
+    <label><input type="checkbox" id="sim-past"> Hide past sessions</label>
+    <label title="Hides abstracts that list the center abstract's first author anywhere in their author list (first, middle or last)."><input type="checkbox" id="sim-co"> Hide co-authorship</label>
+  </span>
   <span class="sim-search">
     <input id="sim-q" type="search" placeholder="Author, e.g. Smith" autocomplete="off" aria-label="Search by author">
     <button type="button" id="sim-random">Random</button>
@@ -85,15 +91,15 @@ shown here (see <a href="methods.html#similar">how the match is made</a>).</p>
 <details class="table"><summary>Track colors</summary><ul id="sim-legend" class="sim-legend"></ul></details>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
-<script src="assets/similar.js?v=9c5d168e"></script>
+<script src="assets/similar.js?v=845f67b1"></script>
 <nav class="pager" aria-label="Previous and next page">
-<a class="prev" href="index.html"><span>← Previous</span>Overview</a><a class="next" href="phrases.html"><span>Next →</span>Phrases</a></nav>
+<a class="prev" href="index.html"><span>← Previous</span>Overview</a><a class="next" href="compare.html"><span>Next →</span>Compare</a></nav>
 </main>
 <footer><div class="wrap">
   <p>Parsed from the ASHG annual meeting abstracts (2022–2026). Abstracts © their authors; the collection © ASHG. No abstract text is reproduced here, only counts and rates.</p>
   <p>Code and full aggregate tables: <a href="https://github.com/nikbaya/ashg_abstracts">github.com/nikbaya/ashg_abstracts</a> · <a href="methods.html">Methods and caveats</a></p>
 </div></footer>
-<script src="assets/site.js?v=9c5d168e"></script>
+<script src="assets/site.js?v=845f67b1"></script>
 <script data-goatcounter="https://ashg-abstracts.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

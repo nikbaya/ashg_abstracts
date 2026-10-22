@@ -5,7 +5,7 @@
 <p class="sim-help">Search by author (first authors, or co-authors to find their abstracts), or take a random one; hover (or tap) a bubble for its details and click (or tap twice) to
 move on to it. Bubbles are colored by track and sized by how close the match is. Degrees widen the view to neighbors of neighbors (up to 3; past that it would reach nearly every abstract). Titles and abstract text are not
 shown here (see <a href="methods.html#similar">how the match is made</a>).</p>
-<div id="similar" data-src="{{ network_src }}">
+<div id="similar" data-src="{{ network_src }}" data-pairs="{{ pairs_src or '' }}" data-terms="{{ terms_src or '' }}">
 <div class="toolbar">
   <span class="lbl">Match by</span>
   <span class="seg" role="group" aria-label="Match by" data-sim="by">
@@ -18,7 +18,10 @@ shown here (see <a href="methods.html#similar">how the match is made</a>).</p>
     <button type="button" data-value="2" aria-pressed="false">2</button>
     <button type="button" data-value="3" aria-pressed="false">3</button>
   </span>
-  <label><input type="checkbox" id="sim-past"> Hide past sessions</label>
+  <span class="checks">
+    <label><input type="checkbox" id="sim-past"> Hide past sessions</label>
+    <label title="Hides abstracts that list the center abstract's first author anywhere in their author list (first, middle or last)."><input type="checkbox" id="sim-co"> Hide co-authorship</label>
+  </span>
   <span class="sim-search">
     <input id="sim-q" type="search" placeholder="Author, e.g. Smith" autocomplete="off" aria-label="Search by author">
     <button type="button" id="sim-random">Random</button>
