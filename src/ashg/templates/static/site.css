@@ -442,3 +442,23 @@ a.cal svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-
 .sim-side .why-terms span { background: var(--surface-2); border-radius: 8px; padding: 1px 7px; }
 .sim-side .why-terms i { font-style: normal; color: var(--text-secondary); }
 .sim-side .why-terms em { font-style: normal; color: var(--text-secondary); }
+
+/* poster hall map (Find talks) */
+.hall { margin: 8px 0; }
+.hall summary { cursor: pointer; color: var(--talk); font-size: 13px; }
+.hall-ov { display: block; width: 100%; max-width: 640px; height: auto; margin-top: 8px; }
+.hall-scroll { overflow-x: auto; margin-top: 8px; }
+.hall-detail { display: block; max-width: none; }
+.hl-hall { fill: var(--surface-2); stroke: #d6d4cf; }
+.hl-b { fill: #fff; stroke: var(--text-secondary); stroke-width: 2; }
+.hl-b.on { fill: var(--poster); fill-opacity: .25; stroke: var(--poster); stroke-width: 4; }
+.hl-t { font-size: 24px; text-anchor: middle; dominant-baseline: middle; fill: var(--text-secondary); }
+.hl-t.on { fill: var(--text-primary); font-weight: 700; }
+.hl-s { fill: #fff; stroke: var(--rule); }
+.hl-s.on { fill: var(--poster); stroke: var(--poster); }
+.hl-n { font-size: 9px; text-anchor: middle; dominant-baseline: middle; fill: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.hl-n.on { fill: #fff; font-weight: 700; }
+.hl-sep { stroke: var(--text-primary); stroke-width: 2; }
+.hl-gap { fill: var(--surface-2); stroke: var(--text-secondary); stroke-dasharray: 3 2; }
+.sim-card .hall-scroll { display: block; margin-right: 0; max-width: 100%; }
+.hl-dot { fill: var(--poster); stroke: #fff; stroke-width: 3; }

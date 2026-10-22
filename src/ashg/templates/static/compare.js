@@ -14,7 +14,8 @@
   const toks = (s) => s.toLowerCase().split(/[\s,.]+/).filter(Boolean);
 
   function matches(q) { // names are stored as "Surname, I."; every typed word must start a name word, or be a first name with that initial
-    const words = toks(q);
+    const words = toks(q), board = /^(?:board\s*)?(\d{2,4})([wtf]?)$/i.exec(q.trim()); // a poster board number, with or without the day letter
+    if (board) return nodes.map((n, i) => i).filter((i) => nodes[i].b && nodes[i].b.toLowerCase().startsWith((board[1] + board[2]).toLowerCase())).sort((x, y) => nodes[x].b.localeCompare(nodes[y].b)).slice(0, 8);
     if (q.trim().length < 2 || !words.length) return [];
     const ok = (name) => { const t = toks(name); return words.every((w) => t.some((x) => x.startsWith(w)) || (w.length > 1 && t.some((x) => x.length === 1 && x === w[0]))); };
     const rank = (name) => { const t = toks(name), sur = name.toLowerCase().split(",")[0].trim();

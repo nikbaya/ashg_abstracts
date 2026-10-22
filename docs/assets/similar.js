@@ -67,6 +67,13 @@
     q.set("details", [match != null ? `Similarity to ${author(to)}: ${match}%` : "", url].filter(Boolean).join("\n"));
     return `<a class="cal" href="https://calendar.google.com/calendar/render?${q}" target="_blank" rel="noopener" title="Add this to Google Calendar" aria-label="Add this to Google Calendar">${CAL}${short ? "Add" : "Google Calendar"}</a>`;
   };
+  const hallLink = (n) => n.t === "poster" && n.b && window.hallMap
+    ? `<details class="hall" open><summary>Poster hall map</summary>${window.hallMap(n.b)}</details>` : "";
+  function centerHall() { // wide blocks scroll sideways: bring the board into view
+    const box = document.querySelector("details.hall[open] .hall-scroll"), on = box && box.querySelector(".hl-s.on");
+    if (on) { const r = on.getBoundingClientRect(); box.scrollLeft = r.left + r.width / 2 - box.getBoundingClientRect().left + box.scrollLeft - box.clientWidth / 2; }
+  }
+  document.addEventListener("toggle", centerHall, true); // also when the reader reopens the map
   const touch = () => matchMedia("(pointer: coarse)").matches;
 
   function details(n, match, depth, via) {
@@ -202,10 +209,11 @@
       .alpha(0.9).restart();
 
     const by = state.by === "nt" ? "text" : "co-authors";
-    $("#sim-card").innerHTML = `<h2>${author(center)} ${planner(center)}</h2><dl>${details(center)}</dl>` +
+    $("#sim-card").innerHTML = `<h2>${author(center)} ${planner(center)}</h2><dl>${details(center)}</dl>${hallLink(center)}` +
       `<p class="sub">${data_.length > 1 ? `Showing ${data_.length - 1} abstracts within ${state.degrees} degree${state.degrees > 1 ? "s" : ""} by ${by}` : `No abstracts to show by ${by}`}` +
       `${state.by === "na" && !total ? ": no other abstract shares an author with this one" : ""}` +
       `${hidden && state.hidePast ? ` (${hidden} already past are hidden)` : ""}.</p>`;
+    centerHall();
     // upcoming: chronological, scrolled so the current or next session is at the top; earlier sessions sit above
     const ranked = data_.slice(1).sort(state.sort === "time"
       ? (a, b) => nodes[a.id].s - nodes[b.id].s
@@ -248,6 +256,14 @@
     q = q.trim().toLowerCase();
     if (q.length < 2) { out.hidden = true; return; }
     // names are stored as "Surname, I."; every typed word must start a name word, or be a full first name with that initial
+    const board = /^(?:board\s*)?(\d{2,4})([wtf]?)$/.exec(q); // a poster board number, with or without the day letter
+    if (board) {
+      const ids = []; for (let i = 0; i < nodes.length; i++) if (nodes[i].b && nodes[i].b.toLowerCase().startsWith(board[1] + board[2])) ids.push(i);
+      ids.sort((a, b) => nodes[a].b.localeCompare(nodes[b].b));
+      out.innerHTML = ids.length ? `<p class="sub">Poster board</p>` + ids.slice(0, 8).map((i) => `<button type="button" data-id="${i}">${author(nodes[i])}<span>${TYPES[nodes[i].t]} · ${nodes[i].w} · ${nodes[i].b}</span></button>`).join("")
+        + (ids.length > 8 ? `<p class="sub">${ids.length - 8} more: type more of the number</p>` : "") : "<p class=\"sub\">No poster board matches.</p>";
+      out.hidden = false; return;
+    }
     const words = q.split(/[\s,.]+/).filter(Boolean);
     const ok = (name) => { const t = name.toLowerCase().split(/[\s,.]+/).filter(Boolean);
       return words.every((w) => t.some((x) => x.startsWith(w)) || (w.length > 1 && t.some((x) => x.length === 1 && x === w[0]))); };

@@ -23,7 +23,7 @@ shown here (see <a href="methods.html#similar">how the match is made</a>).</p>
     <label title="Hides abstracts that list the center abstract's first author anywhere in their author list (first, middle or last)."><input type="checkbox" id="sim-co"> Hide co-authorship</label>
   </span>
   <span class="sim-search">
-    <input id="sim-q" type="search" placeholder="Author, e.g. Smith" autocomplete="off" aria-label="Search by author">
+    <input id="sim-q" type="search" placeholder="Author or poster number, e.g. Smith or 6041" autocomplete="off" aria-label="Search by author or poster board number">
     <button type="button" id="sim-random">Random</button>
     <div id="sim-results" class="sim-results" hidden></div>
   </span>
@@ -40,5 +40,6 @@ shown here (see <a href="methods.html#similar">how the match is made</a>).</p>
 <details class="table"><summary>Track colors</summary><ul id="sim-legend" class="sim-legend"></ul></details>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="assets/hall.js?v={{ asset_v }}"></script>
 <script src="assets/similar.js?v={{ asset_v }}"></script>
 {% endblock %}
