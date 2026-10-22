@@ -46,7 +46,7 @@ p, li { color: var(--text-secondary); max-width: 72ch; }
   padding: 10px 0; margin: 12px 0 4px; background: var(--surface-1); border-bottom: 1px solid var(--rule); }
 .toolbar label, .toolbar .lbl { font-size: 13px; color: var(--text-secondary); }
 .seg { display: inline-flex; gap: 4px; vertical-align: middle; }
-.seg button, .filters select, .toolbar input { font: inherit; font-size: 14px; color: var(--text-primary);
+.seg button, .filters select, .toolbar input, .toolbar select { font: inherit; font-size: 14px; color: var(--text-primary);
   background: var(--surface-1); border: 1px solid var(--rule); border-radius: 6px; padding: 4px 10px; }
 .seg button { cursor: pointer; }
 .seg button:hover { border-color: var(--text-secondary); }
@@ -354,7 +354,13 @@ table.match th.group { text-align: center; border-bottom: 1px solid var(--rule);
 .sim-stage .node.hl circle { stroke: var(--text-primary); stroke-width: 3; }
 @media (max-width: 800px) { .sim-main { flex-direction: column; } .sim-main .sim-stage { width: 100%; } .sim-side { width: 100%; max-height: 360px; } }
 .sim-stage { position: relative; height: clamp(360px, 62vh, 620px); margin: 12px 0; background: var(--surface-2); border-radius: 10px; overflow: hidden; touch-action: manipulation; }
-.sim-stage svg { width: 100%; height: 100%; display: block; }
+.sim-stage svg { width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+.sim-stage svg:active { cursor: grabbing; }
+.sim-recenter { position: absolute; right: 8px; bottom: 8px; z-index: 2; width: 30px; height: 30px; padding: 0; display: grid; place-items: center; background: var(--surface-1); border: 1px solid var(--rule); border-radius: 6px; cursor: pointer; color: var(--text-secondary); }
+.sim-recenter:hover { color: var(--text-primary); }
+.sim-recenter svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
+#similar.no-graph .sim-stage { display: none; }
+#similar.no-graph .sim-side { width: 100%; max-height: none; }
 .sim-stage .node { cursor: pointer; }
 .sim-stage .node circle { stroke: var(--surface-1); stroke-width: 2; }
 .sim-stage .node.center circle { stroke: var(--text-primary); stroke-width: 3; }
@@ -462,3 +468,4 @@ a.cal svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-
 .hl-gap { fill: var(--surface-2); stroke: var(--text-secondary); stroke-dasharray: 3 2; }
 .sim-card .hall-scroll { display: block; margin-right: 0; max-width: 100%; }
 .hl-dot { fill: var(--poster); stroke: #fff; stroke-width: 3; }
+#sim-color { padding: 3px 6px; font-size: 13px; cursor: pointer; }

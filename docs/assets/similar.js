@@ -11,7 +11,7 @@
   const now = Number(params.get("now")) || Date.now() / 1000; // ?now=<unix seconds> previews another moment
 
   const FANOUT = [15, 4, 2]; // new neighbors per node at each degree: 15 + 15*4 + 60*2 = 195 bubbles at most
-  const state = { id: null, by: "nt", sort: "match", hidePast: false, hideCo: false, open: new Set(), selected: null, degrees: 1, history: [] }; // history: abstracts visited before the current one, oldest first
+  const state = { id: null, by: "nt", sort: "match", hidePast: false, hideCo: false, open: new Set(), selected: null, degrees: 1, colorBy: "track", history: [] }; // history: abstracts visited before the current one, oldest first
   let data, nodes, tracks, color;
   let pairs = null, pairsLoading = false; // pairs: n*n bytes, any pair's text match (0 = under 10%); fetched the first time a deeper degree needs it
   let vecs = null, vecsLoading = false; // vecs: {terms, rows}, rows[i] = [term, weight, term, weight, ...]; fetched the first time "Keyword scores" is opened
@@ -44,8 +44,21 @@
   const pct = (m) => (m ? `${m}%` : "<10%");
 
   const svg = d3.select("#sim-graph");
-  const linkLayer = svg.append("g").attr("class", "links");
-  const nodeLayer = svg.append("g").attr("class", "nodes");
+  const view = svg.append("g").attr("class", "view"); // pan/zoom happens on this group
+  const linkLayer = view.append("g").attr("class", "links");
+  const nodeLayer = view.append("g").attr("class", "nodes");
+  let zt = d3.zoomIdentity; // current pan/zoom, so the tooltip can follow its bubble
+  const zoom = d3.zoom().scaleExtent([0.4, 6]).on("zoom", (e) => { zt = e.transform; view.attr("transform", zt); hideTip(); });
+  svg.call(zoom).on("dblclick.zoom", null);
+  const recenter = (ms = 0) => svg.transition().duration(ms).call(zoom.transform, d3.zoomIdentity);
+  const kindOf = (id) => (nodes[id].t === "poster" ? "poster" : "talk");
+  const fillOf = (id) => (state.colorBy === "type" ? `var(--${kindOf(id)})` : color(nodes[id].k));
+  function paintLegend() {
+    $("#sim-legend-title").textContent = state.colorBy === "type" ? "Talk and poster colors" : "Track colors";
+    $("#sim-legend").innerHTML = state.colorBy === "type"
+      ? [["poster", "Poster"], ["talk", "Talk (platform, plenary, symposium, session)"]].map(([k, t]) => `<li><i style="background:var(--${k})"></i>${t}</li>`).join("")
+      : tracks.map((t, k) => `<li><i style="background:${color(k)}"></i>${t}</li>`).join("");
+  }
   const tip = $("#sim-tip");
   const stage = $("#sim-stage");
   let width = 0, height = 0, sy = 1, vh = 0; // the layout runs in width x vh space and is stretched vertically by sy to fill tall (phone) panes
@@ -91,8 +104,9 @@
     tip.innerHTML = details(n, d.match, d.depth, d.via) + (touch() && d.id !== state.id ? "<em>Tap again to center on this one</em>" : "");
     tip.hidden = false;
     const box = stage.getBoundingClientRect();
-    const x = Math.min(Math.max(d.x - tip.offsetWidth / 2, 4), box.width - tip.offsetWidth - 4), dy = d.y * sy;
-    const y = dy + d.r + 8 + tip.offsetHeight > box.height ? dy - d.r - 8 - tip.offsetHeight : dy + d.r + 8;
+    const r = d.r * zt.k, px = zt.applyX(d.x), dy = zt.applyY(d.y * sy);
+    const x = Math.min(Math.max(px - tip.offsetWidth / 2, 4), box.width - tip.offsetWidth - 4);
+    const y = dy + r + 8 + tip.offsetHeight > box.height ? dy - r - 8 - tip.offsetHeight : dy + r + 8;
     tip.style.transform = `translate(${x}px, ${Math.max(y, 4)}px)`;
   }
 
@@ -142,6 +156,8 @@
       d.x = p ? p.x : width / 2; d.y = p ? p.y : vh / 2;
     }
     const reach = Math.min(width, vh) / 2 - 40;
+    const ox = state.degrees > 1 ? width * 0.4 : 0, oy = state.degrees > 1 ? vh * 0.4 : 0; // deeper graphs may spill past the pane; pan to see them
+    recenter();
 
     // First-ring neighbors sit at evenly spaced angles (keeping their current order around the center, so a
     // re-center glides) with the radius set by match, so the ring never has big radial gaps.
@@ -183,7 +199,7 @@
         state.selected = d.id; showTip(e, d);
       });
     all.transition().duration(400).style("opacity", (d) => (isPast(nodes[d.id]) && !d.center ? 0.55 : 1));
-    all.select("circle").attr("fill", (d) => color(nodes[d.id].k)).transition().duration(500).attr("r", (d) => d.r);
+    all.select("circle").style("fill", (d) => fillOf(d.id)).transition().duration(500).attr("r", (d) => d.r);
     all.select("text").text((d) => (d.depth < 2 ? short(author(nodes[d.id])) : "")).attr("dy", (d) => d.r + 12);
 
     const link = linkLayer.selectAll("line").data(links, (d) => d.target.id);
@@ -199,8 +215,8 @@
       .force("y", d3.forceY(vh / 2).strength((d) => (d.center ? 0.5 : 0.03)))
       .on("tick", () => {
         for (const d of data_) {
-          d.x = Math.max(d.r + 6, Math.min(width - d.r - 6, d.x));
-          d.y = Math.max(d.r + 6, Math.min(vh - d.r - 18 / sy, d.y));
+          d.x = Math.max(d.r + 6 - ox, Math.min(width - d.r - 6 + ox, d.x));
+          d.y = Math.max(d.r + 6 - oy, Math.min(vh - d.r - 18 / sy + oy, d.y));
           pos.set(d.id, { x: d.x, y: d.y });
         }
         all.attr("transform", (d) => `translate(${d.x},${d.y * sy})`);
@@ -245,6 +261,7 @@
 
   function resize() {
     const box = stage.getBoundingClientRect();
+    if (!box.width) return; // graph hidden
     width = box.width; height = box.height;
     sy = Math.min(1.8, Math.max(1, height / width * 0.9)); vh = height / sy;
     svg.attr("viewBox", `0 0 ${width} ${height}`);
@@ -307,6 +324,12 @@
       root.querySelectorAll("[data-sim=degrees] button").forEach((o) => o.setAttribute("aria-pressed", o === b));
       hideTip(); render(); loadPairs();
     }));
+    $("#sim-color").addEventListener("change", (e) => {
+      state.colorBy = e.target.value;
+      paintLegend(); nodeLayer.selectAll("g.node circle").style("fill", (d) => fillOf(d.id));
+    });
+    $("#sim-recenter").addEventListener("click", () => recenter(300));
+    $("#sim-hide-graph").addEventListener("change", (e) => { root.classList.toggle("no-graph", e.target.checked); hideTip(); }); // showing it again resizes via the observer
     const list = $("#sim-list"), mark = (id, on) => nodeLayer.selectAll("g.node").classed("hl", (d) => on && d.id === id);
     list.addEventListener("click", (e) => { const b = e.target.closest("li"); if (!b || e.target.closest("a")) return;
       const w = e.target.closest("button.why");
@@ -338,7 +361,7 @@
   fetch(root.dataset.src).then((r) => r.json()).then((d) => {
     data = d; nodes = d.nodes; tracks = d.tracks;
     color = (k) => PALETTE[k % PALETTE.length];
-    $("#sim-legend").innerHTML = tracks.map((t, k) => `<li><i style="background:${color(k)}"></i>${t}</li>`).join("");
+    paintLegend();
     const m = /^#n=(\d+)$/.exec(location.hash);
     state.id = m && Number(m[1]) < nodes.length ? Number(m[1]) : Math.floor(Math.random() * nodes.length);
     root.classList.add("ready");
