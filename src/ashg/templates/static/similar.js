@@ -14,7 +14,7 @@
   const state = { id: null, by: "nt", sort: "match", hidePast: false, hideCo: false, open: new Set(), selected: null, degrees: 1, history: [] }; // history: abstracts visited before the current one, oldest first
   let data, nodes, tracks, color;
   let pairs = null, pairsLoading = false; // pairs: n*n bytes, any pair's text match (0 = under 10%); fetched the first time a deeper degree needs it
-  let vecs = null, vecsLoading = false; // vecs: {terms, rows}, rows[i] = [term, weight, term, weight, ...]; fetched the first time a "Why?" is opened
+  let vecs = null, vecsLoading = false; // vecs: {terms, rows}, rows[i] = [term, weight, term, weight, ...]; fetched the first time "Keyword scores" is opened
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
   function sharedTerms(a, b, k = 6) { // terms both abstracts use, by share of the match between them
     const w = new Map(); for (let i = 0; i < vecs.rows[b].length; i += 2) w.set(vecs.rows[b][i], vecs.rows[b][i + 1]);
@@ -202,7 +202,7 @@
       .alpha(0.9).restart();
 
     const by = state.by === "nt" ? "text" : "co-authors";
-    $("#sim-card").innerHTML = `<h2>${author(center)} ${planner(center)}</h2><dl>${details(center)}</dl><p>${gcal(center)}</p>` +
+    $("#sim-card").innerHTML = `<h2>${author(center)} ${planner(center)}</h2><dl>${details(center)}</dl>` +
       `<p class="sub">${data_.length > 1 ? `Showing ${data_.length - 1} abstracts within ${state.degrees} degree${state.degrees > 1 ? "s" : ""} by ${by}` : `No abstracts to show by ${by}`}` +
       `${state.by === "na" && !total ? ": no other abstract shares an author with this one" : ""}` +
       `${hidden && state.hidePast ? ` (${hidden} already past are hidden)` : ""}.</p>`;
@@ -213,7 +213,7 @@
     $("#sim-list").innerHTML = ranked.map((d) => { const n = nodes[d.id];
       return `<li data-id="${d.id}"${isPast(n) ? ' class="past"' : n.s <= now ? ' class="live"' : ""}>${planner(n)}<button type="button" data-id="${d.id}"><b>${pct(d.match)}</b> ${author(n)}<em class="kind ${n.t === "poster" ? "poster" : "talk"}">${KINDS[n.t] || "Talk"}</em>` +
         `<span>${tracks[n.k]}${n.inf ? " (inferred)" : ""}</span></button>` +
-        `<div class="when">${n.w}${n.lw ? ` · lightning ${n.lw}` : ""}${n.b ? ` · ${n.b}` : ""}${d.depth > 1 ? ` · ${d.depth} degrees` : ""} · ${gcal(n, d.depth === 1 ? d.match : null, center, true)} · <button type="button" class="why" data-why="${d.id}" aria-expanded="${state.open.has(d.id)}" title="Show the words and phrases this abstract shares with the center">Why?</button></div>${state.open.has(d.id) ? whyHtml(d.id) : ""}</li>`; }).join("");
+        `<div class="when">${n.w}${n.lw ? ` · lightning ${n.lw}` : ""}${n.b ? ` · ${n.b}` : ""}${d.depth > 1 ? ` · ${d.depth} degrees` : ""} · <button type="button" class="why" data-why="${d.id}" aria-expanded="${state.open.has(d.id)}" title="Show the words and phrases this abstract shares with the center">Keyword scores</button></div>${state.open.has(d.id) ? whyHtml(d.id) : ""}</li>`; }).join("");
     const side = $("#sim-list"), first = state.sort === "time" && ranked.findIndex((d) => !isPast(nodes[d.id]));
     side.scrollTop = first > 0 ? side.children[first].getBoundingClientRect().top - side.getBoundingClientRect().top + side.scrollTop : 0;
     renderTrail();
