@@ -37,6 +37,11 @@ PAGES = [  # (file, nav label, page title)
     ("authors.html", "Senior authors", "Senior authors with the highest talk rate"),
     ("methods.html", "Methods", "Methods and caveats"),
 ]
+SOCIAL = {  # page -> (card, og:title, og:description); the cards come from social_cards.py, other pages share the headline figure
+    "index.html": ("social_index.png", None, "What the abstracts at the ASHG annual meeting say: topics and wording over time, and what leans toward talks over posters."),
+    "similar.html": ("social_similar.png", "Find talks · ASHG abstracts", "Pick an ASHG 2026 abstract and see which others read most like it, or share its authors."),
+    "compare.html": ("social_compare.png", "Compare two abstracts · ASHG abstracts", "How alike are two ASHG 2026 abstracts? Text match, rank among each other's closest abstracts and the words they share."),
+}
 SECTIONS = {  # nav dropdown: file -> [(anchor, label)]
     "index.html": [("search", "Phrase search"), ("hot", "What's hot"), ("talk-leaning", "Talk-leaning phrases"),
                    ("wording", "Wording"), ("institutions", "Institutions")],
@@ -378,7 +383,7 @@ def main():
               "highlights": highlights(out, years) if pooled and (out / "trends_phrases.csv").exists() else None,
               "words": words, "network_src": network_src, "pairs_src": pairs_src, "terms_src": terms_src, "manhattan_src": manhattan_src, "words_enriched_json": words_enriched, "words_enriched_src": words_enriched_src,
               "score": score_context(out / "talk_score.json") if (out / "talk_score.json").exists() else None,
-              "repo_url": args.repo_url, "site_url": args.site_url, "asset_v": asset_v,
+              "social": SOCIAL, "repo_url": args.repo_url, "site_url": args.site_url, "asset_v": asset_v,
               "n_institutes": pd.read_csv(args.aliases, comment="#").institute.nunique(), "n_ambiguous": len(AMBIGUOUS)}
     for i, page in enumerate(pages):
         html_out = env.get_template(page["file"] + ".j2").render(

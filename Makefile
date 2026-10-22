@@ -100,6 +100,9 @@ preprints:
 writing:
 	$(PY) src/ashg/writing.py data/abstracts/*.parquet
 
+cards:
+	$(PY) src/ashg/social_cards.py
+
 site:
 	$(PY) src/ashg/build_site.py
 
