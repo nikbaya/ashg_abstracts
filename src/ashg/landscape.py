@@ -9,8 +9,9 @@ below SIM_FLOOR (10%) are dropped.
 Titles and abstract text are never written out (same rule as network.json), so "title" is left out; the page paints
 keywords from the terms.
 
-Authors are merged on author_key (first + last name, lowercased) and shown under the longest spelling seen, so one
-person's abstracts end up under a single autocomplete entry.
+Authors are merged on person_key (first name + surname, lowercased, with apostrophes and hyphens dropped and initials
+left out of the surname) and shown under the longest spelling seen, so one person's abstracts end up under a single
+autocomplete entry.
 
 Usage: python src/ashg/landscape.py outputs/tsne_landscape.json
 """
@@ -18,13 +19,14 @@ Usage: python src/ashg/landscape.py outputs/tsne_landscape.json
 import argparse
 import json
 import os
+import re
 
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import TruncatedSVD
 from sklearn.manifold import TSNE
 
-from network import SIM_FLOOR, author_key, bm25_vectors, load_abstracts, top_neighbors
+from network import SIM_FLOOR, bm25_vectors, load_abstracts, top_neighbors
 from synonyms import Keywords
 
 KEYWORDS = 25  # paint-by-keyword only finds an abstract through these, so a topic ranked 10th still counts
@@ -52,12 +54,24 @@ def tidy(name):
     return " ".join(toks)
 
 
+def person_key(name):
+    """First name + surname, lowercased, with apostrophes, hyphens and spaces dropped from the surname and initials left out, so
+    "Anne O'Donnell-Luria", "Anne O’Donnell Luria" and "Anne ODonnell-Luria" are one person. Middle names are dropped too
+    when they are initials ("Yash K. Pershad"), but a spelled-out middle name is kept ("Mary Ann Lee" != "Mary Lee")."""
+    sq = lambda s: re.sub(r"['’‘-]", "", s).lower()
+    parts = name.split()
+    if len(parts) < 2:
+        return sq(name)
+    tail = [t for t in parts[1:] if not re.fullmatch(r"[A-Za-z]\.?", t)] or parts[-1:]
+    return f"{sq(parts[0])} {re.sub(r' ', '', sq(' '.join(tail)))}"
+
+
 def people(fulls):
-    """[(author_key, name)] for the real names in an author list, in order."""
+    """[(person_key, name)] for the real names in an author list, in order."""
     out = []
     for full in fulls:
         name = tidy(full)
-        if name and (key := author_key(name)):
+        if name and (key := person_key(name)):
             out.append((key, name))
     return out
 
@@ -81,7 +95,7 @@ def main():
     xy = (xy - xy.min(axis=0)) / (xy.max(axis=0) - xy.min(axis=0))  # as network.py, so the layouts agree
     xy = SCALE * (2 * xy - 1)
 
-    spelled = {}  # author_key -> longest spelling
+    spelled = {}  # person_key -> longest spelling
     listed = [people(fulls) for fulls in d.full]
     for ps in listed:
         for k, name in ps:

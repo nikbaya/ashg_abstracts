@@ -464,17 +464,23 @@
     requestDraw();
   }
 
+  // Matching ignores case, apostrophes (straight or curly), hyphens and spaces: "odonnellluria" finds "Anne O'Donnell-Luria".
+  // "Jane M. Smith" also answers to "Jane Smith": the first + last form drops any middle names or initials.
+  const norm = s => s.toLowerCase().replace(/['\u2019\u2018-]/g, "");
+  const key = s => norm(s).replace(/\s+/g, "");
+  const firstLast = n => { const p = n.split(/\s+/); return p.length > 2 ? `${p[0]} ${p[p.length - 1]}` : n; };
+
   makeAutocomplete({
     input: $("ls-author"), list: $("ls-author-list"), autoFirst: true,
     search(q) {
-      const l = q.toLowerCase().trim(), tiers = [[], [], [], []]; // exact name, exact last name, prefix, substring
+      const l = norm(q).trim(), k = key(q), tiers = [[], [], [], []]; // exact name, exact last name, prefix, substring
       for (const name of ALL_NAMES) {
-        const n = name.toLowerCase();
+        const n = norm(name), fl = firstLast(n);
         const last = n.split(/\s+/).pop();
-        if (n === l) tiers[0].push(name);
+        if (key(name) === k || key(fl) === k) tiers[0].push(name);
         else if (last === l) tiers[1].push(name);
-        else if (n.startsWith(l)) tiers[2].push(name);
-        else if (n.includes(l)) tiers[3].push(name);
+        else if (key(name).startsWith(k) || key(fl).startsWith(k)) tiers[2].push(name);
+        else if (key(name).includes(k) || key(fl).includes(k)) tiers[3].push(name);
       }
       const byCount = (a, b) => index.get(b).length - index.get(a).length;
       tiers[1].sort(byCount);
@@ -482,7 +488,8 @@
     },
     onSelect: item => selectAuthor(item.value),
     onEnter: text => {
-      const name = ALL_NAMES.find(n => n.toLowerCase() === text.trim().toLowerCase());
+      const t = key(text);
+      const name = ALL_NAMES.find(n => key(n) === t) ?? ALL_NAMES.find(n => key(firstLast(n)) === t);
       if (name) selectAuthor(name);
     },
   });
