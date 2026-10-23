@@ -83,15 +83,15 @@
     q.set("details", [match != null ? `Similarity to ${author(to)}: ${match}%` : "", url].filter(Boolean).join("\n"));
     return `<a class="cal" href="https://calendar.google.com/calendar/render?${q}" target="_blank" rel="noopener" title="Add this to Google Calendar" aria-label="Add this to Google Calendar">${CAL}${short ? "Add" : "Google Calendar"}</a>`;
   };
-  const hallLink = (n) => n.t === "poster" && n.b && window.hallMap
-    ? `<button type="button" class="hall-open" data-board="${n.b}"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 3.5 5.5 2l5 1.5 4-1.5v10.5l-4 1.5-5-1.5-4 1.5zM5.5 2v10.5M10.5 3.5V14"/></svg>Poster hall map</button>` : "";
+  const hallLink = (n, id, compact) => n.t === "poster" && n.b && window.hallMap
+    ? `<button type="button" class="hall-open${compact ? " compact" : ""}" data-board="${n.b}" data-id="${id}"${compact ? ' title="Poster hall map" aria-label="Poster hall map"' : ""}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 3.5 5.5 2l5 1.5 4-1.5v10.5l-4 1.5-5-1.5-4 1.5zM5.5 2v10.5M10.5 3.5V14"/></svg>${compact ? "Map" : "Poster hall map"}</button>` : "";
   function centerHall(box) { // wide blocks scroll sideways: bring the board into view
     const on = box && box.querySelector(".hl-s.on");
     if (on) { const r = on.getBoundingClientRect(); box.scrollLeft = r.left + r.width / 2 - box.getBoundingClientRect().left + box.scrollLeft - box.clientWidth / 2; }
   }
   document.addEventListener("click", (e) => { // the map opens as a popup over the page
     const b = e.target.closest(".hall-open"), dlg = $("#hall-dialog");
-    if (b) { dlg.querySelector(".hall-title").textContent = `${full(nodes[state.id])} · Board ${b.dataset.board}`; dlg.querySelector(".hall-body").innerHTML = window.hallMap(b.dataset.board); dlg.showModal(); centerHall(dlg.querySelector(".hall-scroll")); }
+    if (b) { dlg.querySelector(".hall-title").textContent = `${full(nodes[b.dataset.id])} · Board ${b.dataset.board}`; dlg.querySelector(".hall-body").innerHTML = window.hallMap(b.dataset.board); dlg.showModal(); centerHall(dlg.querySelector(".hall-scroll")); }
     else if (e.target === dlg || e.target.closest(".hall-close")) dlg.close();
   });
   const touch = () => matchMedia("(pointer: coarse)").matches;
@@ -240,7 +240,7 @@
       .alpha(0.9).restart();
 
     const by = state.by === "nt" ? "text" : "co-authors";
-    $("#sim-card").innerHTML = `<h2>${esc(full(center))} ${planner(center)}</h2><dl>${details(center)}</dl>${hallLink(center)}` +
+    $("#sim-card").innerHTML = `<h2>${esc(full(center))} ${planner(center)}</h2><dl>${details(center)}</dl>${hallLink(center, state.id)}` +
       (data_.length > 1 ? "" : `<p class="sub">No abstracts to show by ${by}${state.by === "na" && !total ? ": no other abstract shares an author with this one" : ""}.</p>`);
     present = new Set(data_.map((d) => (state.colorBy === "type" ? kindOf(d.id) : nodes[d.id].k))); paintLegend();
     // upcoming: chronological, scrolled so the current or next session is at the top; earlier sessions sit above
@@ -271,7 +271,7 @@
     $("#sim-list").insertAdjacentHTML("beforeend", rows.slice(shown, shown + k).map((d) => { const n = nodes[d.id];
       return `<li data-id="${d.id}"${isPast(n) ? ' class="past"' : n.s <= now ? ' class="live"' : ""}>${planner(n)}<button type="button" data-id="${d.id}"><b>${pct(d.match)}</b> ${esc(full(n))}<em class="kind ${n.t === "poster" ? "poster" : "talk"}">${KINDS[n.t] || "Talk"}</em>` +
         `<span>${tracks[n.k]}${n.inf ? " (inferred)" : ""}</span></button>` +
-        `<div class="when">${n.w}${n.lw ? ` · lightning ${n.lw}` : ""}${n.b ? ` · ${n.b}` : ""}${d.depth > 1 ? ` · ${d.depth} degrees` : ""} · <button type="button" class="why" data-why="${d.id}" aria-expanded="${state.open.has(d.id)}" title="Show the words and phrases this abstract shares with the center">Keyword scores</button></div>${state.open.has(d.id) ? whyHtml(d.id) : ""}</li>`; }).join(""));
+        `<div class="when">${n.w}${n.lw ? ` · lightning ${n.lw}` : ""}${n.b ? ` · ${n.b}` : ""}${d.depth > 1 ? ` · ${d.depth} degrees` : ""} · <button type="button" class="why" data-why="${d.id}" aria-expanded="${state.open.has(d.id)}" title="Show the words and phrases this abstract shares with the center">Keyword scores</button></div>${state.open.has(d.id) ? whyHtml(d.id) : ""}${hallLink(n, d.id, true)}</li>`; }).join(""));
     shown = Math.min(rows.length, shown + k);
   }
 
@@ -375,7 +375,7 @@
     if (matchMedia("(max-width: 800px)").matches) { root.classList.add("no-graph"); $("#sim-graph-toggle").textContent = "Show graph"; $("#sim-graph-toggle").setAttribute("aria-pressed", false); } // phones start with the list only
     $("#sim-graph-toggle").addEventListener("click", (e) => { const show = root.classList.contains("no-graph"); root.classList.toggle("no-graph", !show); e.target.textContent = show ? "Hide graph" : "Show graph"; e.target.setAttribute("aria-pressed", show); hideTip(); }); // showing it resizes via the observer
     const list = $("#sim-list"), mark = (id, on) => nodeLayer.selectAll("g.node").classed("hl", (d) => on && d.id === id);
-    list.addEventListener("click", (e) => { const b = e.target.closest("li"); if (!b || e.target.closest("a")) return;
+    list.addEventListener("click", (e) => { const b = e.target.closest("li"); if (!b || e.target.closest("a, .hall-open")) return;
       const w = e.target.closest("button.why");
       if (!w) return go(Number(b.dataset.id));
       const id = Number(w.dataset.why); // toggle: shared words with the center

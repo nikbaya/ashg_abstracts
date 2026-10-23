@@ -484,6 +484,9 @@ a.cal svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-
 .hall-dialog .hall-ov { margin-top: 0; max-width: none; }
 .hall-title { margin: -24px 36px 10px 0; font-size: 18px; }
 .hall-open { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid var(--talk); border-radius: 6px; text-decoration: none; background: var(--surface-1); }
+.sim-side button.hall-open.compact { position: absolute; right: 6px; bottom: 6px; display: inline-flex; width: auto; margin: 0; padding: 2px 8px; font-size: 12px; border: 1px solid var(--talk); color: var(--talk); text-decoration: none; }
+.sim-side .hall-open.compact svg { width: 13px; height: 13px; }
+.sim-side li:has(.hall-open.compact) .when { padding-right: 62px; }
 .hall-open:hover { background: var(--surface-2); }
 .hall-open svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linejoin: round; stroke-linecap: round; }
 .hall-dialog .hall-ov { padding: 10px; background: var(--surface-2); border-radius: 8px; box-sizing: border-box; }

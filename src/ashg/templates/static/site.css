@@ -46,7 +46,7 @@ p, li { color: var(--text-secondary); max-width: 72ch; }
   padding: 10px 0; margin: 12px 0 4px; background: var(--surface-1); border-bottom: 1px solid var(--rule); }
 .toolbar label, .toolbar .lbl { font-size: 13px; color: var(--text-secondary); }
 .seg { display: inline-flex; gap: 4px; vertical-align: middle; }
-.seg button, .filters select, .toolbar input { font: inherit; font-size: 14px; color: var(--text-primary);
+.seg button, .filters select, .toolbar input, .toolbar select { font: inherit; font-size: 14px; color: var(--text-primary);
   background: var(--surface-1); border: 1px solid var(--rule); border-radius: 6px; padding: 4px 10px; }
 .seg button { cursor: pointer; }
 .seg button:hover { border-color: var(--text-secondary); }
@@ -354,7 +354,13 @@ table.match th.group { text-align: center; border-bottom: 1px solid var(--rule);
 .sim-stage .node.hl circle { stroke: var(--text-primary); stroke-width: 3; }
 @media (max-width: 800px) { .sim-main { flex-direction: column; } .sim-main .sim-stage { width: 100%; } .sim-side { width: 100%; max-height: 360px; } }
 .sim-stage { position: relative; height: clamp(360px, 62vh, 620px); margin: 12px 0; background: var(--surface-2); border-radius: 10px; overflow: hidden; touch-action: manipulation; }
-.sim-stage svg { width: 100%; height: 100%; display: block; }
+.sim-stage svg { width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+.sim-stage svg:active { cursor: grabbing; }
+.sim-recenter { position: absolute; right: 8px; bottom: 8px; z-index: 2; width: 30px; height: 30px; padding: 0; display: grid; place-items: center; background: var(--surface-1); border: 1px solid var(--rule); border-radius: 6px; cursor: pointer; color: var(--text-secondary); }
+.sim-recenter:hover { color: var(--text-primary); }
+.sim-recenter svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
+#similar.no-graph .sim-stage { display: none; }
+#similar.no-graph .sim-side { width: 100%; max-height: none; }
 .sim-stage .node { cursor: pointer; }
 .sim-stage .node circle { stroke: var(--surface-1); stroke-width: 2; }
 .sim-stage .node.center circle { stroke: var(--text-primary); stroke-width: 3; }
@@ -462,3 +468,32 @@ a.cal svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-
 .hl-gap { fill: var(--surface-2); stroke: var(--text-secondary); stroke-dasharray: 3 2; }
 .sim-card .hall-scroll { display: block; margin-right: 0; max-width: 100%; }
 .hl-dot { fill: var(--poster); stroke: #fff; stroke-width: 3; }
+#sim-color { position: absolute; top: 8px; left: 8px; z-index: 2; padding: 3px 6px; font-size: 13px; cursor: pointer; }
+#similar .toolbar { position: static; } /* Match by / search scroll away; only the card (phones) and Related header stick */
+@media (max-width: 800px) { .sim-card { position: sticky; top: calc(var(--header-h, 58px) + var(--sim-tb-h, 56px)); z-index: 4; max-height: 38vh; overflow-y: auto; background: var(--surface-1); border-bottom: 1px solid var(--rule); padding-bottom: 4px; } } /* phones: the card stays under the sticky toolbar while the list scrolls; on desktop it scrolls away */
+/* Related header and Most similar / Upcoming toggle stay put under the sticky card while the list scrolls with the page */
+#similar.no-graph .sim-head { position: sticky; top: calc(var(--header-h, 58px) + var(--sim-tb-h, 56px)); z-index: 3; background: var(--surface-1); padding: 6px 0; margin: 0; border-bottom: 1px solid var(--rule); }
+@media (max-width: 800px) { #similar.no-graph .sim-head { top: calc(var(--header-h, 58px) + var(--sim-tb-h, 56px) + var(--sim-card-h, 0px)); } }
+.sim-legendbox { position: absolute; left: 8px; bottom: 8px; z-index: 2; max-width: calc(100% - 60px); max-height: calc(100% - 50px); overflow-y: auto; background: var(--surface-1); border: 1px solid var(--rule); border-radius: 6px; padding: 4px 8px; font-size: 13px; }
+.sim-legendbox > summary { cursor: pointer; color: var(--talk); }
+.sim-legendbox .sim-legend { columns: 1; margin: 6px 0 2px; }
+.hall-open { background: none; border: 0; padding: 0; margin: 8px 0; font: inherit; font-size: 13px; color: var(--talk); cursor: pointer; text-decoration: underline; }
+.hall-dialog { border: 1px solid var(--rule); border-radius: 10px; padding: 36px 16px 16px; width: min(900px, 94vw); max-height: 90vh; background: var(--surface-1); color: var(--text-primary); box-shadow: 0 12px 40px rgb(0 0 0 / 0.3); }
+.hall-dialog::backdrop { background: rgb(0 0 0 / 0.45); }
+.hall-close { position: absolute; top: 4px; right: 8px; font-size: 26px; line-height: 1; background: none; border: 0; cursor: pointer; color: var(--text-secondary); }
+.hall-dialog .hall-ov { margin-top: 0; max-width: none; }
+.hall-title { margin: -24px 36px 10px 0; font-size: 18px; }
+.hall-open { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid var(--talk); border-radius: 6px; text-decoration: none; background: var(--surface-1); }
+.sim-side button.hall-open.compact { position: absolute; right: 6px; bottom: 6px; display: inline-flex; width: auto; margin: 0; padding: 2px 8px; font-size: 12px; border: 1px solid var(--talk); color: var(--talk); text-decoration: none; }
+.sim-side .hall-open.compact svg { width: 13px; height: 13px; }
+.sim-side li:has(.hall-open.compact) .when { padding-right: 62px; }
+.hall-open:hover { background: var(--surface-2); }
+.hall-open svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linejoin: round; stroke-linecap: round; }
+.hall-dialog .hall-ov { padding: 10px; background: var(--surface-2); border-radius: 8px; box-sizing: border-box; }
+.hall-dialog .hall-scroll { margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--rule); }
+.hall-dialog .hall-scroll::before { content: "Poster block layout"; display: block; position: sticky; left: 0; margin-bottom: 8px; font-size: 12px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; color: var(--text-secondary); }
+/* Find talks: make the search box the obvious place to start */
+#similar .sim-search input { width: 18em; padding: 6px 10px 6px 32px; font-size: 15px; border: 2px solid var(--talk); border-radius: 8px; background: var(--surface-1) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23666' stroke-width='1.6' stroke-linecap='round'%3E%3Ccircle cx='6.5' cy='6.5' r='4.5'/%3E%3Cpath d='M10 10l4.5 4.5'/%3E%3C/svg%3E") no-repeat 9px center / 16px; }
+#similar .sim-search input:focus { outline: 0; box-shadow: 0 0 0 3px color-mix(in srgb, var(--talk) 25%, transparent); }
+.sim-methods { display: none; }
+@media (max-width: 800px) { .sim-methods { display: inline; margin-left: 8px; font-size: 13px; font-weight: 400; } }

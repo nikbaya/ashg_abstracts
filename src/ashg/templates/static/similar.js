@@ -11,7 +11,7 @@
   const now = Number(params.get("now")) || Date.now() / 1000; // ?now=<unix seconds> previews another moment
 
   const FANOUT = [15, 4, 2]; // new neighbors per node at each degree: 15 + 15*4 + 60*2 = 195 bubbles at most
-  const state = { id: null, by: "nt", sort: "match", hidePast: false, hideCo: false, open: new Set(), selected: null, degrees: 1, history: [] }; // history: abstracts visited before the current one, oldest first
+  const state = { id: null, by: "nt", sort: "match", hidePast: false, hideCo: false, open: new Set(), selected: null, degrees: 1, colorBy: "track", history: [] }; // history: abstracts visited before the current one, oldest first
   let data, nodes, tracks, color;
   let pairs = null, pairsLoading = false; // pairs: n*n bytes, any pair's text match (0 = under 10%); fetched the first time a deeper degree needs it
   let vecs = null, vecsLoading = false; // vecs: {terms, rows}, rows[i] = [term, weight, term, weight, ...]; fetched the first time "Keyword scores" is opened
@@ -44,14 +44,30 @@
   const pct = (m) => (m ? `${m}%` : "<10%");
 
   const svg = d3.select("#sim-graph");
-  const linkLayer = svg.append("g").attr("class", "links");
-  const nodeLayer = svg.append("g").attr("class", "nodes");
+  const view = svg.append("g").attr("class", "view"); // pan/zoom happens on this group
+  const linkLayer = view.append("g").attr("class", "links");
+  const nodeLayer = view.append("g").attr("class", "nodes");
+  let zt = d3.zoomIdentity; // current pan/zoom, so the tooltip can follow its bubble
+  const zoom = d3.zoom().scaleExtent([0.4, 6]).on("zoom", (e) => { zt = e.transform; view.attr("transform", zt); hideTip(); });
+  svg.call(zoom).on("dblclick.zoom", null);
+  const recenter = (ms = 0) => svg.transition().duration(ms).call(zoom.transform, d3.zoomIdentity);
+  const kindOf = (id) => (nodes[id].t === "poster" ? "poster" : "talk");
+  const fillOf = (id) => (state.colorBy === "type" ? `var(--${kindOf(id)})` : color(nodes[id].k));
+  let present = new Set(); // categories of the bubbles now in the graph
+  function paintLegend() { // only the colors currently on screen
+    const type = state.colorBy === "type";
+    $("#sim-legend-title").textContent = type ? "Talk / poster" : "Topics";
+    $("#sim-legend").innerHTML = type
+      ? [["poster", "Poster"], ["talk", "Talk (platform, plenary, symposium, session)"]].filter(([k]) => present.has(k)).map(([k, t]) => `<li><i style="background:var(--${k})"></i>${t}</li>`).join("")
+      : tracks.map((t, k) => [t, k]).filter(([, k]) => present.has(k)).map(([t, k]) => `<li><i style="background:${color(k)}"></i>${t}</li>`).join("");
+  }
   const tip = $("#sim-tip");
   const stage = $("#sim-stage");
   let width = 0, height = 0, sy = 1, vh = 0; // the layout runs in width x vh space and is stretched vertically by sy to fill tall (phone) panes
   const pos = new Map(); // id -> {x, y}, kept between states so nodes glide instead of jumping
 
   const isPast = (n) => n.e < now;
+  const full = (n) => { const w = n.f ? n.f.split(" ") : null; return w ? `${w.at(-1)}, ${w.slice(0, -1).join(" ")}` : author(n); }; // "Bick, Alexander G": first names for the result lists only
   const author = (n) => n.a || n.n || "Unknown author"; // symposium talks without a named speaker fall back to their session
   const short = (s) => (s.length > 26 ? s.slice(0, 25) + "…" : s);
   const PLANNER = "https://ashg.floq.live/event/ashg-2026/dailyprogramme?objectClass=person&type=detail&objectId=";
@@ -67,17 +83,21 @@
     q.set("details", [match != null ? `Similarity to ${author(to)}: ${match}%` : "", url].filter(Boolean).join("\n"));
     return `<a class="cal" href="https://calendar.google.com/calendar/render?${q}" target="_blank" rel="noopener" title="Add this to Google Calendar" aria-label="Add this to Google Calendar">${CAL}${short ? "Add" : "Google Calendar"}</a>`;
   };
-  const hallLink = (n) => n.t === "poster" && n.b && window.hallMap
-    ? `<details class="hall" open><summary>Poster hall map</summary>${window.hallMap(n.b)}</details>` : "";
-  function centerHall() { // wide blocks scroll sideways: bring the board into view
-    const box = document.querySelector("details.hall[open] .hall-scroll"), on = box && box.querySelector(".hl-s.on");
+  const hallLink = (n, id, compact) => n.t === "poster" && n.b && window.hallMap
+    ? `<button type="button" class="hall-open${compact ? " compact" : ""}" data-board="${n.b}" data-id="${id}"${compact ? ' title="Poster hall map" aria-label="Poster hall map"' : ""}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 3.5 5.5 2l5 1.5 4-1.5v10.5l-4 1.5-5-1.5-4 1.5zM5.5 2v10.5M10.5 3.5V14"/></svg>${compact ? "Map" : "Poster hall map"}</button>` : "";
+  function centerHall(box) { // wide blocks scroll sideways: bring the board into view
+    const on = box && box.querySelector(".hl-s.on");
     if (on) { const r = on.getBoundingClientRect(); box.scrollLeft = r.left + r.width / 2 - box.getBoundingClientRect().left + box.scrollLeft - box.clientWidth / 2; }
   }
-  document.addEventListener("toggle", centerHall, true); // also when the reader reopens the map
+  document.addEventListener("click", (e) => { // the map opens as a popup over the page
+    const b = e.target.closest(".hall-open"), dlg = $("#hall-dialog");
+    if (b) { dlg.querySelector(".hall-title").textContent = `${full(nodes[b.dataset.id])} · Board ${b.dataset.board}`; dlg.querySelector(".hall-body").innerHTML = window.hallMap(b.dataset.board); dlg.showModal(); centerHall(dlg.querySelector(".hall-scroll")); }
+    else if (e.target === dlg || e.target.closest(".hall-close")) dlg.close();
+  });
   const touch = () => matchMedia("(pointer: coarse)").matches;
 
   function details(n, match, depth, via) {
-    const rows = [[n.t === "symposium" || n.t === "session" ? "Speaker" : "Author", author(n)]];
+    const rows = depth === undefined ? [] : [[n.t === "symposium" || n.t === "session" ? "Speaker" : "Author", author(n)]]; // the center card already names the author in its heading
     if (n.n && n.n !== n.a) rows.push(["Session", n.n]);
     rows.push(["Track", tracks[n.k] + (n.inf ? " (inferred from text)" : "")], ["Type", TYPES[n.t]],
       ["Location", n.b ? `Board ${n.b}` : "Room not in the data"], ["Time", n.w]);
@@ -91,8 +111,9 @@
     tip.innerHTML = details(n, d.match, d.depth, d.via) + (touch() && d.id !== state.id ? "<em>Tap again to center on this one</em>" : "");
     tip.hidden = false;
     const box = stage.getBoundingClientRect();
-    const x = Math.min(Math.max(d.x - tip.offsetWidth / 2, 4), box.width - tip.offsetWidth - 4), dy = d.y * sy;
-    const y = dy + d.r + 8 + tip.offsetHeight > box.height ? dy - d.r - 8 - tip.offsetHeight : dy + d.r + 8;
+    const r = d.r * zt.k, px = zt.applyX(d.x), dy = zt.applyY(d.y * sy);
+    const x = Math.min(Math.max(px - tip.offsetWidth / 2, 4), box.width - tip.offsetWidth - 4);
+    const y = dy + r + 8 + tip.offsetHeight > box.height ? dy - r - 8 - tip.offsetHeight : dy + r + 8;
     tip.style.transform = `translate(${x}px, ${Math.max(y, 4)}px)`;
   }
 
@@ -102,10 +123,10 @@
   const usable = (id) => nodes[id][state.by].filter(([j]) => (!state.hidePast || !isPast(nodes[j])) && (!state.hideCo || !shares(j)));
 
   // breadth-first from the center, each node adding its closest not-yet-seen neighbors; links run parent -> child
-  function expand() {
+  function expand(maxDepth = state.degrees) {
     const list = [{ id: state.id, r: 22, center: true, depth: 0 }], seen = new Set([state.id]), links = [];
     let ring = [list[0]];
-    for (let depth = 1; depth <= state.degrees; depth++) {
+    for (let depth = 1; depth <= maxDepth; depth++) {
       const next = [];
       for (const parent of ring) {
         let added = 0;
@@ -124,7 +145,7 @@
   }
 
   function loadPairs() { // center-to-node matches for degrees 2-3 (text only); until they arrive the page shows parent matches
-    if (pairs || pairsLoading || state.degrees < 2 || !root.dataset.pairs) return;
+    if (pairs || pairsLoading || (state.degrees < 2 && state.sort !== "match") || !root.dataset.pairs) return;
     pairsLoading = true;
     fetch(root.dataset.pairs).then((r) => new Response(r.body.pipeThrough(new DecompressionStream("gzip"))).arrayBuffer())
       .then((buf) => { pairs = new Uint8Array(buf); render(); })
@@ -133,7 +154,15 @@
 
   const sim = d3.forceSimulation().alphaDecay(0.04).velocityDecay(0.35);
 
+  function blank() { // landing state: nothing chosen yet
+    hideTip(); sim.stop(); nodeLayer.selectAll("*").remove(); linkLayer.selectAll("*").remove();
+    present = new Set(); paintLegend(); rows = []; shown = 0; $("#sim-list").innerHTML = ""; $("#sim-list").style.paddingBottom = "0";
+    $("#sim-card").innerHTML = `<p class="sub">Search for an author or poster number above, or press Random, to see related abstracts.</p>`;
+    renderTrail();
+  }
+
   function render() {
+    if (state.id == null) return blank();
     const { list: data_, links } = expand();
     const center = nodes[state.id];
     const total = nodes[state.id][state.by].length, hidden = total - usable(state.id).length;
@@ -142,6 +171,8 @@
       d.x = p ? p.x : width / 2; d.y = p ? p.y : vh / 2;
     }
     const reach = Math.min(width, vh) / 2 - 40;
+    const ox = state.degrees > 1 ? width * 0.4 : 0, oy = state.degrees > 1 ? vh * 0.4 : 0; // deeper graphs may spill past the pane; pan to see them
+    recenter();
 
     // First-ring neighbors sit at evenly spaced angles (keeping their current order around the center, so a
     // re-center glides) with the radius set by match, so the ring never has big radial gaps.
@@ -183,7 +214,7 @@
         state.selected = d.id; showTip(e, d);
       });
     all.transition().duration(400).style("opacity", (d) => (isPast(nodes[d.id]) && !d.center ? 0.55 : 1));
-    all.select("circle").attr("fill", (d) => color(nodes[d.id].k)).transition().duration(500).attr("r", (d) => d.r);
+    all.select("circle").style("fill", (d) => fillOf(d.id)).transition().duration(500).attr("r", (d) => d.r);
     all.select("text").text((d) => (d.depth < 2 ? short(author(nodes[d.id])) : "")).attr("dy", (d) => d.r + 12);
 
     const link = linkLayer.selectAll("line").data(links, (d) => d.target.id);
@@ -199,8 +230,8 @@
       .force("y", d3.forceY(vh / 2).strength((d) => (d.center ? 0.5 : 0.03)))
       .on("tick", () => {
         for (const d of data_) {
-          d.x = Math.max(d.r + 6, Math.min(width - d.r - 6, d.x));
-          d.y = Math.max(d.r + 6, Math.min(vh - d.r - 18 / sy, d.y));
+          d.x = Math.max(d.r + 6 - ox, Math.min(width - d.r - 6 + ox, d.x));
+          d.y = Math.max(d.r + 6 - oy, Math.min(vh - d.r - 18 / sy + oy, d.y));
           pos.set(d.id, { x: d.x, y: d.y });
         }
         all.attr("transform", (d) => `translate(${d.x},${d.y * sy})`);
@@ -209,23 +240,39 @@
       .alpha(0.9).restart();
 
     const by = state.by === "nt" ? "text" : "co-authors";
-    $("#sim-card").innerHTML = `<h2>${author(center)} ${planner(center)}</h2><dl>${details(center)}</dl>${hallLink(center)}` +
-      `<p class="sub">${data_.length > 1 ? `Showing ${data_.length - 1} abstracts within ${state.degrees} degree${state.degrees > 1 ? "s" : ""} by ${by}` : `No abstracts to show by ${by}`}` +
-      `${state.by === "na" && !total ? ": no other abstract shares an author with this one" : ""}` +
-      `${hidden && state.hidePast ? ` (${hidden} already past are hidden)` : ""}.</p>`;
-    centerHall();
+    $("#sim-card").innerHTML = `<h2>${esc(full(center))} ${planner(center)}</h2><dl>${details(center)}</dl>${hallLink(center, state.id)}` +
+      (data_.length > 1 ? "" : `<p class="sub">No abstracts to show by ${by}${state.by === "na" && !total ? ": no other abstract shares an author with this one" : ""}.</p>`);
+    present = new Set(data_.map((d) => (state.colorBy === "type" ? kindOf(d.id) : nodes[d.id].k))); paintLegend();
     // upcoming: chronological, scrolled so the current or next session is at the top; earlier sessions sit above
     const ranked = data_.slice(1).sort(state.sort === "time"
       ? (a, b) => nodes[a.id].s - nodes[b.id].s
       : (a, b) => b.match - a.match);
-    $("#sim-list").innerHTML = ranked.map((d) => { const n = nodes[d.id];
-      return `<li data-id="${d.id}"${isPast(n) ? ' class="past"' : n.s <= now ? ' class="live"' : ""}>${planner(n)}<button type="button" data-id="${d.id}"><b>${pct(d.match)}</b> ${author(n)}<em class="kind ${n.t === "poster" ? "poster" : "talk"}">${KINDS[n.t] || "Talk"}</em>` +
-        `<span>${tracks[n.k]}${n.inf ? " (inferred)" : ""}</span></button>` +
-        `<div class="when">${n.w}${n.lw ? ` · lightning ${n.lw}` : ""}${n.b ? ` · ${n.b}` : ""}${d.depth > 1 ? ` · ${d.depth} degrees` : ""} · <button type="button" class="why" data-why="${d.id}" aria-expanded="${state.open.has(d.id)}" title="Show the words and phrases this abstract shares with the center">Keyword scores</button></div>${state.open.has(d.id) ? whyHtml(d.id) : ""}</li>`; }).join("");
+    rows = ranked;
+    if (state.sort === "match" && state.degrees < 3) { // scrolling past the graph's neighbors keeps going outward, to degree 3, best matches first
+      const have = new Set(data_.map((d) => d.id));
+      rows = ranked.concat(expand(3).list.filter((d) => !have.has(d.id)).sort((a, b) => b.match - a.match));
+      loadPairs();
+    }
+    shown = 0; $("#sim-list").innerHTML = "";
+    addRows(state.sort === "time" ? ranked.length : PAGE); // best matches load in pages as the reader scrolls; chronological shows all
     const side = $("#sim-list"), first = state.sort === "time" && ranked.findIndex((d) => !isPast(nodes[d.id]));
-    side.scrollTop = first > 0 ? side.children[first].getBoundingClientRect().top - side.getBoundingClientRect().top + side.scrollTop : 0;
+    side.style.paddingBottom = "0";
+    if (first > 0 && side.scrollHeight > side.clientHeight) { // few upcoming rows leave the list too short to scroll the next one to the top: pad the end
+      const top = side.children[first].getBoundingClientRect().top - side.getBoundingClientRect().top + side.scrollTop;
+      side.style.paddingBottom = Math.max(0, top + side.clientHeight - side.scrollHeight) + "px";
+      side.scrollTop = top;
+    } else side.scrollTop = 0;
     renderTrail();
     history.replaceState(null, "", `#n=${state.id}`);
+  }
+
+  const PAGE = 40; let rows = [], shown = 0;
+  function addRows(k) { // append the next k ranked rows to the list
+    $("#sim-list").insertAdjacentHTML("beforeend", rows.slice(shown, shown + k).map((d) => { const n = nodes[d.id];
+      return `<li data-id="${d.id}"${isPast(n) ? ' class="past"' : n.s <= now ? ' class="live"' : ""}>${planner(n)}<button type="button" data-id="${d.id}"><b>${pct(d.match)}</b> ${esc(full(n))}<em class="kind ${n.t === "poster" ? "poster" : "talk"}">${KINDS[n.t] || "Talk"}</em>` +
+        `<span>${tracks[n.k]}${n.inf ? " (inferred)" : ""}</span></button>` +
+        `<div class="when">${n.w}${n.lw ? ` · lightning ${n.lw}` : ""}${n.b ? ` · ${n.b}` : ""}${d.depth > 1 ? ` · ${d.depth} degrees` : ""} · <button type="button" class="why" data-why="${d.id}" aria-expanded="${state.open.has(d.id)}" title="Show the words and phrases this abstract shares with the center">Keyword scores</button></div>${state.open.has(d.id) ? whyHtml(d.id) : ""}${hallLink(n, d.id, true)}</li>`; }).join(""));
+    shown = Math.min(rows.length, shown + k);
   }
 
   function go(id, fresh) {
@@ -245,6 +292,7 @@
 
   function resize() {
     const box = stage.getBoundingClientRect();
+    if (!box.width) return; // graph hidden
     width = box.width; height = box.height;
     sy = Math.min(1.8, Math.max(1, height / width * 0.9)); vh = height / sy;
     svg.attr("viewBox", `0 0 ${width} ${height}`);
@@ -260,7 +308,7 @@
     if (board) {
       const ids = []; for (let i = 0; i < nodes.length; i++) if (nodes[i].b && nodes[i].b.toLowerCase().startsWith(board[1] + board[2])) ids.push(i);
       ids.sort((a, b) => nodes[a].b.localeCompare(nodes[b].b));
-      out.innerHTML = ids.length ? `<p class="sub">Poster board</p>` + ids.slice(0, 8).map((i) => `<button type="button" data-id="${i}">${author(nodes[i])}<span>${TYPES[nodes[i].t]} · ${nodes[i].w} · ${nodes[i].b}</span></button>`).join("")
+      out.innerHTML = ids.length ? `<p class="sub">Poster board</p>` + ids.slice(0, 8).map((i) => `<button type="button" data-id="${i}">${esc(full(nodes[i]))}<span>${TYPES[nodes[i].t]} · ${nodes[i].w} · ${nodes[i].b}</span></button>`).join("")
         + (ids.length > 8 ? `<p class="sub">${ids.length - 8} more: type more of the number</p>` : "") : "<p class=\"sub\">No poster board matches.</p>";
       out.hidden = false; return;
     }
@@ -274,7 +322,7 @@
     const hits = [];
     for (let i = 0; i < nodes.length; i++) if (ok(author(nodes[i]))) hits.push(i);
     hits.sort((a, b) => rank(author(nodes[a])) - rank(author(nodes[b]))).splice(8);
-    const row = (i, last) => `<button type="button" data-id="${i}">${author(nodes[i])}${last ? '<em class="kind last">Last author</em>' : ""}<span>${TYPES[nodes[i].t]} · ${nodes[i].w}${nodes[i].b ? ` · ${nodes[i].b}` : ""}</span></button>`;
+    const row = (i, last) => `<button type="button" data-id="${i}">${esc(full(nodes[i]))}${last ? '<em class="kind last">Last author</em>' : ""}<span>${TYPES[nodes[i].t]} · ${nodes[i].w}${nodes[i].b ? ` · ${nodes[i].b}` : ""}</span></button>`;
     // co-authors (names are "First M. Last"): each match lists the first authors of the abstracts they appear on
     const sn = (name) => name.replace(/^(.*)\s(\S+)$/, "$2, $1");
     const cos = data.co.filter(([name]) => ok(sn(name))).sort((a, b) => rank(sn(a[0])) - rank(sn(b[0]))).slice(0, 4);
@@ -292,6 +340,13 @@
   }
 
   function bind() {
+    const tb = root.querySelector(".toolbar"); // the card sticks just below the (wrapping) toolbar
+    new ResizeObserver(() => root.style.setProperty("--sim-card-h", $("#sim-card").offsetHeight + "px")).observe($("#sim-card")); // the Related header sticks below the card
+    const stick = () => root.style.setProperty("--sim-tb-h", (getComputedStyle(tb).position === "sticky" ? tb.offsetHeight + 3 : 0) + "px"); // the toolbar is static on phones
+    new ResizeObserver(stick).observe(tb); addEventListener("resize", stick);
+    const more = () => { const l = $("#sim-list"); // near the bottom of the list (or of the page, when the graph is hidden and the list grows)
+      while (shown < rows.length && state.sort === "match" && l.lastElementChild.getBoundingClientRect().top < Math.min(l.getBoundingClientRect().bottom, innerHeight) + 200) addRows(PAGE); };
+    $("#sim-list").addEventListener("scroll", more); addEventListener("scroll", more, { passive: true });
     root.querySelectorAll("[data-sim=by] button").forEach((b) => b.addEventListener("click", () => {
       state.by = b.dataset.value;
       root.querySelectorAll("[data-sim=by] button").forEach((o) => o.setAttribute("aria-pressed", o === b));
@@ -301,14 +356,26 @@
       state.sort = b.dataset.value;
       root.querySelectorAll("[data-sim=sort] button").forEach((o) => o.setAttribute("aria-pressed", o === b));
       render();
+      const list = $("#sim-list"), next = state.sort === "time" && list.querySelector("li:not(.past)");
+      if (next && list.scrollHeight <= list.clientHeight + 1) { // graph hidden: the page scrolls, not the list
+        const hd = document.querySelector(".sim-head"), under = parseFloat(getComputedStyle(hd).top) + hd.offsetHeight; // rows scroll under the sticky stack
+        scrollTo({ top: next.getBoundingClientRect().top + scrollY - under - 8 });
+      }
     }));
     root.querySelectorAll("[data-sim=degrees] button").forEach((b) => b.addEventListener("click", () => {
       state.degrees = Number(b.dataset.value);
       root.querySelectorAll("[data-sim=degrees] button").forEach((o) => o.setAttribute("aria-pressed", o === b));
       hideTip(); render(); loadPairs();
     }));
+    $("#sim-color").addEventListener("change", (e) => {
+      state.colorBy = e.target.value;
+      present = new Set(nodeLayer.selectAll("g.node").data().map((d) => (state.colorBy === "type" ? kindOf(d.id) : nodes[d.id].k))); paintLegend(); nodeLayer.selectAll("g.node circle").style("fill", (d) => fillOf(d.id));
+    });
+    $("#sim-recenter").addEventListener("click", () => recenter(300));
+    if (matchMedia("(max-width: 800px)").matches) { root.classList.add("no-graph"); $("#sim-graph-toggle").textContent = "Show graph"; $("#sim-graph-toggle").setAttribute("aria-pressed", false); } // phones start with the list only
+    $("#sim-graph-toggle").addEventListener("click", (e) => { const show = root.classList.contains("no-graph"); root.classList.toggle("no-graph", !show); e.target.textContent = show ? "Hide graph" : "Show graph"; e.target.setAttribute("aria-pressed", show); hideTip(); }); // showing it resizes via the observer
     const list = $("#sim-list"), mark = (id, on) => nodeLayer.selectAll("g.node").classed("hl", (d) => on && d.id === id);
-    list.addEventListener("click", (e) => { const b = e.target.closest("li"); if (!b || e.target.closest("a")) return;
+    list.addEventListener("click", (e) => { const b = e.target.closest("li"); if (!b || e.target.closest("a, .hall-open")) return;
       const w = e.target.closest("button.why");
       if (!w) return go(Number(b.dataset.id));
       const id = Number(w.dataset.why); // toggle: shared words with the center
@@ -338,9 +405,9 @@
   fetch(root.dataset.src).then((r) => r.json()).then((d) => {
     data = d; nodes = d.nodes; tracks = d.tracks;
     color = (k) => PALETTE[k % PALETTE.length];
-    $("#sim-legend").innerHTML = tracks.map((t, k) => `<li><i style="background:${color(k)}"></i>${t}</li>`).join("");
+    paintLegend();
     const m = /^#n=(\d+)$/.exec(location.hash);
-    state.id = m && Number(m[1]) < nodes.length ? Number(m[1]) : Math.floor(Math.random() * nodes.length);
+    state.id = m && Number(m[1]) < nodes.length ? Number(m[1]) : null; // no abstract chosen: start blank
     root.classList.add("ready");
     bind(); resize(); render();
   }).catch(() => { $("#sim-card").textContent = "Couldn't load the abstract network. Try reloading."; });
