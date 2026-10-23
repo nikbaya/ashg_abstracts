@@ -120,6 +120,10 @@
   function hideTip() { tip.hidden = true; state.selected = null; }
 
   const shares = (j) => nodes[state.id].fa != null && nodes[j].au.includes(nodes[state.id].fa); // the center's first author is on j
+  const shared = (id) => { // co-author match to the center: Jaccard of the two author sets, on the same 0-100 scale as the precomputed lists
+    const a = nodes[state.id].au, b = nodes[id].au, n = a.filter((x) => b.includes(x)).length;
+    return Math.round(100 * n / (a.length + b.length - n || 1));
+  };
   const usable = (id) => nodes[id][state.by].filter(([j]) => (!state.hidePast || !isPast(nodes[j])) && (!state.hideCo || !shares(j)));
 
   // breadth-first from the center, each node adding its closest not-yet-seen neighbors; links run parent -> child
@@ -134,7 +138,7 @@
           if (added === FANOUT[depth - 1]) break;
           if (seen.has(id)) continue;
           seen.add(id); added++;
-          const toCenter = depth > 1 && state.by === "nt" && pairs ? pairs[state.id * nodes.length + id] : null; // text match to the center, not to the parent
+          const toCenter = depth < 2 ? null : state.by === "nt" ? (pairs ? pairs[state.id * nodes.length + id] : null) : shared(id); // match to the center, not to the parent
           const d = { id, match: toCenter ?? match, via: toCenter != null ? match : null, depth, r: d3.scaleSqrt().domain([0, 100]).range([4, 19 - 3 * depth])(match) };
           next.push(d); list.push(d); links.push({ source: parent, target: d });
         }
@@ -250,7 +254,7 @@
     rows = ranked;
     if (state.sort === "match" && state.degrees < 3) { // scrolling past the graph's neighbors keeps going outward, to degree 3, best matches first
       const have = new Set(data_.map((d) => d.id));
-      rows = ranked.concat(expand(3).list.filter((d) => !have.has(d.id)).sort((a, b) => b.match - a.match));
+      rows = ranked.concat(expand(3).list.filter((d) => !have.has(d.id)).sort((a, b) => b.match - a.match || (b.via ?? 0) - (a.via ?? 0)));
       loadPairs();
     }
     shown = 0; $("#sim-list").innerHTML = "";
