@@ -74,11 +74,13 @@
   let W = 0, H = 0, dpr = 1;
   let transform = d3.zoomIdentity;
   let hover = -1;
+  let pinned = false; // a clicked dot keeps its tooltip (with the Label button) until the map is panned or clicked elsewhere
 
   const state = {
     author: null,      // { name, mask, hits, firstHits, cx, cy, count, firstCount, edges, linkPct }
     mode: "coauthors", // web around the author: "coauthors" | "similar" | "none"
     style: "density",  // how paint layers are drawn: "density" | "dots"
+    labels: [],        // { name, cx, cy, count } people marked on the map by name
     layers: [],        // { id, type, term, exact, color, count, mask, density, peak, img }
   };
   let nextLayerId = 1;
@@ -215,6 +217,28 @@
       ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
       ctx.fill();
       ctx.stroke();
+    }
+
+    if (state.labels.length) {
+      ctx.font = "600 12px system-ui, sans-serif";
+      ctx.textBaseline = "middle";
+      ctx.lineJoin = "round";
+      for (const l of state.labels) {
+        const x = k * l.cx + tx, y = k * l.cy + ty;
+        if (x < -200 || x > W + 200 || y < -20 || y > H + 20) continue;
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, TAU);
+        ctx.fillStyle = "#b91c1c";
+        ctx.fill();
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.lineWidth = 3.5;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.92)";
+        ctx.strokeText(l.name, x + 8, y);
+        ctx.fillStyle = HIT_FILL;
+        ctx.fillText(l.name, x + 8, y);
+      }
     }
 
     if (hover >= 0) {
@@ -405,6 +429,7 @@
     const firstCount = firstHits.length;
     const a = state.author = { name, mask, hits, firstHits, cx: sx / sw, cy: sy / sw, count: entries.length, firstCount };
     computeConnections(a);
+    addLabel(name);
     $("ls-author").value = name;
     $("ls-info").textContent = `${entries.length} abstract${entries.length === 1 ? "" : "s"}, ${firstCount} as first author.`;
     $("ls-author-clear").hidden = false;
@@ -457,9 +482,72 @@
     `linear-gradient(to right, ${d3.range(N_SHADES).map(b => shadeColor(shadeT(b))).join(",")})`;
 
   // ---------------------------------------------------------------------------
+  // Labels: name any number of people to mark at the weighted center of their abstracts
+  // ---------------------------------------------------------------------------
+
+  function centroidOf(name) {
+    const entries = index.get(name);
+    let sw = 0, sx = 0, sy = 0;
+    for (const { abstract_id, weight } of entries) {
+      const i = idToIdx.get(abstract_id);
+      sw += weight; sx += weight * X[i]; sy += weight * Y[i];
+    }
+    return { cx: sx / sw, cy: sy / sw, count: entries.length };
+  }
+
+  function addLabel(name) {
+    if (!index.has(name) || state.labels.some(l => l.name === name)) return;
+    state.labels.push({ name, ...centroidOf(name) });
+    renderLabels();
+    requestDraw();
+  }
+
+  function removeLabel(name) {
+    state.labels = state.labels.filter(l => l.name !== name);
+    renderLabels();
+    requestDraw();
+  }
+
+  function clearLabels() {
+    state.labels = [];
+    renderLabels();
+    requestDraw();
+  }
+
+  function renderLabels() {
+    $("ls-label-clear").hidden = state.labels.length === 0;
+    $("ls-labels").replaceChildren(...state.labels.map(l => {
+      const li = document.createElement("li");
+
+      const name = document.createElement("span");
+      name.className = "name";
+      name.textContent = l.name;
+      name.title = `${l.name}: ${l.count} abstract${l.count === 1 ? "" : "s"}`;
+
+      const n = document.createElement("span");
+      n.className = "n";
+      n.textContent = l.count;
+
+      const rm = document.createElement("button");
+      rm.type = "button";
+      rm.className = "x";
+      rm.textContent = "×";
+      rm.setAttribute("aria-label", `Remove label for ${l.name}`);
+      rm.addEventListener("click", () => removeLabel(l.name));
+
+      li.append(name, n, rm);
+      return li;
+    }));
+  }
+
+  $("ls-label-clear").addEventListener("click", clearLabels);
+
+  // ---------------------------------------------------------------------------
   // Hover tooltip
   // ---------------------------------------------------------------------------
   function hideTip() {
+    pinned = false;
+    tip.classList.remove("pinned");
     tip.hidden = true;
     if (hover >= 0) { hover = -1; requestDraw(); }
   }
@@ -489,26 +577,60 @@
     if (au && state.mode === "similar" && au.linkPct[i] && !au.mask[i]) {
       kids.push(line(`${au.linkPct[i]}% text match to ${au.name}'s abstract`));
     }
+    if (pinned && a.authors[0]) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      const name = a.authors[0].name;
+      const done = state.author && state.author.name === name;
+      btn.textContent = done ? `${name} is highlighted` : `Highlight and label ${name}`;
+      btn.disabled = done;
+      btn.addEventListener("click", () => { selectAuthor(name); hideTip(); });
+      kids.push(btn);
+    }
     tip.replaceChildren(...kids);
   }
 
-  canvas.addEventListener("mousemove", e => {
-    if (e.buttons) { hideTip(); return; }
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  function nearestDot(mx, my) {
     let best = -1, bd = 100; // within 10 px
     for (let i = 0; i < N; i++) {
       const dx = SX[i] - mx, dy = SY[i] - my, d = dx * dx + dy * dy;
       if (d < bd) { bd = d; best = i; }
     }
-    if (best !== hover) { hover = best; requestDraw(); if (best >= 0) fillTip(best); }
-    if (best < 0) { tip.hidden = true; return; }
+    return best;
+  }
+
+  function placeTip(mx, my) {
     tip.hidden = false;
     const w = tip.offsetWidth, h = tip.offsetHeight;
     tip.style.left = `${mx + 14 + w > W - 8 ? Math.max(8, mx - w - 14) : mx + 14}px`;
     tip.style.top = `${my + 14 + h > H - 8 ? Math.max(8, my - h - 14) : my + 14}px`;
+  }
+
+  canvas.addEventListener("mousemove", e => {
+    if (pinned && !e.buttons) return;
+    if (e.buttons) { hideTip(); return; }
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    const best = nearestDot(mx, my);
+    if (best !== hover) { hover = best; requestDraw(); if (best >= 0) fillTip(best); }
+    if (best < 0) { tip.hidden = true; return; }
+    placeTip(mx, my);
   });
-  canvas.addEventListener("mouseleave", hideTip);
+  canvas.addEventListener("click", e => {
+    const wasPinned = pinned;
+    if (wasPinned) hideTip();
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    const best = nearestDot(mx, my);
+    if (best < 0) return;
+    hover = best;
+    pinned = true;
+    tip.classList.add("pinned");
+    fillTip(best);
+    placeTip(mx, my);
+    requestDraw();
+  });
+  canvas.addEventListener("mouseleave", () => { if (!pinned) hideTip(); });
 
   // ---------------------------------------------------------------------------
   // Paint layers: keywords and institutions, stacked, recolorable; density or dots

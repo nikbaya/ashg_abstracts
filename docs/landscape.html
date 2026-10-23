@@ -14,7 +14,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://nikbaya.github.io/ashg_abstracts/img/2026_headline.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='5' cy='8' r='4' fill='%232a78d6'/%3E%3Ccircle cx='11' cy='8' r='4' fill='%23e34948' fill-opacity='.85'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/site.css?v=9d62d1fb">
+<link rel="stylesheet" href="assets/site.css?v=4245c8a9">
 </head>
 <body>
 <header class="site-header"><div class="wrap">
@@ -57,7 +57,7 @@
 <main class="wrap">
 <h1>Landscape of abstracts <a class="sim-methods" href="methods.html#landscape">how is the map made? ›</a></h1>
 <p class="lede sim-help">Every ASHG 2026 abstract as a dot, placed so that abstracts with similar wording sit close together.</p>
-<p class="sim-help">Search an author to highlight their abstracts (a target marks the ones they lead; the diamond is the weighted center of all of them, counting first authorship most) and draw a web
+<p class="sim-help">Search an author to highlight their abstracts and label them on the map (search more people to label several; the tooltip's button labels a clicked dot's first author) (a target marks the ones they lead; the diamond is the weighted center of all of them, counting first authorship most) and draw a web
 to their co-authors' abstracts or to the abstracts that read most like theirs, shaded by text match. Paint a keyword or an institution to see where it sits on the map. Keywords group spellings that mean
 the same thing (PPI and protein-protein interaction). Hover a dot for details; drag to pan and scroll or pinch to zoom. Titles and abstract text are not shown here.</p>
 <div id="landscape" class="landscape" data-src="data/tsne_landscape.json?v=f8140528" data-syn="data/tsne_landscape_synonyms.json?v=424e0592">
@@ -69,6 +69,7 @@ the same thing (PPI and protein-protein interaction). Hover a dot for details; d
     <ul id="ls-author-list" class="ls-suggest" role="listbox" hidden></ul>
   </span>
   <button type="button" id="ls-author-clear" class="ls-link" hidden>Clear</button>
+  <button type="button" id="ls-label-clear" class="ls-link" hidden>Clear labels</button>
   <span class="lbl">Web</span>
   <span class="seg" id="ls-web" role="group" aria-label="Web around the author">
     <button type="button" data-value="coauthors" aria-pressed="true">Co-authors</button>
@@ -93,6 +94,7 @@ the same thing (PPI and protein-protein interaction). Hover a dot for details; d
   <button type="button" id="ls-paint-clear" class="ls-link" hidden>Clear all paint</button>
   <span id="ls-paint-msg" class="ls-info"></span>
 </form>
+<ul id="ls-labels" class="ls-layers" aria-label="Labeled people"></ul>
 <ul id="ls-layers" class="ls-layers" aria-label="Active paint layers"></ul>
 <div id="ls-stage" class="sim-stage ls-stage">
   <canvas id="ls-canvas" role="img" aria-label="Map of ASHG 2026 abstracts, one dot per abstract"></canvas>
@@ -101,7 +103,7 @@ the same thing (PPI and protein-protein interaction). Hover a dot for details; d
 <p class="ls-count"><span id="ls-count"></span></p>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
-<script src="assets/landscape.js?v=9d62d1fb"></script>
+<script src="assets/landscape.js?v=4245c8a9"></script>
 <nav class="pager" aria-label="Previous and next page">
 <a class="prev" href="compare.html"><span>← Previous</span>Compare</a><a class="next" href="phrases.html"><span>Next →</span>Phrases</a></nav>
 </main>
@@ -109,7 +111,7 @@ the same thing (PPI and protein-protein interaction). Hover a dot for details; d
   <p>Parsed from the ASHG annual meeting abstracts (2022–2026). Abstracts © their authors; the collection © ASHG. No abstract text is reproduced here, only counts and rates.</p>
   <p>Code and full aggregate tables: <a href="https://github.com/nikbaya/ashg_abstracts">github.com/nikbaya/ashg_abstracts</a> · <a href="methods.html">Methods and caveats</a></p>
 </div></footer>
-<script src="assets/site.js?v=9d62d1fb"></script>
+<script src="assets/site.js?v=4245c8a9"></script>
 <script data-goatcounter="https://ashg-abstracts.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
