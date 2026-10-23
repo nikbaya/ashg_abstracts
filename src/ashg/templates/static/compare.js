@@ -7,7 +7,7 @@
   const slots = { a: root.querySelector("[data-slot=a]"), b: root.querySelector("[data-slot=b]") };
   const out = root.querySelector("#cmp-out");
   const state = { a: null, b: null };
-  let data, nodes, tracks, pairs = null, pairsLoading = false, vecs = null; // vecs: {terms, rows}, rows[i] = [term, weight, term, weight, ...]
+  let data, nodes, tracks, pairs = null, below = null, pairsLoading = false, vecs = null; // vecs: {terms, rows}, rows[i] = [term, weight, term, weight, ...]
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
   const author = (n) => n.a || n.n || "Unknown author";
   const pct = (m) => (m ? `${m}%` : "under 10%");
@@ -43,8 +43,22 @@
   function loadPairs() {
     if (pairs || pairsLoading || !root.dataset.pairs) return;
     pairsLoading = true;
-    gz(root.dataset.pairs).then((r) => r.arrayBuffer()).then((buf) => { pairs = new Uint8Array(buf); show(); }).catch(() => { pairsLoading = false; });
+    gz(root.dataset.pairs).then((r) => r.arrayBuffer()).then((buf) => { pairs = new Uint8Array(buf); below = cumulative(pairs, nodes.length); show(); }).catch(() => { pairsLoading = false; });
     gz(root.dataset.terms).then((r) => r.json()).then((v) => { vecs = v; show(); }).catch(() => {});
+  }
+
+  function cumulative(p, n) { // below[v] = share of distinct abstract pairs (upper triangle) scoring strictly under v
+    const h = new Array(102).fill(0); let t = 0;
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) { h[p[i * n + j]]++; t++; }
+    const c = new Array(102).fill(0); for (let v = 1; v < 102; v++) c[v] = c[v - 1] + h[v - 1] / t;
+    return c;
+  }
+  function percentile(m) {
+    if (!below) return "";
+    const lo = 100 * below[m];
+    if (!m) return `<p class="sub">Under 10% is the bottom ${(100 * below[1]).toFixed(0)}% of all abstract pairs; scores that low aren't ranked more finely.</p>`;
+    const top = 100 - lo;
+    return `<p class="sub">Higher than <b>${lo >= 99.95 ? "99.9+" : lo.toFixed(lo >= 99 ? 1 : 0)}%</b> of all abstract pairs (top ${top < 0.1 ? "0.1" : top.toFixed(top < 10 ? 1 : 0)}%).</p>`;
   }
 
   const rankOf = (from, to) => { const k = nodes[from].nt.findIndex(([j]) => j === to); return k < 0 ? null : k + 1; };
@@ -71,7 +85,7 @@
       `<p class="sub">${overlap.length} shared term${overlap.length > 1 ? "s" : ""} in all.</p>` : `<h2>Why</h2><p class="sub">These two abstracts share no scored words or phrases.</p>`;
     const row = (k, f) => `<tr><th>${k}</th><td>${f(A)}</td><td>${f(B)}</td></tr>`;
     out.innerHTML =
-      `<div class="cmp-score"><span class="big">${m == null ? "…" : pct(m)}</span><span>text match${m == null ? " (loading)" : ""}</span></div>` +
+      `<div class="cmp-score"><span class="big">${m == null ? "…" : pct(m)}</span><span>text match${m == null ? " (loading)" : ""}</span></div>` + (m == null ? "" : percentile(m)) +
       `<ul class="cmp-facts"><li>${rankText(a, b, ra)}.</li><li>${rankText(b, a, rb)}.</li>` +
       `<li>${shared.length ? `<b>${shared.length}</b> shared author${shared.length > 1 ? "s" : ""} (${Math.round(100 * shared.length / union)}% of all their authors): ${esc(who.join(", "))}` : "No shared authors."}</li></ul>` +
       `<table class="cmp-table"><thead><tr><th></th><th>${esc(author(A))}</th><th>${esc(author(B))}</th></tr></thead><tbody>` +

@@ -109,6 +109,53 @@ def test_related_phrases_group_by_acronym_or_shared_word_and_abstracts():
     assert out.related.iloc[1] == ""  # 1 of 4 shared abstracts: Jaccard 0.25 < 0.45
 
 
+def reference_group_related(ranked, X, vocab, threshold=0.45):
+    """The original all-pairs version of group_related, kept to check the faster one against."""
+    from features import is_acronym, lexically_related
+    col = {g: i for i, g in enumerate(vocab)}
+    X = X.tocsc()
+    grams = list(ranked.ngram)
+    docs = [set(X[:, col[g]].indices) for g in grams]
+    parent = list(range(len(grams)))
+
+    def root(i):
+        while parent[i] != i:
+            i = parent[i]
+        return i
+
+    for i, g in enumerate(grams):
+        for j in range(i):
+            h = grams[j]
+            if is_acronym(g, h) or (lexically_related(g, h)
+                                    and len(docs[i] & docs[j]) >= threshold * len(docs[i] | docs[j])):
+                a, b = sorted((root(i), root(j)))
+                parent[b] = a
+    groups = {}
+    for i, g in enumerate(grams):
+        groups.setdefault(root(i), []).append(g)
+    return {grp[0]: "; ".join(grp[1:]) for grp in groups.values()}
+
+
+def test_group_related_fast_path_matches_the_all_pairs_version():
+    rng = np.random.default_rng(0)
+    words = ["massively", "parallel", "reporter", "assay", "assays", "mpra", "mpras", "variant", "variants", "risk",
+             "score", "scores", "prs", "polygenic", "loss", "of", "function", "lof", "cell", "cells", "ppi", "network"]
+    grams = set(words)
+    while len(grams) < 120:
+        grams.add(" ".join(rng.choice(words, size=rng.integers(2, 4))))
+    grams = sorted(g for g in grams if g.split()[0] != "of" and g.split()[-1] != "of")
+    base = rng.random((300, len(grams))) < 0.04
+    for k in range(0, len(grams), 7):  # make some n-grams share most of their abstracts
+        base[:, (k + 3) % len(grams)] |= base[:, k] & (rng.random(300) < 0.8)
+    X = sparse.csc_matrix(base.astype(np.int8))
+    ranked = pd.DataFrame({"ngram": [g for g, n in zip(grams, base.sum(axis=0)) if n]})
+    X = X[:, [i for i, n in enumerate(base.sum(axis=0)) if n]]
+    vocab = np.array(ranked.ngram)
+    fast = group_related(ranked, X, vocab)
+    assert dict(zip(fast.ngram, fast.related)) == reference_group_related(ranked, X, vocab)
+    assert fast.related.ne("").any()  # the random data does link some n-grams
+
+
 from features import mantel_haenszel  # noqa: E402
 
 

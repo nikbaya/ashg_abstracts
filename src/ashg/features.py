@@ -104,17 +104,22 @@ def is_acronym(g, h):
                for short, long in ((g, h), (h, g)))
 
 
-def group_related(ranked, X, vocab, threshold=0.45):
+def group_related(ranked, X, vocab, threshold=0.45, links=()):
     """Group n-grams linked by an exact acronym, or by being lexically related and found in mostly
     the same abstracts (Jaccard >= threshold); groups are connected components, so "massively
     parallel", "parallel reporter assay" and "mpra" are one row. 0.45, not 0.5, so "reporter" (half
     its abstracts are MPRA, the rest luciferase etc.: Jaccard 0.47 pooled) joins that row. A row keeps the stats of its group's
     best-ranked n-gram (a union could be swamped by a broad word like "trait"); `related` lists the
-    rest, best first."""
+    rest, best first. `links` are extra (n-gram, n-gram) pairs to join regardless, for synonyms the
+    rules cannot see ("ppi" and "protein-protein interaction").
+
+    Only pairs that can be linked are tried: n-grams sharing a content word (their overlaps come from one
+    sparse product per word) and an acronym with the phrases whose initials it contains."""
     col = {g: i for i, g in enumerate(vocab)}
-    X = X.tocsc()
     grams = list(ranked.ngram)
-    docs = [set(X[:, col[g]].indices) for g in grams]
+    at = {g: i for i, g in enumerate(grams)}
+    M = X.tocsc()[:, [col[g] for g in grams]].astype(np.int64).tocsc()  # abstracts x ranked n-grams
+    size = np.asarray(M.sum(axis=0)).ravel()
     parent = list(range(len(grams)))  # union-find; a root is always its group's best-ranked member
 
     def root(i):
@@ -122,13 +127,44 @@ def group_related(ranked, X, vocab, threshold=0.45):
             i = parent[i]
         return i
 
+    def link(i, j):
+        a, b = sorted((root(i), root(j)))
+        parent[b] = a
+
+    by_word = {}
     for i, g in enumerate(grams):
-        for j in range(i):
-            h = grams[j]
-            if is_acronym(g, h) or (lexically_related(g, h)
-                                    and len(docs[i] & docs[j]) >= threshold * len(docs[i] | docs[j])):
-                a, b = sorted((root(i), root(j)))
-                parent[b] = a
+        for w in set(g.split()) - ENGLISH_STOP_WORDS:
+            by_word.setdefault(w, []).append(i)
+    for members in by_word.values():
+        if len(members) < 2:
+            continue
+        members = np.array(members)
+        sub = M[:, members]
+        both = (sub.T @ sub).tocoo()
+        above = both.row < both.col
+        r, c, shared = both.row[above], both.col[above], both.data[above]
+        ok = shared >= threshold * (size[members[r]] + size[members[c]] - shared)
+        for i, j in zip(members[r[ok]], members[c[ok]]):
+            link(i, j)
+
+    inside = {}  # a 3+ letter piece of a one-word n-gram -> the n-grams containing it, to find the acronyms of phrases
+    for j, h in enumerate(grams):
+        if " " not in h:
+            short = h.rstrip("s")
+            for a in range(len(short)):
+                for b in range(a + 3, len(short) + 1):
+                    inside.setdefault(short[a:b], []).append(j)
+    for i, g in enumerate(grams):
+        if " " in g and len(initials(g)) >= 3:
+            for j in inside.get(initials(g), ()):
+                h = grams[j]
+                shared = len(set(M[:, i].indices) & set(M[:, j].indices))
+                if is_acronym(g, h) or shared >= threshold * (size[i] + size[j] - shared):
+                    link(i, j)
+
+    for g, h in links:
+        if g in at and h in at:
+            link(at[g], at[h])
     groups = {}
     for i, g in enumerate(grams):
         groups.setdefault(root(i), []).append(g)

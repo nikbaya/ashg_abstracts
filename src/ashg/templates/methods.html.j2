@@ -58,6 +58,9 @@ published, and the data file contains none.</p>
 as author) and the program's other CME sessions (workshops, short courses and symposia listed only as a whole), matched on
 their program descriptions and linked to their program entry. Lightning talks are not entries of their own: each is a poster's
 abstract, so the poster shows its lightning-talk time.</p>
+<p>A Preprint link appears on an abstract that was matched to a bioRxiv or medRxiv preprint by title and author overlap, when
+the match is high confidence. These matches are a lower bound, since many preprints are not found. The page shows the preprint's
+DOI only, not its title or text.</p>
 <ul>
 <li><strong>Text match.</strong> Title and abstract are turned into word and two-word counts, weighted with BM25 (so common
 words count less and long abstracts don't dominate) and compared by cosine similarity. The match percentage is that
@@ -68,6 +71,32 @@ first and last name merge, and a different spelling of one name is missed.</li>
 <li><strong>Track.</strong> Posters take the track in their session name. The program gives talks no track, so a talk gets
 the most common track among its ten closest posters, marked “inferred” in the tooltip. Rooms for talks aren't in the data.</li>
 <li><strong>Planner link.</strong> “Planner” opens the presenter's page in the online program. The presenter is not always the first author.</li>
+</ul>
+
+<h2 id="landscape">Landscape</h2>
+<p>The <a href="landscape.html">Landscape</a> page puts every ASHG 2026 abstract on one map. It uses the same word weighting as
+Find talks (BM25 on title and abstract), reduced to 50 dimensions and laid out in two with t-SNE (perplexity 30, fixed seed), so it
+matches the minimap on Find talks. Only neighborhoods mean anything: nearby dots read alike, but the gaps between distant
+clusters and the clusters' sizes are artifacts of the method. No titles or abstract text are published; the data file has each
+abstract's authors, institutions, keywords and nearest matches.</p>
+<ul>
+<li><strong>Author search.</strong> The diamond is the center of an author's abstracts, weighting each by their position on the
+author list: first author 1.5, last 1.0, middle 0.5. A target marks the abstracts they lead. Authors are matched by first + last
+name, so two people with one name merge and a different spelling of a name is missed; degrees and titles that the author-block
+parsing leaves in names (“PhD”, “MD”, “Dr.”) are stripped.</li>
+<li><strong>Web.</strong> “Co-authors” joins each of their abstracts to every other abstract that shares one of its co-authors
+(at most 6,000 lines). “Similar text” joins each to its 15 closest abstracts by the text match on Find talks, shaded by that
+percentage; matches under 10% are not drawn.</li>
+<li><strong>Keywords.</strong> An abstract's keywords are its 25 highest-weighted terms, with spellings that mean the same thing
+grouped under one label. Terms are grouped by the method behind the <a href="phrases.html">phrase</a> rows (terms that share a word
+and appear in mostly the same abstracts, Jaccard at least 0.45, or one the acronym of the other) and by the abbreviations authors
+define in their own text, such as “protein-protein interaction (PPI)”, kept only when the abbreviation's letters are the
+initials of the words before it. This can over-merge: generic words that travel with a topic join its group, so the GWAS
+group is broader than abstracts that say GWAS.</li>
+<li><strong>Institutions.</strong> Only those found for the first and senior author, so about two thirds of abstracts have any.</li>
+<li><strong>Density.</strong> Each painted layer is a Gaussian kernel density of its abstracts (bandwidth about 2% of the map's
+width), scaled to that layer's own peak. Brightness shows where a layer concentrates, not how many abstracts it has; the count
+is on the layer. “Dots” shows each matching abstract instead.</li>
 </ul>
 
 <h2 id="built">How it's built</h2>

@@ -2,7 +2,8 @@
 
 Per abstract: its nearest neighbors by text (BM25-weighted cosine on title + body) and by shared authors (Jaccard on
 the author sets), and a 2-D layout of all of them for the minimap. Titles and abstract text are used here but never
-written out: the JSON holds only the first author, track, type, board, session time, coordinates and neighbor ids.
+written out: the JSON holds only the first author, track, type, board, session time, coordinates and neighbor ids, plus
+"pp", the DOI of a high-confidence preprint match (see preprint_dois).
 
 Besides the abstracts, the featured symposia (one node per talk, speaker as author) and the other CME sessions the program
 describes only as a whole (workshops, short courses, symposia without per-talk entries) are nodes too; their text is the
@@ -40,6 +41,8 @@ TEXT_K, AUTHOR_K, SHOWN_K = 30, 15, 15  # stored text neighbors leave SHOWN_K af
 SIM_FLOOR = 10  # matches below this are stored as 0 in the pairwise matrix
 BM25_K1, BM25_B = 1.5, 0.75
 TZ = ZoneInfo("America/Toronto")  # Montréal
+PREPRINTS = "data/preprints/matches.csv"  # from preprints.py analyze
+PREPRINT_TIERS = ("exact", "A")  # tier B has not been hand-checked, so it is not shown
 
 
 def norm_title(title):
@@ -104,6 +107,17 @@ def load_abstracts():
                          "speakers": speakers.get(rec["floq_id"], []), "url": None,
                          "lightning": lightning.get(norm_title(r.title)) if t == "poster" else None})
     return pd.DataFrame(rows + program_rows(raw, speakers))
+
+
+def preprint_dois():
+    """abstract_id -> DOI of the matched bioRxiv/medRxiv preprint, for the high-confidence tiers only. Skipped (no
+    buttons) if the matches file is missing."""
+    if not os.path.exists(PREPRINTS):
+        print(f"note: {PREPRINTS} missing, no preprint buttons")
+        return {}
+    m = pd.read_csv(PREPRINTS)
+    m = m[m.tier.isin(PREPRINT_TIERS)]
+    return dict(zip(m.abstract_id, m.doi))
 
 
 def clean_name(name):
@@ -229,6 +243,7 @@ def main():
     names = {str(i): spelled[i] for i, c in count.items() if c > 1}
 
     local = lambda iso: datetime.fromtimestamp(ts(iso), TZ)
+    preprints = preprint_dois()
     nodes = []
     for i, r in enumerate(d.itertuples()):
         t0 = local(r.start)
@@ -248,6 +263,8 @@ def main():
         if isinstance(r.url, str):  # NaN for abstracts
             nodes[-1]["u"] = r.url  # symposium talks and sessions link to their own program entry
             nodes[-1]["n"] = r.session
+        if r.id in preprints:
+            nodes[-1]["pp"] = preprints[r.id]
         if isinstance(r.lightning, str):
             t1 = local(r.lightning)
             nodes[-1]["lw"] = f"{t1:%a} {t1:%-I:%M %p}"

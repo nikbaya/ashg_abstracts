@@ -74,6 +74,7 @@
   const ENTRY = "https://ashg.floq.live/event/ashg-2026/search?objectClass=timeslot&type=detail&objectId=";
   const planner = (n) => n.u ? `<a class="ext" href="${ENTRY}${n.u}" target="_blank" rel="noopener" title="This entry in the online program">Program ↗</a>`
     : n.p.length ? `<a class="ext" href="${PLANNER}${n.p[0]}" target="_blank" rel="noopener" title="Presenter in the online planner">ASHG Planner ↗</a>` : "";
+  const preprint = (n) => n.pp ? `<a class="ext" href="https://doi.org/${esc(n.pp)}" target="_blank" rel="noopener" title="Matched preprint on bioRxiv/medRxiv">Preprint ↗</a>` : "";
   const CAL = '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3M8 8.5v3.5M6.25 10.25h3.5"/></svg>';
   const gcal = (n, match, to, short) => { // Google Calendar "create event" link; times are unix seconds, written as UTC
     const t = (x) => new Date(x * 1000).toISOString().replace(/[-:]|\.\d+/g, "");
@@ -244,7 +245,7 @@
       .alpha(0.9).restart();
 
     const by = state.by === "nt" ? "text" : "co-authors";
-    $("#sim-card").innerHTML = `<h2>${esc(full(center))} ${planner(center)}</h2><dl>${details(center)}</dl>${hallLink(center, state.id)}` +
+    $("#sim-card").innerHTML = `<h2>${esc(full(center))} ${planner(center)}${preprint(center)}</h2><dl>${details(center)}</dl>${hallLink(center, state.id)}` +
       (data_.length > 1 ? "" : `<p class="sub">No abstracts to show by ${by}${state.by === "na" && !total ? ": no other abstract shares an author with this one" : ""}.</p>`);
     present = new Set(data_.map((d) => (state.colorBy === "type" ? kindOf(d.id) : nodes[d.id].k))); paintLegend();
     // upcoming: chronological, scrolled so the current or next session is at the top; earlier sessions sit above
@@ -275,7 +276,7 @@
     $("#sim-list").insertAdjacentHTML("beforeend", rows.slice(shown, shown + k).map((d) => { const n = nodes[d.id];
       return `<li data-id="${d.id}"${isPast(n) ? ' class="past"' : n.s <= now ? ' class="live"' : ""}>${planner(n)}<button type="button" data-id="${d.id}"><b>${pct(d.match)}</b> ${esc(full(n))}<em class="kind ${n.t === "poster" ? "poster" : "talk"}">${KINDS[n.t] || "Talk"}</em>` +
         `<span>${tracks[n.k]}${n.inf ? " (inferred)" : ""}</span></button>` +
-        `<div class="when">${n.w}${n.lw ? ` · lightning ${n.lw}` : ""}${n.b ? ` · ${n.b}` : ""}${d.depth > 1 ? ` · ${d.depth} degrees` : ""} · <button type="button" class="why" data-why="${d.id}" aria-expanded="${state.open.has(d.id)}" title="Show the words and phrases this abstract shares with the center">Keyword scores</button></div>${state.open.has(d.id) ? whyHtml(d.id) : ""}${hallLink(n, d.id, true)}</li>`; }).join(""));
+        `<div class="when">${n.w}${n.lw ? ` · lightning ${n.lw}` : ""}${n.b ? ` · ${n.b}` : ""}${d.depth > 1 ? ` · ${d.depth} degrees` : ""}${n.pp ? ` · ${preprint(n)}` : ""} · <button type="button" class="why" data-why="${d.id}" aria-expanded="${state.open.has(d.id)}" title="Show the words and phrases this abstract shares with the center">Keyword scores</button></div>${state.open.has(d.id) ? whyHtml(d.id) : ""}${hallLink(n, d.id, true)}</li>`; }).join(""));
     shown = Math.min(rows.length, shown + k);
   }
 

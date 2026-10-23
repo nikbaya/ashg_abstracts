@@ -6,7 +6,7 @@ TYPES := platform plenary poster
 PY := PYTHONPATH=src/ashg mamba run -n ashg python
 ABSTRACTS = $(foreach t,$(TYPES),data/abstracts/$(YEAR)_$(t).parquet)
 
-.PHONY: network year spans abstracts validate institutions people geography features analysis figures pooled trends center naturalearth writing site test review genedata manhattan score preprints
+.PHONY: network landscape year spans abstracts validate institutions people geography features analysis figures pooled trends center naturalearth writing site test review genedata manhattan score preprints
 year: validate institutions people geography features analysis figures
 
 spans:
@@ -92,6 +92,10 @@ score:
 # similarity network of the 2026 abstracts for the site's Find talks page (needs data/ from `make YEAR=2026`)
 network:
 	$(PY) src/ashg/network.py outputs/network.json
+
+# t-SNE layout, authors, institutions and keywords for the Landscape page (same layout as `network`; `make site` publishes it)
+landscape:
+	$(PY) src/ashg/landscape.py outputs/tsne_landscape.json
 
 # which abstracts were already preprinted (analysis only, not on the site); `search` takes ~40 min, `analyze` reuses it
 preprints:
