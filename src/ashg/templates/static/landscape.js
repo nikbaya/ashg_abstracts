@@ -405,6 +405,23 @@
     $("ls-legend").hidden = state.mode !== "similar";
   }
 
+  // Centroid of the author's abstracts (by author-position weight) together with the abstracts linked in the current
+  // mode, so it moves when the web is switched between co-authors and similar text.
+  function updateCentroid(a) {
+    let sw = 0, sx = 0, sy = 0;
+    for (const { abstract_id, weight } of index.get(a.name)) {
+      const i = idToIdx.get(abstract_id);
+      sw += weight; sx += weight * X[i]; sy += weight * Y[i];
+    }
+    for (let i = 0; i < N; i++) {
+      if (!a.linkPct[i] || a.mask[i]) continue;
+      sw += WEIGHTS.middle; sx += WEIGHTS.middle * X[i]; sy += WEIGHTS.middle * Y[i];
+    }
+    a.cx = sx / sw; a.cy = sy / sw;
+    const l = state.labels.find(l => l.name === a.name);
+    if (l) Object.assign(l, labelPos(a.name));
+  }
+
   function authorRadius(a) {
     let r = 0;
     for (const i of a.hits) r = Math.max(r, Math.hypot(X[i] - a.cx, Y[i] - a.cy));
@@ -430,6 +447,7 @@
     const a = state.author = { name, mask, hits, firstHits, cx: sx / sw, cy: sy / sw, count: entries.length, firstCount };
     computeConnections(a);
     addLabel(name);
+    updateCentroid(a);
     $("ls-author").value = name;
     $("ls-info").textContent = `${entries.length} abstract${entries.length === 1 ? "" : "s"}, ${firstCount} as first author.`;
     $("ls-author-clear").hidden = false;
@@ -474,6 +492,7 @@
     for (const b of $("ls-web").children) b.setAttribute("aria-pressed", String(b === btn));
     if (state.author) {
       computeConnections(state.author);
+      updateCentroid(state.author);
       flyTo(state.author.cx, state.author.cy, authorRadius(state.author));
       requestDraw();
     }
@@ -482,13 +501,19 @@
     `linear-gradient(to right, ${d3.range(N_SHADES).map(b => shadeColor(shadeT(b))).join(",")})`;
 
   // ---------------------------------------------------------------------------
-  // Labels: name any number of people to mark at the weighted center of their abstracts
+  // Labels: name any number of people to mark on their first-author abstract (or the centroid of their abstracts)
   // ---------------------------------------------------------------------------
 
-  function centroidOf(name) {
+  // First-author abstracts if the person has any (the label sits on that node); otherwise the weighted centroid of all
+  // their abstracts. The selected author's centroid also follows the web mode, see updateCentroid.
+  function labelPos(name) {
     const entries = index.get(name);
+    const firsts = entries.filter(e => e.weight === WEIGHTS.first);
+    const au = state.author;
+    if (!firsts.length && au && au.name === name) return { cx: au.cx, cy: au.cy, count: entries.length };
+    const use = firsts.length ? firsts : entries;
     let sw = 0, sx = 0, sy = 0;
-    for (const { abstract_id, weight } of entries) {
+    for (const { abstract_id, weight } of use) {
       const i = idToIdx.get(abstract_id);
       sw += weight; sx += weight * X[i]; sy += weight * Y[i];
     }
@@ -497,7 +522,7 @@
 
   function addLabel(name) {
     if (!index.has(name) || state.labels.some(l => l.name === name)) return;
-    state.labels.push({ name, ...centroidOf(name) });
+    state.labels.push({ name, ...labelPos(name) });
     renderLabels();
     requestDraw();
   }
