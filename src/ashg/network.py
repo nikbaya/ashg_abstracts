@@ -109,7 +109,7 @@ def load_abstracts():
 def clean_name(name):
     """An author-block name without list numbering ("1. Ann Lee"), an "Authors:" label, affiliation fragments and
     footnote markers (digits, *, †, ‡, §) glued to the surname ("Lee1", "Lee*")."""
-    name = re.sub(r"^\s*(?:authors?\s*:|\d+\s*[.)])\s*", "", name, flags=re.I)
+    name = re.sub(r"^\s*(?:authors?(?:\s+block)?\s*:|\d+\s*[.)])\s*", "", name, flags=re.I)
     name = name.split("(")[0] if "(" in name else name.split(")")[-1]
     name = re.sub(r"[\d*†‡§#+¹²³]+", "", name).strip(" ,;.\n")
     return name if len(name) <= 40 else ""  # a whole unparsed author block, not a name
@@ -240,6 +240,9 @@ def main():
             "na": [[j, round(100 * s)] for j, s in author_nb[i]], "au": authors[i],
             **({"fa": people[d.authors[i][0]]} if d.authors[i] and d.authors[i][0] else {}),
         })
+        full = clean_name(r.first) if isinstance(r.first, str) else ""
+        if len(full.split()) > 1:
+            nodes[-1]["f"] = full  # first author's full name, shown in the result list (the graph keeps "Surname, I.")
         if r.type != "poster":
             nodes[-1]["inf"] = 1  # track inferred from the nearest posters
         if isinstance(r.url, str):  # NaN for abstracts

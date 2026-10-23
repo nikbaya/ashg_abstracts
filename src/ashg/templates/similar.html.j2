@@ -1,9 +1,9 @@
 {% extends "base.html.j2" %}
 {% block content %}
-<h1>{{ page.title }}</h1>
+<h1>{{ page.title }} <a class="sim-methods" href="methods.html#similar">how are related abstracts found? ›</a></h1>
 <p class="lede sim-help">Pick an abstract, symposium talk or session and see which others at ASHG {{ years[-1].year }} read most like it, or share its authors.</p>
 <p class="sim-help">Search by author (first authors, or co-authors to find their abstracts), or take a random one; hover (or tap) a bubble for its details and click (or tap twice) to
-move on to it. Bubbles are colored by track and sized by how close the match is. Degrees widen the view to neighbors of neighbors (up to 3; past that it would reach nearly every abstract). Titles and abstract text are not
+move on to it. Drag to pan and scroll or pinch to zoom. Bubbles are colored by track (or talk vs. poster) and sized by how close the match is. Degrees widen the view to neighbors of neighbors (up to 3; past that it would reach nearly every abstract). Titles and abstract text are not
 shown here (see <a href="methods.html#similar">how the match is made</a>).</p>
 <div id="similar" data-src="{{ network_src }}" data-pairs="{{ pairs_src or '' }}" data-terms="{{ terms_src or '' }}">
 <div class="toolbar">
@@ -18,6 +18,7 @@ shown here (see <a href="methods.html#similar">how the match is made</a>).</p>
     <button type="button" data-value="2" aria-pressed="false">2</button>
     <button type="button" data-value="3" aria-pressed="false">3</button>
   </span>
+  <button type="button" id="sim-graph-toggle" aria-pressed="true">Hide graph</button>
   <span class="checks">
     <label><input type="checkbox" id="sim-past"> Hide past sessions</label>
     <label title="Hides abstracts that list the center abstract's first author anywhere in their author list (first, middle or last)."><input type="checkbox" id="sim-co"> Hide co-authorship</label>
@@ -29,15 +30,18 @@ shown here (see <a href="methods.html#similar">how the match is made</a>).</p>
   </span>
 </div>
 <div id="sim-trail" class="sim-trail" hidden><span class="lbl">History</span><button type="button" id="sim-clear" title="Clear history" aria-label="Clear history">Clear</button><span id="sim-trail-list"></span></div>
+<dialog id="hall-dialog" class="hall-dialog" aria-label="Poster hall map"><button type="button" class="hall-close" aria-label="Close">×</button><h2 class="hall-title"></h2><div class="hall-body"></div></dialog>
+<div id="sim-card" class="sim-card">Loading…</div>
 <div class="sim-main">
 <div id="sim-stage" class="sim-stage">
+<select id="sim-color" aria-label="Color bubbles by"><option value="track">Color: Topic</option><option value="type">Color: Talk/poster</option></select>
   <svg id="sim-graph" role="img" aria-label="Abstracts most similar to the selected one"></svg>
+  <button type="button" id="sim-recenter" class="sim-recenter" title="Reset pan and zoom" aria-label="Reset pan and zoom"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="2.5"/><path d="M8 1.5v3M8 11.5v3M1.5 8h3M11.5 8h3"/></svg></button>
+  <details class="sim-legendbox"><summary id="sim-legend-title">Legend</summary><ul id="sim-legend" class="sim-legend"></ul></details>
   <div id="sim-tip" class="sim-tip" hidden></div>
 </div>
 <aside class="sim-side" aria-label="Most similar abstracts"><div class="sim-head"><h2>Related</h2><div class="seg sim-sort" role="group" aria-label="Sort by" data-sim="sort"><button type="button" data-value="match" aria-pressed="true">Most similar</button><button type="button" data-value="time" aria-pressed="false">Upcoming</button></div></div><ol id="sim-list"></ol></aside>
 </div>
-<div id="sim-card" class="sim-card">Loading…</div>
-<details class="table"><summary>Track colors</summary><ul id="sim-legend" class="sim-legend"></ul></details>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
 <script src="assets/hall.js?v={{ asset_v }}"></script>

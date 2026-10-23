@@ -169,6 +169,7 @@ GROUP_RE = re.compile(
 def clean_name(name):
     name = re.sub(r"\s+(for|on behalf of)\s+the\s+.*$", "", name.strip(), flags=re.I)
     name = re.sub(r"^and\s+", "", name)
+    name = re.sub(r"^author\s+block\s*:\s*", "", name, flags=re.I)
     return re.sub(r"(?<=[a-z])\d[\d,\s]*$", "", name).strip()  # superscripts: "Xiang Shu2"
 
 
