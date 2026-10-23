@@ -469,9 +469,11 @@ a.cal svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-
 .sim-card .hall-scroll { display: block; margin-right: 0; max-width: 100%; }
 .hl-dot { fill: var(--poster); stroke: #fff; stroke-width: 3; }
 #sim-color { position: absolute; top: 8px; left: 8px; z-index: 2; padding: 3px 6px; font-size: 13px; cursor: pointer; }
-.sim-card { position: sticky; top: calc(var(--header-h, 58px) + var(--sim-tb-h, 56px)); z-index: 4; max-height: 38vh; overflow-y: auto; background: var(--surface-1); border-bottom: 1px solid var(--rule); padding-bottom: 4px; } /* stays under the sticky toolbar while the list scrolls */
+#similar .toolbar { position: static; } /* Match by / search scroll away; only the card (phones) and Related header stick */
+@media (max-width: 800px) { .sim-card { position: sticky; top: calc(var(--header-h, 58px) + var(--sim-tb-h, 56px)); z-index: 4; max-height: 38vh; overflow-y: auto; background: var(--surface-1); border-bottom: 1px solid var(--rule); padding-bottom: 4px; } } /* phones: the card stays under the sticky toolbar while the list scrolls; on desktop it scrolls away */
 /* Related header and Most similar / Upcoming toggle stay put under the sticky card while the list scrolls with the page */
-#similar.no-graph .sim-head { position: sticky; top: calc(var(--header-h, 58px) + var(--sim-tb-h, 56px) + var(--sim-card-h, 0px)); z-index: 3; background: var(--surface-1); padding: 6px 0; margin: 0; border-bottom: 1px solid var(--rule); }
+#similar.no-graph .sim-head { position: sticky; top: calc(var(--header-h, 58px) + var(--sim-tb-h, 56px)); z-index: 3; background: var(--surface-1); padding: 6px 0; margin: 0; border-bottom: 1px solid var(--rule); }
+@media (max-width: 800px) { #similar.no-graph .sim-head { top: calc(var(--header-h, 58px) + var(--sim-tb-h, 56px) + var(--sim-card-h, 0px)); } }
 .sim-legendbox { position: absolute; left: 8px; bottom: 8px; z-index: 2; max-width: calc(100% - 60px); max-height: calc(100% - 50px); overflow-y: auto; background: var(--surface-1); border: 1px solid var(--rule); border-radius: 6px; padding: 4px 8px; font-size: 13px; }
 .sim-legendbox > summary { cursor: pointer; color: var(--talk); }
 .sim-legendbox .sim-legend { columns: 1; margin: 6px 0 2px; }
