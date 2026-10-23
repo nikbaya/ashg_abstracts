@@ -467,14 +467,18 @@
   makeAutocomplete({
     input: $("ls-author"), list: $("ls-author-list"), autoFirst: true,
     search(q) {
-      const l = q.toLowerCase(), starts = [], contains = [];
+      const l = q.toLowerCase().trim(), tiers = [[], [], [], []]; // exact name, exact last name, prefix, substring
       for (const name of ALL_NAMES) {
         const n = name.toLowerCase();
-        if (n.startsWith(l)) starts.push(name);
-        else if (n.includes(l)) contains.push(name);
-        if (starts.length >= 25) break;
+        const last = n.split(/\s+/).pop();
+        if (n === l) tiers[0].push(name);
+        else if (last === l) tiers[1].push(name);
+        else if (n.startsWith(l)) tiers[2].push(name);
+        else if (n.includes(l)) tiers[3].push(name);
       }
-      return starts.concat(contains).slice(0, 25).map(name => ({ label: name, meta: index.get(name).length, value: name }));
+      const byCount = (a, b) => index.get(b).length - index.get(a).length;
+      tiers[1].sort(byCount);
+      return tiers.flat().slice(0, 25).map(name => ({ label: name, meta: index.get(name).length, value: name }));
     },
     onSelect: item => selectAuthor(item.value),
     onEnter: text => {
@@ -788,16 +792,20 @@
     input: $("ls-paint"), list: $("ls-paint-list"), autoFirst: false,
     search(q) {
       const l = q.toLowerCase();
+      const wordStart = new RegExp("(^|[^a-z0-9])" + l.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "([^a-z0-9]|$)");
       const rank = (vocab, type, group) => {
         const hits = [];
         for (const [key, v] of vocab) {
           const p = key.indexOf(l);
-          let hint = "";
-          if (p < 0) {
-            hint = v.alts.find(a => a.includes(l)) || "";
+          let hint = "", first;
+          if (p === 0 || (p > 0 && wordStart.test(key))) first = 0;  // prefix, or a whole word such as the "(prs)" acronym
+          else if (p > 0) first = 1;
+          else {
+            hint = v.alts.find(a => a === l) || v.alts.find(a => a.includes(l)) || "";
             if (!hint) continue;
+            first = hint === l ? 0 : 2;                                // an exact synonym outranks substring hits
           }
-          hits.push({ label: v.label, meta: v.count, value: v.label, type, group, hint, first: p === 0 ? 0 : p > 0 ? 1 : 2, count: v.count });
+          hits.push({ label: v.label, meta: v.count, value: v.label, type, group, hint, first, count: v.count });
         }
         return hits.sort((a, b) => a.first - b.first || b.count - a.count).slice(0, 8);
       };
