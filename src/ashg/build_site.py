@@ -38,6 +38,7 @@ PAGES = [  # (file, nav label, page title)
     ("authors.html", "Senior authors", "Senior authors with the highest talk rate"),
     ("methods.html", "Methods", "Methods and caveats"),
 ]
+HIDDEN = [("centrality.html", "Author centrality", "Central authors in the 2026 co-authorship network")]  # built, not in the menu; noindex
 SOCIAL = {  # page -> (card, og:title, og:description); the cards come from social_cards.py, other pages share the headline figure
     "index.html": ("social_index.png", None, "What the abstracts at the ASHG annual meeting say: topics and wording over time, and what leans toward talks over posters."),
     "similar.html": ("social_similar.png", "Find talks · ASHG abstracts", "Pick an ASHG 2026 abstract and see which others read most like it, or share its authors."),
@@ -58,6 +59,7 @@ TREND_FIGURES = ("trends_talk_rate", "trends_phrases", "trends_biobanks", "trend
                  "trends_words_enriched", "trends_genes", "trends_sample_size", "trends_regions", "trends_metros", "trends_center_na",
                  "trends_center_world")
 EXPLORER_ROWS = 10
+CENTRALITY_MEASURES = ("degree", "strength", "pagerank", "betweenness")
 
 
 def pct(v):
@@ -105,6 +107,27 @@ def first_author(df, columns):
     """Table of first-author credit (the outputs CSVs also hold senior-author rows, not shown on the site)."""
     df = df[df.basis == "first"]
     return table(df.assign(ci=df.apply(ci, axis=1)), columns, sorted_by="abstracts")
+
+
+def centrality_context(path):
+    """Tables for the hidden Centrality page: the four rankings side by side, then each ranking on its own. Only authors
+    with a talk are listed; the ranks count everyone in the network."""
+    df = pd.read_csv(path)
+    shown = with_talks(df)
+    top = 25
+    union = set().union(*(set(shown.nlargest(top, m).index) for m in ("degree", "strength", "pagerank", "betweenness")))
+    both = shown.loc[sorted(union)].sort_values("abstracts", ascending=False).rename(columns={"author": "name"})
+    side = table(both, [("Name", "name", None, "text"), ("Abstracts", "abstracts", None, "num"),
+                        ("Degree rank", "degree_rank", None, "num"), ("Strength rank", "strength_rank", None, "num"),
+                        ("PageRank rank", "pagerank_rank", None, "num"), ("Betweenness rank", "betweenness_rank", None, "num")],
+                 sorted_by="abstracts")
+    per = {}
+    for m in CENTRALITY_MEASURES:
+        r = shown.nlargest(top, m).assign(score=lambda x: x[m].map(lambda v: f"{v:,.0f}" if m in ("degree", "strength") else f"{v:.2g}"))
+        per[m] = table(r, [("Rank", f"{m}_rank", None, "num"), ("Name", "author", None, "text"),
+                           ("Abstracts", "abstracts", None, "num"), ("Talks", "talks", None, "num"),
+                           ("Score", "score", None, "num")], sorted_by=f"{m}_rank")
+    return {"side": side, "per": per, "n_authors": len(df), "n_talks": int((df.talks > 0).sum())}
 
 
 def lookup_link(phrase):
@@ -386,6 +409,10 @@ def main():
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATES), autoescape=False,
                              trim_blocks=True, lstrip_blocks=True)
     pages = [{"file": f, "label": label, "title": title, "sections": SECTIONS.get(f, [])} for f, label, title in pages_all]
+    hidden_src = out / "2026_author_centrality.csv"  # author rankings from centrality.py; the page is left out of the menu
+    hidden_pages = [{"file": f, "label": label, "title": title, "sections": [], "hidden": True} for f, label, title in HIDDEN] if hidden_src.exists() else []
+    if not hidden_pages:
+        (docs / "centrality.html").unlink(missing_ok=True)
     shared = {"years": [year_context(out, y) for y in years], "trends": trends, "pages": pages,
               "pooled": year_context(out, "all", f"{years[0]}–{years[-1]}") if pooled else None,
               "drivers_json": explorer_data if drivers.exists() else None, "explorer_src": explorer_src,
@@ -399,8 +426,13 @@ def main():
         html_out = env.get_template(page["file"] + ".j2").render(
             page=page, prev=pages[i - 1] if i else None, next=pages[i + 1] if i + 1 < len(pages) else None, **shared)
         (docs / page["file"]).write_text(html_out)
+    if hidden_pages:
+        centrality = centrality_context(hidden_src)
+    for page in hidden_pages:  # no neighbours in the pager: they are not in the menu
+        html_out = env.get_template(page["file"] + ".j2").render(page=page, prev=None, next=None, centrality=centrality, **shared)
+        (docs / page["file"]).write_text(html_out)
     (docs / ".nojekyll").touch()
-    print(f"wrote {len(pages)} pages to {docs}/ ({', '.join(map(str, years))})")
+    print(f"wrote {len(pages) + len(hidden_pages)} pages to {docs}/ ({', '.join(map(str, years))})")
 
 
 if __name__ == "__main__":

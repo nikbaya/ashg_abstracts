@@ -1,0 +1,53 @@
+{% extends "base.html.j2" %}
+{% block content %}
+<h1>{{ page.title }}</h1>
+<p class="lede">Four ways to rank the authors of the 2026 abstracts by their place in the co-authorship network.</p>
+<p class="caveat"><strong>Not in the site menu.</strong> The page is public for anyone with the link, but it asks search
+engines not to index it.</p>
+<p>Each author is a point. Two authors are linked when they share at least one abstract, and the link is weighted by how
+many abstracts they share. The network has {{ centrality.n_authors }} authors. The tables list the {{ centrality.n_talks }}
+of them with at least one talk; the ranks count everyone.</p>
+
+<h2>The four rankings side by side</h2>
+<p>Each row is an author in the top 25 of at least one ranking. A rank of 1 is the most central on that measure. Sorted
+by abstracts, which counts every abstract the author is listed on, as first, middle or last author.</p>
+<div class="scroll">{{ centrality.side }}</div>
+
+<h2>Degree</h2>
+<p>The number of different co-authors. It counts how many people an author has worked with, not how often.</p>
+<p>Use it to find the most broadly connected authors. Five co-authors on five abstracts counts the same as five co-authors
+on one, so repeat collaborations do not add to it.</p>
+<div class="scroll">{{ centrality.per.degree }}</div>
+
+<h2>Strength</h2>
+<p>The total number of shared abstracts across all co-authors. It is the degree with repeat collaborations counted: an
+author on 16 abstracts with one group scores high even with few distinct co-authors. The score is that total.</p>
+<p>Large author lists, such as consortia, add to it for everyone on them.</p>
+<div class="scroll">{{ centrality.per.strength }}</div>
+
+<h2>PageRank</h2>
+<p>An author gains weight from co-authors who are themselves well connected, so this ranks authors who sit among other
+well-connected people, not just people with many links. It is the long-run share of a random walk that moves along
+shared-abstract links and, 15% of the time, jumps to a random author (the damping factor is 0.85). The score is that
+share; the values are small because they add up to 1 across all authors.</p>
+<div class="scroll">{{ centrality.per.pagerank }}</div>
+
+<h2>Betweenness</h2>
+<p>The share of shortest co-author paths between pairs of authors that pass through this author, with each link counted as
+one step. High values mark people who connect groups that are otherwise far apart: take them out and many authors are
+further from each other. A large degree does not guarantee this, and a small group can produce a high value.</p>
+<p>The score is estimated from 1,000 starting authors chosen at random, so ranks past the first 20 or so can shift a little
+between builds.</p>
+<div class="scroll">{{ centrality.per.betweenness }}</div>
+
+<h2>How to read these</h2>
+<ul>
+<li><strong>Names are matched automatically</strong> on first and last name. Two people with the same name are merged, and
+one person spelled two ways is split.</li>
+<li><strong>Large author lists link many people.</strong> Consortium and biobank papers join everyone on them to each other,
+which raises all four measures for those authors.</li>
+<li><strong>Centrality is about who appears on abstracts together.</strong> It says nothing about the quality or importance
+of anyone's work, and it reflects how many abstracts an author submitted.</li>
+<li><strong>Poster-only authors are not listed,</strong> as everywhere on the site, but they still count toward the ranks.</li>
+</ul>
+{% endblock %}

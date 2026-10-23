@@ -6,7 +6,8 @@
 <meta name="color-scheme" content="light">
 <title>{% if page.file == "index.html" %}{{ page.title }}, {{ years[0].year }}–{{ years[-1].year }}{% else %}{{ page.title }} · ASHG abstracts{% endif %}</title>
 <meta name="description" content="What the abstracts at the ASHG annual meeting say, {{ years[0].year }}–{{ years[-1].year }}: topics and wording over time, and which phrases, institutions and places are over-represented among talks (vs posters).">
-<meta property="og:type" content="website">
+{% if page.hidden %}<meta name="robots" content="noindex">
+{% endif %}<meta property="og:type" content="website">
 {% set soc = social.get(page.file) %}
 <meta property="og:title" content="{{ (soc[1] if soc and soc[1] else page.title ~ ' · ASHG abstracts') }}">
 <meta property="og:description" content="{{ soc[2] if soc else 'Topics, wording and who presents at ASHG, from the published abstracts: what is rising, what is fading, and what leans toward talks over posters.' }}">
