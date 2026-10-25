@@ -510,7 +510,18 @@ a.cal svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-
 .ls-bar button:not(.ls-link) { font: inherit; font-size: 14px; color: var(--text-primary); background: var(--surface-1); border: 1px solid var(--rule);
   border-radius: 6px; padding: 4px 10px; cursor: pointer; }
 .ls-bar .seg button { padding: 4px 10px; }
-#ls-years button[aria-pressed="true"] { background: var(--surface-2); border-color: var(--text-secondary); font-weight: 600; }  /* beats .ls-bar button */
+.ls-check, .ls-years-menu label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); cursor: pointer; }
+.ls-check input, .ls-years-menu input { margin: 0; }
+.ls-years-menu label:has(input:disabled) { cursor: default; }
+.ls-years { position: relative; }
+.ls-years summary { list-style: none; cursor: pointer; font-size: 14px; color: var(--text-primary); background: var(--surface-1);
+  border: 1px solid var(--rule); border-radius: 6px; padding: 4px 10px; }
+.ls-years summary::-webkit-details-marker { display: none; }
+.ls-years summary::after { content: " \25BE"; color: var(--text-secondary); }
+.ls-years-menu { position: absolute; top: calc(100% + 4px); left: 0; z-index: 8; display: grid; gap: 8px; min-width: 11em; padding: 10px 12px;
+  background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; box-shadow: 0 6px 16px rgb(0 0 0 / 0.12); }
+.ls-years-menu > label { padding-bottom: 6px; border-bottom: 1px solid var(--rule); color: var(--text-primary); }
+#ls-year-options { display: grid; gap: 6px; }
 .ls-link { font: inherit; font-size: 13px; color: var(--text-secondary); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
 .ls-link:hover { color: #b91c1c; }
 .ls-info { font-size: 13px; color: var(--text-secondary); }
@@ -536,14 +547,14 @@ a.cal svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-
 .ls-layers input[type=color]::-webkit-color-swatch-wrapper { padding: 0; }
 .ls-layers input[type=color]::-webkit-color-swatch { border: none; border-radius: 50%; }
 .ls-layers input[type=color]::-moz-color-swatch { border: none; border-radius: 50%; }
-#ls-labels { flex-wrap: wrap; overflow: visible; }
+#ls-labels { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; }
 .ls-anno { position: relative; font-size: 12px; color: var(--text-secondary); }
 .ls-anno summary { cursor: pointer; list-style: none; display: inline-block; padding: 0 2px; line-height: 1; color: var(--text-secondary); }
 .ls-anno summary::-webkit-details-marker { display: none; }
 .ls-anno summary::before { content: "\25B8"; display: inline-block; }
 .ls-anno[open] summary::before { content: "\25BE"; }
 .ls-anno summary:hover, .ls-anno summary:focus-visible { color: var(--text-primary); }
-.ls-anno-panel { position: absolute; top: calc(100% + 8px); left: -8px; z-index: 10; display: grid; gap: 6px; min-width: 15em; padding: 10px 12px;
+.ls-anno-panel { position: fixed; inset: auto; margin: 0; display: grid; gap: 6px; min-width: 15em; padding: 10px 12px;
   background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; box-shadow: 0 6px 18px rgb(0 0 0 / 0.12);
   font-size: 13px; color: var(--text-primary); white-space: nowrap; }
 .ls-anno-panel label { display: inline-flex; align-items: center; gap: 6px; }
