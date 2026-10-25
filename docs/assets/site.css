@@ -510,6 +510,7 @@ a.cal svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-
 .ls-bar button:not(.ls-link) { font: inherit; font-size: 14px; color: var(--text-primary); background: var(--surface-1); border: 1px solid var(--rule);
   border-radius: 6px; padding: 4px 10px; cursor: pointer; }
 .ls-bar .seg button { padding: 4px 10px; }
+#ls-years button[aria-pressed="true"] { background: var(--surface-2); border-color: var(--text-secondary); font-weight: 600; }  /* beats .ls-bar button */
 .ls-link { font: inherit; font-size: 13px; color: var(--text-secondary); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
 .ls-link:hover { color: #b91c1c; }
 .ls-info { font-size: 13px; color: var(--text-secondary); }
