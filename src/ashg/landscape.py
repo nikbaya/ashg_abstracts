@@ -14,7 +14,7 @@ keywords from the terms.
 Authors are merged on person_key (first name + surname, lowercased, with apostrophes and hyphens dropped and initials
 left out of the surname) across all years and shown under the longest spelling seen, so one person's abstracts end up
 under a single autocomplete entry. Initial-only names from the older author blocks ("E. Kun") are merged into the one full
-name with the same surname and initial when that is unique (link_initials), which is a heuristic and can join two people.
+name with the same surname and initials when that is unique (link_initials), which is a heuristic and can join two people.
 
 Usage: python src/ashg/landscape.py outputs/tsne_landscape.json
 """
@@ -52,6 +52,7 @@ def tidy(name):
     """A name without trailing degrees ("Kun Zhao Ph.D"), a leading title ("Dr. Eliot Shearer") or Jr/Sr; None when no
     name is left ("PhD", "PhD candidate")."""
     bare = lambda t: t.strip(".,;")
+    name = re.sub(r"(?<![A-Za-z])([A-Za-z])\.(?=[A-Za-z])", r"\1. ", name)  # "M.A. Pericak" -> "M. A. Pericak"
     toks = name.split()
     while toks and bare(toks[-1]) in DEGREES:
         toks.pop()
@@ -66,7 +67,7 @@ def person_key(name):
     """First name + surname, lowercased, with apostrophes, hyphens and spaces dropped from the surname and initials left out, so
     "Anne O'Donnell-Luria", "Anne O’Donnell Luria" and "Anne ODonnell-Luria" are one person. Middle names are dropped too
     when they are initials ("Yash K. Pershad"), but a spelled-out middle name is kept ("Mary Ann Lee" != "Mary Lee")."""
-    sq = lambda s: re.sub(r"['’‘-]", "", s).lower()
+    sq = lambda s: re.sub(r"['’‘\-‐‑]", "", s).lower()  # ASCII and Unicode hyphens (U+2010, U+2011)
     parts = name.split()
     if len(parts) < 2:
         return sq(name)
@@ -84,31 +85,63 @@ def people(fulls):
     return out
 
 
+def given_initials(name):
+    """The initial of each given name, in order: "Benjamin M. Neale" and "B. M. Neale" are both "bm", "Ben Neale" is "b"."""
+    return "".join(t[0].lower() for t in name.split()[:-1])
+
+
 def link_initials(listed, institutions):
     """Merge initial-only keys ("m. daly", from 2022-2024 author blocks) into the full-name key with the same surname and
-    first initial ("mark daly"). A unique full name is taken as is; when several share the surname and initial, the one
-    whose abstracts share an institution with the initial-only name's abstracts is taken, if exactly one does. Otherwise
-    the initial stays separate. institutions maps person_key -> the institutions of its abstracts. This is a heuristic: a
-    match can still be a different person with the same surname and initial, or at the same institution."""
+    initials ("mark daly"; "b. m. neale" into "benjamin m. neale"). A full name matches when its given-name initials agree
+    with the initial-only name's, and the full name has at least as many: a match on every initial beats a match on the
+    first only ("Ben Neale" does not take "B. M. Neale" when "Benjamin M. Neale" exists). A unique match is taken as is;
+    when several share the surname and initials, the one whose abstracts share an institution with the initial-only
+    name's abstracts is taken, if exactly one does. Otherwise the initial stays separate. institutions maps person_key ->
+    the institutions of its abstracts. This is a heuristic: a match can still be a different person with the same
+    surname and initials, or at the same institution."""
     keys = {k for ps in listed for k, _ in ps}
-    full = {}  # surname -> full first names
+    seqs = {}  # person_key -> the given-name initials of each spelling seen under it
+    for ps in listed:
+        for k, name in ps:
+            seqs.setdefault(k, set()).add(given_initials(name))
+    full = {}  # surname -> full-name keys
     for k in keys:
         first, _, sur = k.partition(" ")
         if sur and len(first.rstrip(".")) > 1:
-            full.setdefault(sur, set()).add(first)
+            full.setdefault(sur, set()).add(k)
     canon, by_institution = {}, 0
-    for k in keys:
+    for k, want in {(k, given_initials(n)) for ps in listed for k, n in ps}:
         first, _, sur = k.partition(" ")
-        if sur and len(first.rstrip(".")) == 1:
-            cands = [f"{f} {sur}" for f in full.get(sur, ()) if f[0] == first[0]]
+        if sur and len(first.rstrip(".")) == 1:  # keyed on the spelling's own initials, so "M. Hill" and "M. S. Hill" can differ
+            agree = lambda s, n: s[:n] == want[:n]
+            cands = [j for j in full.get(sur, ()) if any(agree(s, min(len(s), len(want))) for s in seqs[j])]
+            strong = [j for j in cands if any(len(s) >= len(want) and agree(s, len(want)) for s in seqs[j])]
+            cands = strong or cands
             if len(cands) > 1:
                 shared = [c for c in cands if institutions.get(c, set()) & institutions.get(k, set())]
                 if len(shared) == 1:
                     cands, by_institution = shared, by_institution + 1
             if len(cands) == 1:
-                canon[k] = cands[0]
+                canon[(k, want)] = cands[0]
+    # an unmatched initial-only spelling joins a longer one that matched ("B. Neale" -> "B. M. Neale")
+    for k, want in {(k, given_initials(n)) for ps in listed for k, n in ps}:
+        first, _, sur = k.partition(" ")
+        if (k, want) in canon or not (sur and len(first.rstrip(".")) == 1):
+            continue
+        sibs = {canon[(k2, w)] for (k2, w) in canon if k2 == k and len(w) > len(want) and w.startswith(want)}
+        if len(sibs) == 1 and institutions.get(sibs.copy().pop(), set()) & institutions.get(k, set()):
+            canon[(k, want)] = sibs.pop()
+
+    def relabel(k, name):
+        seq = given_initials(name)
+        if (k, seq) in canon:
+            return canon[(k, seq)]
+        first, _, sur = k.partition(" ")
+        if sur and len(first.rstrip(".")) == 1 and len(seq) > 1:  # unmatched: "B. M. Neale" must not share a key with "B. N. Neale"
+            return " ".join(f"{c}." for c in seq) + f" {sur}"
+        return k
     print(f"{by_institution} of them by shared institution")
-    return [[(canon.get(k, k), n) for k, n in ps] for ps in listed], len(canon)
+    return [[(relabel(k, n), n) for k, n in ps] for ps in listed], len(canon)
 
 
 def positions(n):
