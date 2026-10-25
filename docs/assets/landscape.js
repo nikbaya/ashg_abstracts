@@ -1,6 +1,7 @@
-// Landscape page: every ASHG 2026 abstract as a dot at its t-SNE position (landscape.py), on one canvas.
-// Search an author to highlight their abstracts and fly to their weighted centroid, with a web of co-authors or
-// similar abstracts; paint keywords and institutions as density or dots. Data has no titles or abstract text.
+// Landscape page: every ASHG abstract from 2022 to 2026 as a dot at its UMAP position (landscape.py), on one canvas.
+// Search an author to highlight their abstracts, fly to their weighted centroid and draw their trajectory through the
+// years they published in, with a web of co-authors or similar abstracts; paint keywords and institutions as density or
+// dots; toggle years to show only some of them. Data has no titles or abstract text.
 (async function () {
   const root = document.getElementById("landscape");
   if (!root || typeof d3 === "undefined") return;
@@ -44,6 +45,8 @@
   const index = buildInvertedIndex(abstracts);
   const ALL_NAMES = [...index.keys()].sort((a, b) => a.localeCompare(b));
   const idToIdx = new Map(abstracts.map((a, i) => [a.id, i]));
+  const YEARS = [...new Set(abstracts.map(a => a.year))].sort((a, b) => a - b);
+  const VIS = new Uint8Array(N).fill(1); // 1 if the abstract's year is toggled on; everything below reads this
   const alts = new Map(Object.entries(synonyms).map(([label, s]) => [label.toLowerCase(), s.toLowerCase().split("; ")]));
   for (const a of abstracts) {  // every spelling grouped under a keyword, so free text finds an abstract by any of them
     a.kwAll = a.keywords.flatMap(k => [k.toLowerCase(), ...(alts.get(k.toLowerCase()) || [])]);
@@ -61,6 +64,8 @@
   const BASE_FILL = "rgba(55, 62, 74, 0.30)";
   const DIM_FILL = "rgba(55, 62, 74, 0.09)";
   const HIT_FILL = "#111827";
+  const LABEL_COLOR = "#b91c1c"; // a labeled person's marker, centroid, path and targets
+  const ALL_ON = { marker: true, centroid: true, trail: true, firsts: true }; // a selected author's annotations
   const BASE_R = 1.6, HIT_R = 3.6, LINK_R = 2.6, PAINT_R = 3.4;
   const PALETTE = d3.schemeTableau10.filter(c => !["#bab0ab", "#edc949", "#ff9da7"].includes(c)); // too faint on a light page
   const MAX_EDGES = 6000;
@@ -77,11 +82,12 @@
   let pinned = false; // a clicked dot keeps its tooltip (with the Label button) until the map is panned or clicked elsewhere
 
   const state = {
-    author: null,      // { name, mask, hits, firstHits, cx, cy, count, firstCount, edges, linkPct }
+    author: null,      // { name, mask, hits, firstHits, cx, cy, count, firstCount, trail, edges, linkPct }
     mode: "coauthors", // web around the author: "coauthors" | "similar" | "none"
     style: "density",  // how paint layers are drawn: "density" | "dots"
     labels: [],        // { name, cx, cy, count } people marked on the map by name
     layers: [],        // { id, type, term, exact, color, count, mask, density, peak, img }
+    years: new Set(YEARS), // years shown; the others are hidden everywhere
   };
   let nextLayerId = 1;
 
@@ -159,6 +165,70 @@
     }
   }
 
+  // The author's path through time: their weighted centroid for each year, joined in year order, labelled by year
+  function drawTrail(trail, k, tx, ty, color) {
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 4]);
+    ctx.beginPath();
+    trail.forEach((p, j) => {
+      const x = k * p.cx + tx, y = k * p.cy + ty;
+      if (j === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font = "600 11px system-ui, sans-serif";
+    ctx.textBaseline = "middle";
+    for (const p of trail) {
+      const x = k * p.cx + tx, y = k * p.cy + ty;
+      ctx.beginPath();
+      ctx.arc(x, y, 3.5, 0, TAU);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      ctx.stroke();
+      ctx.lineJoin = "round";
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.92)";
+      ctx.strokeText(String(p.year), x + 6, y - 6);
+      ctx.fillStyle = color;
+      ctx.fillText(String(p.year), x + 6, y - 6);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+    }
+  }
+
+  // Target on each abstract in idx (the abstracts someone leads)
+  function drawTargets(idx, color) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (const i of idx) {
+      const x = SX[i], y = SY[i];
+      if (x < -14 || x > W + 14 || y < -14 || y > H + 14) continue;
+      ctx.moveTo(x + 7, y);
+      ctx.arc(x, y, 7, 0, TAU);
+      ctx.moveTo(x - 13, y); ctx.lineTo(x - 4, y);
+      ctx.moveTo(x + 4, y);  ctx.lineTo(x + 13, y);
+      ctx.moveTo(x, y - 13); ctx.lineTo(x, y - 4);
+      ctx.moveTo(x, y + 4);  ctx.lineTo(x, y + 13);
+    }
+    ctx.stroke();
+  }
+
+  // Weighted centroid: a hollow diamond
+  function drawDiamond(cx, cy, color) {
+    const d = 7;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - d); ctx.lineTo(cx + d, cy); ctx.lineTo(cx, cy + d); ctx.lineTo(cx - d, cy);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+    ctx.fill();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
   function draw() {
     const k = transform.k, tx = transform.x, ty = transform.y;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -170,13 +240,16 @@
     }
 
     const a = state.author;
+    // A selected author's annotations are the ones on their label card, so unchecking one removes it from the map
+    const show = a ? (state.labels.find(l => l.name === a.name)?.show ?? ALL_ON) : null;
     if (a) {
       const am = a.mask;
-      fillNodes(DIM_FILL, BASE_R, i => am[i] === 0);
+      fillNodes(DIM_FILL, BASE_R, i => am[i] === 0 && VIS[i] === 1);
       if (a.edges.length) drawWeb(a, k, tx, ty);
       fillNodes(HIT_FILL, HIT_R, i => am[i] === 1);
+      if (show.trail && a.trail.length > 1) drawTrail(a.trail, k, tx, ty, HIT_FILL);
     } else {
-      fillNodes(BASE_FILL, BASE_R, () => true);
+      fillNodes(BASE_FILL, BASE_R, i => VIS[i] === 1);
     }
 
     if (state.style === "density") {
@@ -193,30 +266,8 @@
     }
 
     if (a) {
-      // Target on each abstract where they are first author
-      ctx.strokeStyle = HIT_FILL;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      for (const i of a.firstHits) {
-        const x = SX[i], y = SY[i];
-        if (x < -14 || x > W + 14 || y < -14 || y > H + 14) continue;
-        ctx.moveTo(x + 7, y);
-        ctx.arc(x, y, 7, 0, TAU);
-        ctx.moveTo(x - 13, y); ctx.lineTo(x - 4, y);
-        ctx.moveTo(x + 4, y);  ctx.lineTo(x + 13, y);
-        ctx.moveTo(x, y - 13); ctx.lineTo(x, y - 4);
-        ctx.moveTo(x, y + 4);  ctx.lineTo(x, y + 13);
-      }
-      ctx.stroke();
-
-      // Weighted centroid: a hollow diamond
-      const cx = k * a.cx + tx, cy = k * a.cy + ty, d = 7;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy - d); ctx.lineTo(cx + d, cy); ctx.lineTo(cx, cy + d); ctx.lineTo(cx - d, cy);
-      ctx.closePath();
-      ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-      ctx.fill();
-      ctx.stroke();
+      if (show.firsts) drawTargets(a.firstHits, HIT_FILL);
+      if (show.centroid) drawDiamond(k * a.cx + tx, k * a.cy + ty, HIT_FILL);
     }
 
     if (state.labels.length) {
@@ -225,10 +276,19 @@
       ctx.lineJoin = "round";
       for (const l of state.labels) {
         const x = k * l.cx + tx, y = k * l.cy + ty;
+        // The selected author's own annotations are drawn above in HIT_FILL, not twice
+        const selected = a && a.name === l.name;
+        if (!selected && l.show.trail && l.trail.length > 1) drawTrail(l.trail, k, tx, ty, LABEL_COLOR);
+        if (!selected && l.show.firsts && l.firstIdx.length) drawTargets(l.firstIdx, LABEL_COLOR);
+        if (!selected && l.show.centroid) drawDiamond(x, y, LABEL_COLOR);
+        if (!l.show.marker) continue;
         if (x < -200 || x > W + 200 || y < -20 || y > H + 20) continue;
+        ctx.font = "600 12px system-ui, sans-serif";
+        ctx.textBaseline = "middle";
+        ctx.lineJoin = "round";
         ctx.beginPath();
         ctx.arc(x, y, 4, 0, TAU);
-        ctx.fillStyle = "#b91c1c";
+        ctx.fillStyle = LABEL_COLOR;
         ctx.fill();
         ctx.strokeStyle = "#fff";
         ctx.lineWidth = 1.5;
@@ -373,7 +433,7 @@
           if (au.name === a.name) continue;
           for (const { abstract_id } of index.get(au.name)) {
             const t = idToIdx.get(abstract_id);
-            if (a.mask[t]) continue;
+            if (a.mask[t] || !VIS[t]) continue;
             const key = s * N + t;
             if (seen.has(key)) continue;
             seen.add(key);
@@ -389,6 +449,7 @@
         for (const [id, pct] of abstracts[s].similar || []) {
           if (pct < SIM_FLOOR) continue;
           const t = idToIdx.get(id);
+          if (!VIS[t]) continue;
           const key = Math.min(s, t) * N + Math.max(s, t);
           if (best.has(key)) { edges[best.get(key) + 2] = Math.max(edges[best.get(key) + 2], pct); continue; }
           best.set(key, edges.length);
@@ -405,11 +466,16 @@
     $("ls-legend").hidden = state.mode !== "similar";
   }
 
-  // Centroid of the author's abstracts (by author-position weight) together with the abstracts linked in the current
-  // mode, so it moves when the web is switched between co-authors and similar text.
+  // The author's abstracts in the years shown, as index entries
+  function visibleEntries(name) {
+    return index.get(name).filter(({ abstract_id }) => VIS[idToIdx.get(abstract_id)] === 1);
+  }
+
+  // Centroid of the author's visible abstracts (by author-position weight) together with the abstracts linked in the
+  // current mode, so it moves when the web is switched between co-authors and similar text.
   function updateCentroid(a) {
     let sw = 0, sx = 0, sy = 0;
-    for (const { abstract_id, weight } of index.get(a.name)) {
+    for (const { abstract_id, weight } of visibleEntries(a.name)) {
       const i = idToIdx.get(abstract_id);
       sw += weight; sx += weight * X[i]; sy += weight * Y[i];
     }
@@ -429,9 +495,27 @@
     return Math.min(r, 70); // a consortium's web can span the map; keep the zoom usable
   }
 
-  function selectAuthor(name) {
-    const entries = index.get(name);
-    if (!entries) return;
+  // Per-year centroids of a person's visible abstracts in year order: the trajectory drawn on the map
+  function trailOf(name) {
+    const byYear = new Map();
+    for (const { abstract_id, weight } of visibleEntries(name)) {
+      const i = idToIdx.get(abstract_id), y = abstracts[i].year;
+      const p = byYear.get(y) || { year: y, sw: 0, sx: 0, sy: 0 };
+      p.sw += weight; p.sx += weight * X[i]; p.sy += weight * Y[i];
+      byYear.set(y, p);
+    }
+    return [...byYear.values()].sort((u, v) => u.year - v.year)
+      .map(p => ({ year: p.year, cx: p.sx / p.sw, cy: p.sy / p.sw }));
+  }
+
+  function computeTrail(a) {
+    a.trail = trailOf(a.name);
+  }
+
+  // The selected author's state over the years shown, or null if none of their abstracts are shown
+  function buildAuthor(name) {
+    const entries = visibleEntries(name);
+    if (!entries.length) return null;
     const mask = new Uint8Array(N);
     const hits = [];
     let sw = 0, sx = 0, sy = 0;
@@ -443,16 +527,67 @@
       sw += weight; sx += weight * X[i]; sy += weight * Y[i];
       if (weight === WEIGHTS.first) firstHits.push(i);
     }
-    const firstCount = firstHits.length;
-    const a = state.author = { name, mask, hits, firstHits, cx: sx / sw, cy: sy / sw, count: entries.length, firstCount };
+    const a = { name, mask, hits, firstHits, cx: sx / sw, cy: sy / sw, count: entries.length, firstCount: firstHits.length };
+    computeTrail(a);
     computeConnections(a);
+    return a;
+  }
+
+  function authorInfo(a) {
+    const years = a.trail.length > 1 ? `, ${a.trail.length} years (${a.trail.map(p => p.year).join(", ")})` : "";
+    $("ls-info").textContent = `${a.count} abstract${a.count === 1 ? "" : "s"}, ${a.firstCount} as first author${years}.`;
+  }
+
+  function selectAuthor(name) {
+    if (!index.has(name)) return;
+    const a = buildAuthor(name);
+    if (!a) { $("ls-info").textContent = `${name} has no abstracts in the years shown.`; return; }
+    state.author = a;
     addLabel(name);
+    state.labels.find(l => l.name === name).show = { ...ALL_ON }; // selecting turns the author's annotations on
+    renderLabels(); // the card shows them as on
     updateCentroid(a);
     $("ls-author").value = name;
-    $("ls-info").textContent = `${entries.length} abstract${entries.length === 1 ? "" : "s"}, ${firstCount} as first author.`;
+    authorInfo(a);
     $("ls-author-clear").hidden = false;
     flyTo(a.cx, a.cy, authorRadius(a));
     requestDraw();
+  }
+
+  // Recomputes the selected author after the years shown change, without moving the view
+  function refreshAuthor() {
+    if (!state.author) return;
+    const a = buildAuthor(state.author.name);
+    if (!a) { clearAuthor(); return; }
+    state.author = a;
+    updateCentroid(a);
+    authorInfo(a);
+  }
+
+  // Years toggled: hide or show their abstracts everywhere (dots, webs, centroids, labels, paint layers)
+  function applyYears() {
+    for (let i = 0; i < N; i++) VIS[i] = state.years.has(abstracts[i].year) ? 1 : 0;
+    state.labels = state.labels.filter(l => visibleEntries(l.name).length);
+    refreshAuthor();
+    for (const l of state.labels) Object.assign(l, labelPos(l.name));
+    for (const layer of state.layers) {
+      const { mask, count } = matchAbstracts(layer.type, layer.term, layer.exact);
+      layer.mask = mask;
+      layer.count = count;
+      buildDensity(layer);
+    }
+    hideTip();
+    renderLabels();
+    renderLayers();
+    updateCount();
+    requestDraw();
+  }
+
+  function updateCount() {
+    const shown = VIS.reduce((s, v) => s + v, 0);
+    $("ls-count").textContent = shown === N
+      ? `${N.toLocaleString()} abstracts, ${index.size.toLocaleString()} unique authors`
+      : `${shown.toLocaleString()} of ${N.toLocaleString()} abstracts shown, ${index.size.toLocaleString()} unique authors`;
   }
 
   function clearAuthor() {
@@ -517,23 +652,33 @@
 
   // First-author abstracts if the person has any (the label sits on that node); otherwise the weighted centroid of all
   // their abstracts. The selected author's centroid also follows the web mode, see updateCentroid.
+  // Also returns what the label's annotations draw: the per-year trail and the indices of the abstracts they lead.
   function labelPos(name) {
-    const entries = index.get(name);
+    const entries = visibleEntries(name);
     const firsts = entries.filter(e => e.weight === WEIGHTS.first);
+    const extras = { trail: trailOf(name), firstIdx: firsts.map(e => idToIdx.get(e.abstract_id)) };
     const au = state.author;
-    if (!firsts.length && au && au.name === name) return { cx: au.cx, cy: au.cy, count: entries.length };
+    if (!firsts.length && au && au.name === name) return { cx: au.cx, cy: au.cy, count: entries.length, ...extras };
     const use = firsts.length ? firsts : entries;
     let sw = 0, sx = 0, sy = 0;
     for (const { abstract_id, weight } of use) {
       const i = idToIdx.get(abstract_id);
       sw += weight; sx += weight * X[i]; sy += weight * Y[i];
     }
-    return { cx: sx / sw, cy: sy / sw, count: entries.length };
+    return { cx: sx / sw, cy: sy / sw, count: entries.length, ...extras };
   }
 
+  // Annotations a label can show, with the card's checkbox text. The marker is on by default; the rest are opt-in.
+  const ANNOTATIONS = [
+    { key: "marker", text: "Label marker" },
+    { key: "centroid", text: "Centroid" },
+    { key: "trail", text: "Path across years" },
+    { key: "firsts", text: "First-author abstracts" },
+  ];
+
   function addLabel(name) {
-    if (!index.has(name) || state.labels.some(l => l.name === name)) return;
-    state.labels.push({ name, ...labelPos(name) });
+    if (!index.has(name) || !visibleEntries(name).length || state.labels.some(l => l.name === name)) return;
+    state.labels.push({ name, show: { marker: true, centroid: false, trail: false, firsts: false }, ...labelPos(name) });
     renderLabels();
     requestDraw();
   }
@@ -571,7 +716,33 @@
       rm.setAttribute("aria-label", `Remove label for ${l.name}`);
       rm.addEventListener("click", () => removeLabel(l.name));
 
-      li.append(name, n, rm);
+      // Annotations dropdown: each option draws in the label's color; ones that do not apply here are disabled
+      const anno = document.createElement("details");
+      anno.className = "ls-anno";
+      const sum = document.createElement("summary");
+      sum.setAttribute("aria-label", `Annotations for ${l.name}`);
+      const panel = document.createElement("div");
+      panel.className = "ls-anno-panel";
+      const available = {
+        marker: [true, ""],
+        centroid: [true, ""],
+        trail: [l.trail.length > 1, l.trail.length > 1 ? "" : " (one year shown)"],
+        firsts: [l.firstIdx.length > 0, l.firstIdx.length ? ` (${l.firstIdx.length})` : " (none)"],
+      };
+      for (const { key, text } of ANNOTATIONS) {
+        const [enabled, note] = available[key];
+        const lab = document.createElement("label");
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.checked = l.show[key] && enabled;
+        cb.disabled = !enabled;
+        cb.addEventListener("change", () => { l.show[key] = cb.checked; requestDraw(); });
+        lab.append(cb, `${text}${note}`);
+        panel.append(lab);
+      }
+      anno.append(sum, panel);
+
+      li.append(name, n, anno, rm);
       return li;
     }));
   }
@@ -597,9 +768,10 @@
       return d;
     };
     const who = line(a.authors[0] ? a.authors[0].name : "No named speaker", "who");
-    if (a.type) {
+    const meta = [a.type, a.year].filter(Boolean).join(" · ");
+    if (meta) {
       const t = document.createElement("span");
-      t.textContent = ` · ${a.type}`;
+      t.textContent = ` · ${meta}`;
       who.append(t);
     }
     const kids = [who];
@@ -629,6 +801,7 @@
   function nearestDot(mx, my) {
     let best = -1, bd = 100; // within 10 px
     for (let i = 0; i < N; i++) {
+      if (!VIS[i]) continue;
       const dx = SX[i] - mx, dy = SY[i] - my, d = dx * dx + dy * dy;
       if (d < bd) { bd = d; best = i; }
     }
@@ -685,7 +858,7 @@
     const test = type === "institution" ? inInst : type === "keyword" ? inKeywords : a => inKeywords(a) || inInst(a);
     const mask = new Uint8Array(N);
     let count = 0;
-    for (let i = 0; i < N; i++) if (test(abstracts[i])) { mask[i] = 1; count++; }
+    for (let i = 0; i < N; i++) if (VIS[i] && test(abstracts[i])) { mask[i] = 1; count++; }
     return { mask, count };
   }
 
@@ -840,7 +1013,26 @@
   // ---------------------------------------------------------------------------
   // Boot
   // ---------------------------------------------------------------------------
-  $("ls-count").textContent = `${N.toLocaleString()} abstracts, ${index.size.toLocaleString()} unique authors`;
+  // Years: one toggle per year; at least one stays on
+  $("ls-years").append(...YEARS.map(y => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.dataset.value = String(y);
+    btn.textContent = String(y);
+    btn.setAttribute("aria-pressed", "true");
+    return btn;
+  }));
+  $("ls-years").addEventListener("click", e => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+    const y = Number(btn.dataset.value);
+    const on = !state.years.has(y);
+    if (!on && state.years.size === 1) return;
+    if (on) state.years.add(y); else state.years.delete(y);
+    btn.setAttribute("aria-pressed", String(on));
+    applyYears();
+  });
+  updateCount();
   new ResizeObserver(resize).observe(stage);
   resize();
 })();

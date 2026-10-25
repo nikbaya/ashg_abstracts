@@ -14,7 +14,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://nikbaya.github.io/ashg_abstracts/img/2026_headline.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='5' cy='8' r='4' fill='%232a78d6'/%3E%3Ccircle cx='11' cy='8' r='4' fill='%23e34948' fill-opacity='.85'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/site.css?v=5850444a">
+<link rel="stylesheet" href="assets/site.css?v=cde2a651">
 </head>
 <body>
 <header class="site-header"><div class="wrap">
@@ -136,11 +136,14 @@ the most common track among its ten closest posters, marked “inferred” in th
 </ul>
 
 <h2 id="landscape">Landscape</h2>
-<p>The <a href="landscape.html">Landscape</a> page puts every ASHG 2026 abstract on one map. It uses the same word weighting as
-Find talks (BM25 on title and abstract), reduced to 50 dimensions and laid out in two with t-SNE (perplexity 30, fixed seed), so it
-matches the minimap on Find talks. Only neighborhoods mean anything: nearby dots read alike, but the gaps between distant
-clusters and the clusters' sizes are artifacts of the method. No titles or abstract text are published; the data file has each
-abstract's authors, institutions, keywords and nearest matches.</p>
+<p>The <a href="landscape.html">Landscape</a> page puts every ASHG abstract from 2022 to 2026 on one map. Each abstract is embedded
+with SPECTER2, a language model for scientific papers (title and abstract, scored as one vector), and the vectors are laid out in
+two with UMAP (cosine distance, fixed seed). Because the layout is fit once over all the years, a position means the same thing in
+every year, and an author's abstracts from different years can be joined into a path. Only neighborhoods mean anything: nearby
+dots read alike, but the gaps between distant clusters and the clusters' sizes are artifacts of the method. No titles or abstract
+text are published; the data file has each abstract's year, authors, institutions, keywords and nearest matches. Nearest matches
+and keywords still use the word weighting of Find talks (BM25 on title and abstract), so the match percentages are on the same
+scale as Find talks.</p>
 <ul>
 <li><strong>Author search.</strong> The diamond is the center of an author's abstracts, weighting each by their position on the
 author list: first author 1.5, last 1.0, middle 0.5. A target marks the abstracts they lead. Authors are matched by first + last
@@ -236,7 +239,7 @@ presenting a poster (#6041T) – come by on Thursday afternoon to hear more abou
   <p>Parsed from the ASHG annual meeting abstracts (2022–2026). Abstracts © their authors; the collection © ASHG. No abstract text is reproduced here, only counts and rates.</p>
   <p>Code and full aggregate tables: <a href="https://github.com/nikbaya/ashg_abstracts">github.com/nikbaya/ashg_abstracts</a> · <a href="methods.html">Methods and caveats</a></p>
 </div></footer>
-<script src="assets/site.js?v=5850444a"></script>
+<script src="assets/site.js?v=cde2a651"></script>
 <script data-goatcounter="https://ashg-abstracts.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

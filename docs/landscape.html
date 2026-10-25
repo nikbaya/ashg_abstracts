@@ -14,7 +14,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://nikbaya.github.io/ashg_abstracts/img/2026_headline.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='5' cy='8' r='4' fill='%232a78d6'/%3E%3Ccircle cx='11' cy='8' r='4' fill='%23e34948' fill-opacity='.85'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/site.css?v=5850444a">
+<link rel="stylesheet" href="assets/site.css?v=cde2a651">
 </head>
 <body>
 <header class="site-header"><div class="wrap">
@@ -56,11 +56,11 @@
 </div></header>
 <main class="wrap">
 <h1>Landscape of abstracts <a class="sim-methods" href="methods.html#landscape">how is the map made? ›</a></h1>
-<p class="lede sim-help">Every ASHG 2026 abstract as a dot, placed so that abstracts with similar wording sit close together.</p>
-<p class="sim-help">Search an author to highlight their abstracts and label them on the map (search more people to label several; the tooltip's button labels a clicked dot's first author) (a target marks the ones they lead; the diamond is the weighted center of all of them, counting first authorship most) and draw a web
-to their co-authors' abstracts or to the abstracts that read most like theirs, shaded by text match. Paint a keyword or an institution to see where it sits on the map. Keywords group spellings that mean
+<p class="lede sim-help">Every ASHG abstract from 2022 to 2026 as a dot, placed so that abstracts with similar wording sit close together, on one map for all the years.</p>
+<p class="sim-help">Search an author to highlight their abstracts and label them on the map (search more people to label several; the tooltip's button labels a clicked dot's first author) (a target marks the ones they lead; the diamond is the weighted center of all of them, counting first authorship most; a dashed line joins their yearly centers in order when they published in more than one year) and draw a web
+to their co-authors' abstracts or to the abstracts that read most like theirs, shaded by text match. Toggle years to show only some of them. Paint a keyword or an institution to see where it sits on the map. Keywords group spellings that mean
 the same thing (PPI and protein-protein interaction). Hover a dot for details; drag to pan and scroll or pinch to zoom. Titles and abstract text are not shown here.</p>
-<div id="landscape" class="landscape" data-src="data/tsne_landscape.json?v=a8694cca" data-syn="data/tsne_landscape_synonyms.json?v=424e0592">
+<div id="landscape" class="landscape" data-src="data/tsne_landscape.json?v=8218f2d0" data-syn="data/tsne_landscape_synonyms.json?v=694ac86a">
 <div class="ls-bar">
   <span class="lbl">Author</span>
   <span class="ls-ac">
@@ -76,6 +76,8 @@ the same thing (PPI and protein-protein interaction). Hover a dot for details; d
     <button type="button" data-value="similar" aria-pressed="false">Similar text</button>
     <button type="button" data-value="none" aria-pressed="false">Off</button>
   </span>
+  <span class="lbl">Years</span>
+  <span class="seg" id="ls-years" role="group" aria-label="Years shown"></span>
   <span id="ls-legend" class="ls-legend" hidden><span>10%</span><i id="ls-legend-bar"></i><span>100% text match</span></span>
   <span id="ls-info" class="ls-info">Highlights their abstracts and flies to their weighted centroid.</span>
 </div>
@@ -97,13 +99,13 @@ the same thing (PPI and protein-protein interaction). Hover a dot for details; d
 <ul id="ls-labels" class="ls-layers" aria-label="Labeled people"></ul>
 <ul id="ls-layers" class="ls-layers" aria-label="Active paint layers"></ul>
 <div id="ls-stage" class="sim-stage ls-stage">
-  <canvas id="ls-canvas" role="img" aria-label="Map of ASHG 2026 abstracts, one dot per abstract"></canvas>
+  <canvas id="ls-canvas" role="img" aria-label="Map of ASHG abstracts from 2022 to 2026, one dot per abstract"></canvas>
   <div id="ls-tip" class="sim-tip ls-tip" hidden></div>
 </div>
 <p class="ls-count"><span id="ls-count"></span></p>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
-<script src="assets/landscape.js?v=5850444a"></script>
+<script src="assets/landscape.js?v=cde2a651"></script>
 <nav class="pager" aria-label="Previous and next page">
 <a class="prev" href="compare.html"><span>← Previous</span>Compare</a><a class="next" href="phrases.html"><span>Next →</span>Phrases</a></nav>
 </main>
@@ -111,7 +113,7 @@ the same thing (PPI and protein-protein interaction). Hover a dot for details; d
   <p>Parsed from the ASHG annual meeting abstracts (2022–2026). Abstracts © their authors; the collection © ASHG. No abstract text is reproduced here, only counts and rates.</p>
   <p>Code and full aggregate tables: <a href="https://github.com/nikbaya/ashg_abstracts">github.com/nikbaya/ashg_abstracts</a> · <a href="methods.html">Methods and caveats</a></p>
 </div></footer>
-<script src="assets/site.js?v=5850444a"></script>
+<script src="assets/site.js?v=cde2a651"></script>
 <script data-goatcounter="https://ashg-abstracts.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

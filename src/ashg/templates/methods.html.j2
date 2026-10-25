@@ -74,11 +74,14 @@ the most common track among its ten closest posters, marked “inferred” in th
 </ul>
 
 <h2 id="landscape">Landscape</h2>
-<p>The <a href="landscape.html">Landscape</a> page puts every ASHG 2026 abstract on one map. It uses the same word weighting as
-Find talks (BM25 on title and abstract), reduced to 50 dimensions and laid out in two with t-SNE (perplexity 30, fixed seed), so it
-matches the minimap on Find talks. Only neighborhoods mean anything: nearby dots read alike, but the gaps between distant
-clusters and the clusters' sizes are artifacts of the method. No titles or abstract text are published; the data file has each
-abstract's authors, institutions, keywords and nearest matches.</p>
+<p>The <a href="landscape.html">Landscape</a> page puts every ASHG abstract from 2022 to 2026 on one map. Each abstract is embedded
+with SPECTER2, a language model for scientific papers (title and abstract, scored as one vector), and the vectors are laid out in
+two with UMAP (cosine distance, fixed seed). Because the layout is fit once over all the years, a position means the same thing in
+every year, and an author's abstracts from different years can be joined into a path. Only neighborhoods mean anything: nearby
+dots read alike, but the gaps between distant clusters and the clusters' sizes are artifacts of the method. No titles or abstract
+text are published; the data file has each abstract's year, authors, institutions, keywords and nearest matches. Nearest matches
+and keywords still use the word weighting of Find talks (BM25 on title and abstract), so the match percentages are on the same
+scale as Find talks.</p>
 <ul>
 <li><strong>Author search.</strong> The diamond is the center of an author's abstracts, weighting each by their position on the
 author list: first author 1.5, last 1.0, middle 0.5. A target marks the abstracts they lead. Authors are matched by first + last

@@ -14,3 +14,7 @@ dependencies:
   - pyyaml
   - pytest
   - networkx
+  - pip
+  - pip:
+      - sentence-transformers
+      - umap-learn
