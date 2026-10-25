@@ -64,7 +64,6 @@
   const BASE_FILL = "rgba(55, 62, 74, 0.30)";
   const DIM_FILL = "rgba(55, 62, 74, 0.09)";
   const HIT_FILL = "#111827";
-  const LABEL_COLOR = "#b91c1c"; // a labeled person's marker, centroid, path and targets
   const ALL_ON = { marker: true, centroid: true, trail: true, firsts: true }; // a selected author's annotations
   const BASE_R = 1.6, HIT_R = 3.6, LINK_R = 2.6, PAINT_R = 3.4;
   const PALETTE = d3.schemeTableau10.filter(c => !["#bab0ab", "#edc949", "#ff9da7"].includes(c)); // too faint on a light page
@@ -241,13 +240,15 @@
 
     const a = state.author;
     // A selected author's annotations are the ones on their label card, so unchecking one removes it from the map
-    const show = a ? (state.labels.find(l => l.name === a.name)?.show ?? ALL_ON) : null;
+    const selLabel = a ? state.labels.find(l => l.name === a.name) : null;
+    const show = a ? (selLabel?.show ?? ALL_ON) : null;
+    const annoColor = selLabel?.color ?? HIT_FILL; // the selected author's annotations use their label color
     if (a) {
       const am = a.mask;
       fillNodes(DIM_FILL, BASE_R, i => am[i] === 0 && VIS[i] === 1);
       if (a.edges.length) drawWeb(a, k, tx, ty);
       fillNodes(HIT_FILL, HIT_R, i => am[i] === 1);
-      if (show.trail && a.trail.length > 1) drawTrail(a.trail, k, tx, ty, HIT_FILL);
+      if (show.trail && a.trail.length > 1) drawTrail(a.trail, k, tx, ty, annoColor);
     } else {
       fillNodes(BASE_FILL, BASE_R, i => VIS[i] === 1);
     }
@@ -266,8 +267,8 @@
     }
 
     if (a) {
-      if (show.firsts) drawTargets(a.firstHits, HIT_FILL);
-      if (show.centroid) drawDiamond(k * a.cx + tx, k * a.cy + ty, HIT_FILL);
+      if (show.firsts) drawTargets(a.firstHits, annoColor);
+      if (show.centroid) drawDiamond(k * a.cx + tx, k * a.cy + ty, annoColor);
     }
 
     if (state.labels.length) {
@@ -278,9 +279,9 @@
         const x = k * l.cx + tx, y = k * l.cy + ty;
         // The selected author's own annotations are drawn above in HIT_FILL, not twice
         const selected = a && a.name === l.name;
-        if (!selected && l.show.trail && l.trail.length > 1) drawTrail(l.trail, k, tx, ty, LABEL_COLOR);
-        if (!selected && l.show.firsts && l.firstIdx.length) drawTargets(l.firstIdx, LABEL_COLOR);
-        if (!selected && l.show.centroid) drawDiamond(x, y, LABEL_COLOR);
+        if (!selected && l.show.trail && l.trail.length > 1) drawTrail(l.trail, k, tx, ty, l.color);
+        if (!selected && l.show.firsts && l.firstIdx.length) drawTargets(l.firstIdx, l.color);
+        if (!selected && l.show.centroid) drawDiamond(x, y, l.color);
         if (!l.show.marker) continue;
         if (x < -200 || x > W + 200 || y < -20 || y > H + 20) continue;
         ctx.font = "600 12px system-ui, sans-serif";
@@ -288,7 +289,7 @@
         ctx.lineJoin = "round";
         ctx.beginPath();
         ctx.arc(x, y, 4, 0, TAU);
-        ctx.fillStyle = LABEL_COLOR;
+        ctx.fillStyle = l.color;
         ctx.fill();
         ctx.strokeStyle = "#fff";
         ctx.lineWidth = 1.5;
@@ -496,16 +497,20 @@
   }
 
   // Per-year centroids of a person's visible abstracts in year order: the trajectory drawn on the map
+  // One point per year: the first-author abstracts that year if there are any, otherwise all of their abstracts
   function trailOf(name) {
     const byYear = new Map();
     for (const { abstract_id, weight } of visibleEntries(name)) {
       const i = idToIdx.get(abstract_id), y = abstracts[i].year;
-      const p = byYear.get(y) || { year: y, sw: 0, sx: 0, sy: 0 };
-      p.sw += weight; p.sx += weight * X[i]; p.sy += weight * Y[i];
+      const p = byYear.get(y) || { year: y, first: { sw: 0, sx: 0, sy: 0 }, all: { sw: 0, sx: 0, sy: 0 } };
+      const groups = weight === WEIGHTS.first ? [p.first, p.all] : [p.all];
+      for (const g of groups) { g.sw += weight; g.sx += weight * X[i]; g.sy += weight * Y[i]; }
       byYear.set(y, p);
     }
-    return [...byYear.values()].sort((u, v) => u.year - v.year)
-      .map(p => ({ year: p.year, cx: p.sx / p.sw, cy: p.sy / p.sw }));
+    return [...byYear.values()].sort((u, v) => u.year - v.year).map(p => {
+      const g = p.first.sw > 0 ? p.first : p.all;
+      return { year: p.year, cx: g.sx / g.sw, cy: g.sy / g.sw };
+    });
   }
 
   function computeTrail(a) {
@@ -676,9 +681,17 @@
     { key: "firsts", text: "First-author abstracts" },
   ];
 
+  // A palette color not yet used by a label or a paint layer, so each new label stands apart
+  function pickLabelColor() {
+    const used = new Set([...state.labels.map(l => l.color), ...state.layers.map(l => l.color)]);
+    const free = PALETTE.filter(c => !used.has(c));
+    const pool = free.length ? free : PALETTE;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
   function addLabel(name) {
     if (!index.has(name) || !visibleEntries(name).length || state.labels.some(l => l.name === name)) return;
-    state.labels.push({ name, show: { marker: true, centroid: false, trail: false, firsts: false }, ...labelPos(name) });
+    state.labels.push({ name, color: pickLabelColor(), show: { marker: true, centroid: false, trail: false, firsts: false }, ...labelPos(name) });
     renderLabels();
     requestDraw();
   }
@@ -705,6 +718,13 @@
       name.textContent = l.name;
       name.title = `${l.name}: ${l.count} abstract${l.count === 1 ? "" : "s"}`;
 
+      const color = document.createElement("input");
+      color.type = "color";
+      color.value = l.color;
+      color.setAttribute("aria-label", `Annotation color for ${l.name}`);
+      color.title = "Annotation color";
+      color.addEventListener("input", () => { l.color = color.value; requestDraw(); });
+
       const n = document.createElement("span");
       n.className = "n";
       n.textContent = l.count;
@@ -716,7 +736,7 @@
       rm.setAttribute("aria-label", `Remove label for ${l.name}`);
       rm.addEventListener("click", () => removeLabel(l.name));
 
-      // Annotations dropdown: each option draws in the label's color; ones that do not apply here are disabled
+      // Annotations menu: opens as a popover over the map, so the card's row does not change; options that do not apply here are disabled
       const anno = document.createElement("details");
       anno.className = "ls-anno";
       const sum = document.createElement("summary");
@@ -742,12 +762,17 @@
       }
       anno.append(sum, panel);
 
-      li.append(name, n, anno, rm);
+      li.append(anno, color, name, n, rm);
       return li;
     }));
   }
 
   $("ls-label-clear").addEventListener("click", clearLabels);
+
+  // Annotation menus close on an outside click or Escape, like a menu
+  const closeAnnoMenus = except => document.querySelectorAll(".ls-anno[open]").forEach(d => { if (d !== except) d.open = false; });
+  document.addEventListener("click", e => closeAnnoMenus(e.target.closest(".ls-anno")));
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeAnnoMenus(null); });
 
   // ---------------------------------------------------------------------------
   // Hover tooltip
