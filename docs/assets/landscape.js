@@ -644,20 +644,29 @@
     return Math.min(r, 70); // a consortium's web can span the map; keep the zoom usable
   }
 
-  // Per-year centroids of a person's visible abstracts in year order: the trajectory drawn on the map
-  // One point per year: the first-author abstracts that year if there are any, otherwise all of their abstracts
+  // Per-year centers in year order: prefer first-author platform talks, then other first-author abstracts, then all abstracts
   function trailOf(name) {
     const byYear = new Map();
     for (const { abstract_id, weight } of visibleEntries(name)) {
       const i = idToIdx.get(abstract_id), y = abstracts[i].year;
-      const p = byYear.get(y) || { year: y, first: { sw: 0, sx: 0, sy: 0 }, all: { sw: 0, sx: 0, sy: 0 } };
-      const groups = weight === WEIGHTS.first ? [p.first, p.all] : [p.all];
+      const p = byYear.get(y) || {
+        year: y,
+        platform: { sw: 0, sx: 0, sy: 0 },
+        first: { sw: 0, sx: 0, sy: 0 },
+        all: { sw: 0, sx: 0, sy: 0 },
+      };
+      const firstAuthor = weight === WEIGHTS.first;
+      const groups = firstAuthor ? [p.first, p.all] : [p.all];
       for (const g of groups) { g.sw += weight; g.sx += weight * X[i]; g.sy += weight * Y[i]; }
+      if (firstAuthor && abstracts[i].type === "platform") {
+        const g = p.platform;
+        g.sw += weight; g.sx += weight * X[i]; g.sy += weight * Y[i];
+      }
       byYear.set(y, p);
     }
     return [...byYear.values()].sort((u, v) => u.year - v.year).map(p => {
       const firstAuthor = p.first.sw > 0;
-      const g = firstAuthor ? p.first : p.all;
+      const g = p.platform.sw > 0 ? p.platform : firstAuthor ? p.first : p.all;
       return { year: p.year, cx: g.sx / g.sw, cy: g.sy / g.sw, firstAuthor };
     });
   }

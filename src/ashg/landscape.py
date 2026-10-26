@@ -13,8 +13,9 @@ keywords from the terms.
 
 Authors are merged on person_key (first name + surname, lowercased, with apostrophes and hyphens dropped and initials
 left out of the surname) across all years and shown under the longest spelling seen, so one person's abstracts end up
-under a single autocomplete entry. Initial-only names from the older author blocks ("E. Kun") are merged into the one full
-name with the same surname and initials when that is unique (link_initials), which is a heuristic and can join two people.
+under a single autocomplete entry. Initial-only names from the older author blocks ("E. Kun") are linked by surname and
+initials; when author-specific affiliation evidence conflicts with a candidate full name, that occurrence stays separate
+(link_initials).
 
 Usage: python src/ashg/landscape.py outputs/tsne_landscape.json
 """
@@ -32,6 +33,7 @@ import umap
 from sentence_transformers import SentenceTransformer, models
 
 import floq
+from institutions import load_aliases, match_institutes
 from network import SIM_FLOOR, TYPES, YEAR, author_key, bm25_vectors, clean_name, load_abstracts, top_neighbors
 from synonyms import Keywords
 
@@ -101,15 +103,15 @@ def given_initials(name):
     return "".join(t[0].lower() for t in name.split()[:-1])
 
 
-def link_initials(listed, institutions):
+def link_initials(listed, institutions, abstract_ids=None, author_institutions=None):
     """Merge initial-only keys ("m. daly", from 2022-2024 author blocks) into the full-name key with the same surname and
     initials ("mark daly"; "b. m. neale" into "benjamin m. neale"). A full name matches when its given-name initials agree
     with the initial-only name's, and the full name has at least as many: a match on every initial beats a match on the
     first only ("Ben Neale" does not take "B. M. Neale" when "Benjamin M. Neale" exists). A unique match is taken as is;
     when several share the surname and initials, the one whose abstracts share an institution with the initial-only
-    name's abstracts is taken, if exactly one does. Otherwise the initial stays separate. institutions maps person_key ->
-    the institutions of its abstracts. This is a heuristic: a match can still be a different person with the same
-    surname and initials, or at the same institution."""
+    name's abstracts is taken, if exactly one does. If an abstract's own listed affiliations conflict with the candidate's,
+    that occurrence stays under the initials instead of being merged. When author-specific affiliation evidence is absent,
+    the existing unique-match heuristic is retained."""
     keys = {k for ps in listed for k, _ in ps}
     seqs = {}  # person_key -> the given-name initials of each spelling seen under it
     for ps in listed:
@@ -151,8 +153,26 @@ def link_initials(listed, institutions):
         if sur and len(first.rstrip(".")) == 1 and len(seq) > 1:  # unmatched: "B. M. Neale" must not share a key with "B. N. Neale"
             return " ".join(f"{c}." for c in seq) + f" {sur}"
         return k
-    print(f"{by_institution} of them by shared institution")
-    return [[(relabel(k, n), n) for k, n in ps] for ps in listed], len(canon)
+    linked = 0
+    conflicts = []
+    resolved = []
+    for i, ps in enumerate(listed):
+        abstract_id = abstract_ids[i] if abstract_ids is not None else None
+        found_by_author = (author_institutions or {}).get(abstract_id, {})
+        row = []
+        for k, name in ps:
+            target = relabel(k, name)
+            candidate_insts = institutions.get(target, set())
+            found = found_by_author.get(k, set())
+            if target != k and found and candidate_insts and not found.intersection(candidate_insts):
+                conflicts.append((i, k, name, target))
+                target = k
+            if target != k:
+                linked += 1
+            row.append((target, name))
+        resolved.append(row)
+    print(f"{by_institution} initial-only keys disambiguated by shared institution")
+    return resolved, linked, conflicts
 
 
 def positions(n):
@@ -174,6 +194,44 @@ def author_names(raw, year):
     return [n for n, _ in floq.split_authors(raw) if re.search(r"[A-Za-z]", n)]
 
 
+def author_institutions(raw, aliases):
+    """Map each author key to institutions from their numbered author-block affiliations."""
+    authors_raw, separator, affiliations_raw = raw.partition(";")
+    if not separator:
+        result = {}
+        for name, affils in floq.split_authors(raw):
+            key = person_key(clean_name(name))
+            if key and affils:
+                result.setdefault(key, set()).update(match_institutes({"affils": [affils]}, aliases))
+        return result
+
+    affiliations = {}
+    markers = list(re.finditer(r"(?:^\s*|,\s*)(\d+)(?=\s|[A-Za-z])\s*", affiliations_raw))
+    for i, marker in enumerate(markers):
+        end = markers[i + 1].start() if i + 1 < len(markers) else len(affiliations_raw)
+        text = affiliations_raw[marker.end():end].strip(" ,;")
+        affiliations[marker.group(1)] = set(match_institutes({"affils": [text]}, aliases))
+
+    author_affiliations = {}
+    chunks = authors_raw.split(",")
+    for chunk in chunks:
+        refs = re.search(r"((?:\d+\s*,\s*)+\d+|\d+)\s*$", chunk)
+        name = clean_name(chunk)
+        if not name or not re.search(r"[A-Za-z]", name):
+            if refs and author_affiliations:
+                key = next(reversed(author_affiliations))
+                author_affiliations[key].update(
+                    inst for ref in re.findall(r"\d+", refs.group(1)) for inst in affiliations.get(ref, set())
+                )
+            continue
+        key = person_key(name)
+        found = set()
+        if refs:
+            found.update(inst for ref in re.findall(r"\d+", refs.group(1)) for inst in affiliations.get(ref, set()))
+        author_affiliations.setdefault(key, set()).update(found)
+    return author_affiliations
+
+
 def load_years():
     """One row per abstract for every year in YEARS, plus the 2026 symposium and session nodes. The abstract rows are read
     from each year's parquet (load_abstracts() only reads 2026); the same author parsing as load_abstracts() is used, so
@@ -183,15 +241,37 @@ def load_years():
         for t in TYPES:
             for r in pd.read_parquet(f"data/abstracts/{y}_{t}.parquet").itertuples():
                 names = author_names(r.authors_raw, y)
-                rows.append({"id": r.abstract_id, "year": y, "type": t, "authors": [author_key(n) for n in names],
+                rows.append({"id": r.abstract_id, "year": y, "type": t, "authors_raw": r.authors_raw,
+                             "authors": [author_key(n) for n in names],
                              "full": [clean_name(n) for n in names], "title": r.title, "body": r.body,
                              "text": f"{r.title} {r.body}"})
     program = load_abstracts()
     program = program[~program.type.isin(TYPES)]  # the abstract rows above already cover them
     for r in program.itertuples():
-        rows.append({"id": r.id, "year": YEAR, "type": r.type, "authors": r.authors, "full": r.full,
+        rows.append({"id": r.id, "year": YEAR, "type": r.type, "authors_raw": None,
+                     "authors": r.authors, "full": r.full,
                      "title": None, "body": None, "text": r.text})
     return pd.DataFrame(rows)
+
+
+def author_institution_evidence(d, insts, aliases):
+    """Return institution evidence keyed to each author, not every coauthor on the abstract."""
+    by_person = {}
+    by_abstract = {aid: author_institutions(raw, aliases)
+                   for aid, raw in zip(d.id, d.authors_raw) if isinstance(raw, str)}
+    for aid, fulls in zip(d.id, d.full):
+        for key, _ in people(fulls):
+            by_person.setdefault(key, set()).update(by_abstract.get(aid, {}).get(key, set()))
+        if aid not in insts.index:
+            continue
+        row = insts.loc[aid]
+        first = person_key(clean_name(row.first_author)) if isinstance(row.first_author, str) else ""
+        senior = person_key(clean_name(row.senior_author)) if isinstance(row.senior_author, str) else ""
+        if first:
+            by_person.setdefault(first, set()).update(row.first_insts)
+        if senior:
+            by_person.setdefault(senior, set()).update(row.senior_insts)
+    return by_person, by_abstract
 
 
 def chitinase_cluster_mask(d):
@@ -242,15 +322,12 @@ def main():
     xy = SCALE * (2 * xy - 1)
 
     insts = pd.concat([pd.read_parquet(f"data/institutions/{y}.parquet") for y in YEARS]).set_index("abstract_id")
-    people_insts = {}  # person_key -> institutions of their abstracts, for linking initials
-    for aid, fulls in zip(d.id, d.full):
-        if aid in insts.index:
-            row = insts.loc[aid]
-            found = set(row.first_insts) | set(row.senior_insts)
-            for k, _ in people(fulls):
-                people_insts.setdefault(k, set()).update(found)
-    listed, linked = link_initials([people(fulls) for fulls in d.full], people_insts)
-    print(f"{linked} initial-only author keys merged into a full name")
+    people_insts, authors_insts = author_institution_evidence(d, insts, load_aliases("aliases.csv"))
+    for mapping in authors_insts.values():
+        for key, found in mapping.items():
+            people_insts.setdefault(key, set()).update(found)
+    listed, linked, _ = link_initials([people(fulls) for fulls in d.full], people_insts, d.id, authors_insts)
+    print(f"{linked} initial-only author entries linked using affiliation evidence")
     spelled = {}  # person_key -> longest spelling, across all years
     for ps in listed:
         for k, name in ps:

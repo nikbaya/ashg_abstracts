@@ -106,8 +106,10 @@ fitted map. They remain searchable and are included in the Landscape data; only 
 <li><strong>Author search.</strong> The map flies to an author's weighted center, weighting each abstract by their position on the
 author list: first author 1.5, last 1.0, middle 0.5. A target marks the abstracts they lead. Authors are matched by first + last
 name, so two people with one name merge and a different spelling of a name is missed; degrees and titles that the author-block
-parsing leaves in names (“PhD”, “MD”, “Dr.”) are stripped.</li>
-<li><strong>Web.</strong> The web is off when an author is first searched; the author's path through years is shown instead.
+parsing leaves in names (“PhD”, “MD”, “Dr.”) are stripped. When an initial-only name's listed affiliation conflicts with
+a candidate full name's affiliations, that abstract is kept separate rather than merged; without affiliation evidence,
+unique initial matches remain heuristic.</li>
+<li><strong>Web.</strong> The web is off when an author is first searched; the author's path through years is shown instead. For each year, it uses the center of their first-author platform talks when present, otherwise their first-author abstracts, or all their abstracts if they have no first-author work that year.
 “Co-authors” joins each of their abstracts to one nearby abstract by each direct co-author (at most 6,000 lines); linked
 the searched author's abstracts are highlighted only when “Show co-author abstracts” is checked; in co-authors mode
 the same option also highlights linked co-author abstract nodes. “Similar text”
