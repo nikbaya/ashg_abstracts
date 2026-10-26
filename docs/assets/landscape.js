@@ -64,7 +64,7 @@
   const BASE_FILL = "rgba(55, 62, 74, 0.30)";
   const DIM_FILL = "rgba(55, 62, 74, 0.09)";
   const HIT_FILL = "#111827";
-  const ALL_ON = { marker: true, centroid: true, trail: true, firsts: true }; // a selected author's annotations
+  const ALL_ON = { marker: true, centroid: false, trail: true, firsts: true }; // a selected author's annotations
   const BASE_R = 1.6, HIT_R = 3.6, LINK_R = 2.6, PAINT_R = 3.4;
   const PALETTE = d3.schemeTableau10.filter(c => !["#bab0ab", "#edc949", "#ff9da7"].includes(c)); // too faint on a light page
   const MAX_EDGES = 6000;
@@ -258,15 +258,6 @@
     if (a) {
       const am = a.mask;
       fillNodes(DIM_FILL, BASE_R, i => am[i] === 0 && VIS[i] === 1);
-      if (a.edges.length) drawWeb(a, k, tx, ty);
-      fillNodes(HIT_FILL, HIT_R, i => am[i] === 1);
-      if (show.trail && a.trail.length > 1) {
-        const progress = trailAnimation?.name === a.name
-          ? Math.min(1, (performance.now() - trailAnimation.start) / TRAIL_ANIMATION_MS)
-          : 1;
-        drawTrail(a.trail, k, tx, ty, annoColor, progress);
-        if (progress >= 1) trailAnimation = null;
-      }
     } else {
       fillNodes(BASE_FILL, BASE_R, i => VIS[i] === 1);
     }
@@ -285,6 +276,15 @@
     }
 
     if (a) {
+      if (a.edges.length) drawWeb(a, k, tx, ty);
+      fillNodes(HIT_FILL, HIT_R, i => a.mask[i] === 1);
+      if (show.trail && a.trail.length > 1) {
+        const progress = trailAnimation?.name === a.name
+          ? Math.min(1, (performance.now() - trailAnimation.start) / TRAIL_ANIMATION_MS)
+          : 1;
+        drawTrail(a.trail, k, tx, ty, annoColor, progress);
+        if (progress >= 1) trailAnimation = null;
+      }
       if (show.firsts) drawTargets(a.firstHits, annoColor);
       if (show.centroid) drawDiamond(k * a.cx + tx, k * a.cy + ty, annoColor);
     }
@@ -465,15 +465,14 @@
           if (distance < targetDistance) { target = t; targetDistance = distance; }
         }
         if (target < 0 || seenTargets.has(target)) continue;
-        let source = sources[0], sourceDistance = Infinity;
+        let source = -1, sourceDistance = Infinity;
         for (const s of sources) {
           const distance = (X[s] - X[target]) ** 2 + (Y[s] - Y[target]) ** 2;
           if (distance < sourceDistance) { source = s; sourceDistance = distance; }
         }
         seenTargets.add(target);
-        const t = target, s = source;
-        edges.push(s, t, 55);
-        linkPct[t] = 55;
+        edges.push(source, target, 55);
+        linkPct[target] = 55;
         if (edges.length >= 3 * MAX_EDGES) break;
       }
     } else if (state.mode === "similar") {
@@ -631,7 +630,6 @@
 
   function clearAuthor() {
     state.author = null;
-    trailAnimation = null;
     $("ls-author").value = "";
     $("ls-info").textContent = INFO_DEFAULT;
     $("ls-author-clear").hidden = true;
@@ -683,19 +681,6 @@
       flyTo(state.author.cx, state.author.cy, authorRadius(state.author));
       requestDraw();
     }
-  });
-  function startTrailAnimation() {
-    if (!state.animate || !state.author || state.author.trail.length < 2) {
-      trailAnimation = null;
-      return;
-    }
-    trailAnimation = { name: state.author.name, start: performance.now() };
-    requestDraw();
-  }
-  $("ls-animate").addEventListener("change", e => {
-    state.animate = e.target.checked;
-    startTrailAnimation();
-    requestDraw();
   });
   $("ls-legend-bar").style.background =
     `linear-gradient(to right, ${d3.range(N_SHADES).map(b => shadeColor(shadeT(b))).join(",")})`;
@@ -797,7 +782,6 @@
       sum.setAttribute("aria-label", `Options for ${l.name}`);
       const panel = document.createElement("div");
       panel.className = "ls-anno-panel";
-      panel.setAttribute("popover", "manual");
       const available = {
         marker: [true, ""],
         centroid: [true, ""],
@@ -816,20 +800,6 @@
         panel.append(lab);
       }
       anno.append(sum, panel);
-      anno.addEventListener("toggle", () => {
-        if (anno.open) {
-          closeAnnoMenus(anno);
-          panel.showPopover();
-          const anchor = sum.getBoundingClientRect();
-          const bounds = panel.getBoundingClientRect();
-          panel.style.left = `${Math.max(8, Math.min(anchor.left - 8, innerWidth - bounds.width - 8))}px`;
-          panel.style.top = `${anchor.bottom + bounds.height + 8 <= innerHeight
-            ? anchor.bottom + 8
-            : Math.max(8, anchor.top - bounds.height - 8)}px`;
-        } else if (panel.matches(":popover-open")) {
-          panel.hidePopover();
-        }
-      });
 
       if (state.author?.name === l.name) {
         const web = document.createElement("div");
@@ -865,8 +835,6 @@
   const closeAnnoMenus = except => document.querySelectorAll(".ls-anno[open]").forEach(d => { if (d !== except) d.open = false; });
   document.addEventListener("click", e => closeAnnoMenus(e.target.closest(".ls-anno")));
   document.addEventListener("keydown", e => { if (e.key === "Escape") closeAnnoMenus(null); });
-  $("ls-labels").addEventListener("scroll", () => closeAnnoMenus(null));
-  window.addEventListener("resize", () => closeAnnoMenus(null));
 
   // ---------------------------------------------------------------------------
   // Hover tooltip
@@ -1132,38 +1100,28 @@
   // ---------------------------------------------------------------------------
   // Boot
   // ---------------------------------------------------------------------------
-  // Years can be filtered individually or restored together from the dropdown.
-  const yearsAll = $("ls-years-all");
-  const yearsSummary = $("ls-years-summary");
   const yearOptions = $("ls-year-options");
-  function updateYearControls() {
-    yearsAll.checked = state.years.size === YEARS.length;
-    yearsAll.indeterminate = state.years.size > 0 && state.years.size < YEARS.length;
-    yearsAll.disabled = yearsAll.checked;
-    for (const input of yearOptions.querySelectorAll("input")) {
-      const selected = state.years.has(Number(input.value));
-      input.checked = selected;
-      input.disabled = selected && state.years.size === 1;
-    }
-    yearsSummary.textContent = state.years.size === YEARS.length
-      ? "All years"
-      : state.years.size === 0 ? "No years" : `${state.years.size} of ${YEARS.length} years`;
-  }
   yearOptions.append(...YEARS.map(y => {
     const label = document.createElement("label");
     const input = document.createElement("input");
     input.type = "checkbox";
     input.value = String(y);
     input.checked = true;
-    label.append(input, String(y));
+    label.append(input, ` ${y}`);
     return label;
   }));
-  yearsAll.addEventListener("change", () => {
-    if (!yearsAll.checked) return;
-    state.years = new Set(YEARS);
-    updateYearControls();
-    applyYears();
-  });
+  function updateYearControls() {
+    const all = state.years.size === YEARS.length;
+    $("ls-years-summary").textContent = all ? "All years" : [...state.years].sort((a, b) => a - b).join(", ");
+    const selectAll = $("ls-years-all");
+    selectAll.checked = all;
+    selectAll.indeterminate = !all && state.years.size > 0;
+    for (const input of yearOptions.querySelectorAll("input")) {
+      const year = Number(input.value);
+      input.checked = state.years.has(year);
+      input.disabled = input.checked && state.years.size === 1;
+    }
+  }
   yearOptions.addEventListener("change", e => {
     const input = e.target.closest("input");
     if (!input) return;
@@ -1175,6 +1133,24 @@
     if (input.checked) state.years.add(year); else state.years.delete(year);
     updateYearControls();
     applyYears();
+  });
+  $("ls-years-all").addEventListener("change", e => {
+    state.years = new Set(e.target.checked ? YEARS : [YEARS[YEARS.length - 1]]);
+    updateYearControls();
+    applyYears();
+  });
+  function startTrailAnimation() {
+    if (!state.animate || !state.author || state.author.trail.length < 2) {
+      trailAnimation = null;
+      return;
+    }
+    trailAnimation = { name: state.author.name, start: performance.now() };
+    requestDraw();
+  }
+  $("ls-animate").addEventListener("change", e => {
+    state.animate = e.target.checked;
+    startTrailAnimation();
+    requestDraw();
   });
   updateYearControls();
   updateCount();

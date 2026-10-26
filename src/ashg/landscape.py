@@ -40,6 +40,11 @@ MODEL = "allenai/specter2_base"  # SPECTER2 base: scientific-paper embeddings tr
 KEYWORDS = 25  # paint-by-keyword only finds an abstract through these, so a topic ranked 10th still counts
 SIMILAR = 15  # text neighbors per node, for the page's similar-abstracts web
 SCALE = 100  # coordinates run -SCALE..SCALE
+CHITINASE_CLUSTER = {
+    (2023, "t. kanaizumi"), (2023, "k. suzuki"), (2023, "k. takahashi"),
+    (2024, "f. oyama"), (2024, "k. suzuki"),
+    (2025, "fumitaka oyama"), (2025, "keita suzuki"),
+}
 # Degrees, titles and suffixes the author-block parsing leaves as their own "authors" or glued to a name. Degrees match
 # case-sensitively so a surname like Ma is kept.
 DEGREES = {"PhD", "Ph.D", "MD", "M.D", "MS", "M.S", "MA", "M.A", "MSc", "M.Sc", "BS", "BSc", "BA", "MPH", "DPhil", "MBA",
@@ -183,6 +188,16 @@ def load_years():
     return pd.DataFrame(rows)
 
 
+def chitinase_cluster_mask(d):
+    """Identify the seven-post abstract outlier cluster to project into the shared map."""
+    first = d.full.map(lambda names: names[0].strip().casefold() if names else "")
+    mask = d.type.eq("poster") & pd.Series(list(zip(d.year, first)), index=d.index).isin(CHITINASE_CLUSTER)
+    found = set(zip(d.loc[mask, "year"], first[mask]))
+    if found != CHITINASE_CLUSTER or int(mask.sum()) != len(CHITINASE_CLUSTER):
+        raise ValueError(f"Expected one chitinase poster for each selected year and first author; found {found}")
+    return mask
+
+
 def embed(d):
     """Unit-length SPECTER2 vectors: [CLS] of title [SEP] abstract, or of the program text for the symposium and session
     nodes. A bare HF checkpoint gets mean pooling from sentence-transformers, but SPECTER2 is trained on CLS, so the
@@ -199,6 +214,7 @@ def main():
     ap.add_argument("out")
     args = ap.parse_args()
     d = load_years()
+    cluster = chitinase_cluster_mask(d)
     vec, vocab = bm25_vectors(d.text)
     kw = Keywords(vec, vocab, d.text, KEYWORDS)
 
@@ -209,9 +225,14 @@ def main():
 
     print("Generating SPECTER2 embeddings...")
     dense = embed(d)
-    print("Running UMAP...")
-    xy = umap.UMAP(n_components=2, metric="cosine", random_state=0).fit_transform(dense)
-    xy = (xy - xy.min(axis=0)) / (xy.max(axis=0) - xy.min(axis=0))  # as network.py's layout scaling
+    print(f"Running UMAP (projecting {int(cluster.sum())} chitinase-cluster posters after fitting)...")
+    reducer = umap.UMAP(n_components=2, metric="cosine", random_state=0)
+    xy = np.empty((len(d), 2))
+    xy[~cluster] = reducer.fit_transform(dense[~cluster])
+    xy[cluster] = reducer.transform(dense[cluster])
+    lo, hi = xy[~cluster].min(axis=0), xy[~cluster].max(axis=0)
+    xy = (xy - lo) / (hi - lo)  # keep held-out projections from changing the map's scale
+    xy = np.clip(xy, 0, 1)
     xy = SCALE * (2 * xy - 1)
 
     insts = pd.concat([pd.read_parquet(f"data/institutions/{y}.parquet") for y in YEARS]).set_index("abstract_id")

@@ -3,7 +3,7 @@
 <h1>{{ page.title }} <a class="sim-methods" href="methods.html#landscape">how is the map made? ›</a></h1>
 <p class="lede sim-help">Every ASHG abstract from {{ years[0].year }} to {{ years[-1].year }} as a dot, placed so that abstracts with similar wording sit close together, on one map for all the years.</p>
 <p class="sim-help">Search an author to highlight their abstracts and label them on the map (search more people to label several; the tooltip's button labels a clicked dot's first author) (a target marks the ones they lead; the diamond is the weighted center of all of them, counting first authorship most; a dashed line joins their yearly centers in order when they published in more than one year) and draw a web
-to their co-authors' abstracts or to the abstracts that read most like theirs, shaded by text match. Choose co-authors, similar text, or off in the author's card dropdown. Toggle years to show only some of them. Paint a keyword or an institution to see where it sits on the map. Keywords group spellings that mean
+to one nearby abstract per co-author or to the abstracts that read most like theirs, shaded by text match. Choose co-authors, similar text, or off in the author's card dropdown. Toggle years to show only some of them. Paint a keyword or an institution to see where it sits on the map. Keywords group spellings that mean
 the same thing (PPI and protein-protein interaction). Hover a dot for details; drag to pan and scroll or pinch to zoom. Titles and abstract text are not shown here.</p>
 <div id="landscape" class="landscape" data-src="{{ landscape_src }}" data-syn="{{ landscape_syn_src or '' }}">
 <div class="ls-bar">
@@ -15,8 +15,15 @@ the same thing (PPI and protein-protein interaction). Hover a dot for details; d
   </span>
   <button type="button" id="ls-author-clear" class="ls-link" hidden>Clear</button>
   <button type="button" id="ls-label-clear" class="ls-link" hidden>Clear labels</button>
+  <label class="ls-check"><input id="ls-animate" type="checkbox" checked> Animate path</label>
   <span class="lbl">Years</span>
-  <span class="seg" id="ls-years" role="group" aria-label="Years shown"></span>
+  <details id="ls-years" class="ls-years">
+    <summary id="ls-years-summary">All years</summary>
+    <div class="ls-years-menu">
+      <label><input id="ls-years-all" type="checkbox" checked> Select all years</label>
+      <div id="ls-year-options"></div>
+    </div>
+  </details>
   <span id="ls-legend" class="ls-legend" hidden><span>10%</span><i id="ls-legend-bar"></i><span>100% text match</span></span>
   <span id="ls-info" class="ls-info">Highlights their abstracts and flies to their weighted centroid.</span>
 </div>

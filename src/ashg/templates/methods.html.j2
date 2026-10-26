@@ -82,12 +82,15 @@ dots read alike, but the gaps between distant clusters and the clusters' sizes a
 text are published; the data file has each abstract's year, authors, institutions, keywords and nearest matches. Nearest matches
 and keywords still use the word weighting of Find talks (BM25 on title and abstract), so the match percentages are on the same
 scale as Find talks.</p>
+<p>Seven related chitinase posters from 2023–2025 (including those by Tomoki Kanaizumi, Ken Suzuki, and K. Takahashi) form a
+tight outlier cluster. To keep it from stretching the map, UMAP is fit without those seven and then projects them into the
+fitted map. They remain searchable and are included in the Landscape data; only their coordinates use this projection.</p>
 <ul>
 <li><strong>Author search.</strong> The diamond is the center of an author's abstracts, weighting each by their position on the
 author list: first author 1.5, last 1.0, middle 0.5. A target marks the abstracts they lead. Authors are matched by first + last
 name, so two people with one name merge and a different spelling of a name is missed; degrees and titles that the author-block
 parsing leaves in names (“PhD”, “MD”, “Dr.”) are stripped.</li>
-<li><strong>Web.</strong> “Co-authors” joins each of their abstracts to every other abstract that shares one of its co-authors
+<li><strong>Web.</strong> “Co-authors” joins each of their abstracts to one nearby abstract by each direct co-author
 (at most 6,000 lines). “Similar text” joins each to its 15 closest abstracts by the text match on Find talks, shaded by that
 percentage; matches under 10% are not drawn.</li>
 <li><strong>Keywords.</strong> An abstract's keywords are its 25 highest-weighted terms, with spellings that mean the same thing

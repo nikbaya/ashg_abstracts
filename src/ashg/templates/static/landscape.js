@@ -64,7 +64,7 @@
   const BASE_FILL = "rgba(55, 62, 74, 0.30)";
   const DIM_FILL = "rgba(55, 62, 74, 0.09)";
   const HIT_FILL = "#111827";
-  const ALL_ON = { marker: true, centroid: true, trail: true, firsts: true }; // a selected author's annotations
+  const ALL_ON = { marker: true, centroid: false, trail: true, firsts: true }; // a selected author's annotations
   const BASE_R = 1.6, HIT_R = 3.6, LINK_R = 2.6, PAINT_R = 3.4;
   const PALETTE = d3.schemeTableau10.filter(c => !["#bab0ab", "#edc949", "#ff9da7"].includes(c)); // too faint on a light page
   const MAX_EDGES = 6000;
@@ -87,8 +87,11 @@
     labels: [],        // { name, cx, cy, count } people marked on the map by name
     layers: [],        // { id, type, term, exact, color, count, mask, density, peak, img }
     years: new Set(YEARS), // years shown; the others are hidden everywhere
+    animate: $("ls-animate").checked,
   };
   let nextLayerId = 1;
+  let trailAnimation = null;
+  const TRAIL_ANIMATION_MS = 1400;
 
   const BOUNDS = (() => {
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
@@ -165,21 +168,30 @@
   }
 
   // The author's path through time: their weighted centroid for each year, joined in year order, labelled by year
-  function drawTrail(trail, k, tx, ty, color) {
+  function drawTrail(trail, k, tx, ty, color, progress = 1) {
+    const reached = progress * (trail.length - 1);
+    const fullSegments = Math.floor(reached);
     ctx.strokeStyle = color;
     ctx.fillStyle = color;
     ctx.lineWidth = 1.5;
     ctx.setLineDash([5, 4]);
     ctx.beginPath();
-    trail.forEach((p, j) => {
-      const x = k * p.cx + tx, y = k * p.cy + ty;
-      if (j === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    });
+    ctx.moveTo(k * trail[0].cx + tx, k * trail[0].cy + ty);
+    for (let j = 1; j <= fullSegments; j++) {
+      ctx.lineTo(k * trail[j].cx + tx, k * trail[j].cy + ty);
+    }
+    if (fullSegments < trail.length - 1) {
+      const from = trail[fullSegments], to = trail[fullSegments + 1];
+      const fraction = reached - fullSegments;
+      ctx.lineTo(k * (from.cx + fraction * (to.cx - from.cx)) + tx,
+        k * (from.cy + fraction * (to.cy - from.cy)) + ty);
+    }
     ctx.stroke();
     ctx.setLineDash([]);
     ctx.font = "600 11px system-ui, sans-serif";
     ctx.textBaseline = "middle";
-    for (const p of trail) {
+    for (let j = 0; j <= fullSegments; j++) {
+      const p = trail[j];
       const x = k * p.cx + tx, y = k * p.cy + ty;
       ctx.beginPath();
       ctx.arc(x, y, 3.5, 0, TAU);
@@ -246,9 +258,6 @@
     if (a) {
       const am = a.mask;
       fillNodes(DIM_FILL, BASE_R, i => am[i] === 0 && VIS[i] === 1);
-      if (a.edges.length) drawWeb(a, k, tx, ty);
-      fillNodes(HIT_FILL, HIT_R, i => am[i] === 1);
-      if (show.trail && a.trail.length > 1) drawTrail(a.trail, k, tx, ty, annoColor);
     } else {
       fillNodes(BASE_FILL, BASE_R, i => VIS[i] === 1);
     }
@@ -267,6 +276,15 @@
     }
 
     if (a) {
+      if (a.edges.length) drawWeb(a, k, tx, ty);
+      fillNodes(HIT_FILL, HIT_R, i => a.mask[i] === 1);
+      if (show.trail && a.trail.length > 1) {
+        const progress = trailAnimation?.name === a.name
+          ? Math.min(1, (performance.now() - trailAnimation.start) / TRAIL_ANIMATION_MS)
+          : 1;
+        drawTrail(a.trail, k, tx, ty, annoColor, progress);
+        if (progress >= 1) trailAnimation = null;
+      }
       if (show.firsts) drawTargets(a.firstHits, annoColor);
       if (show.centroid) drawDiamond(k * a.cx + tx, k * a.cy + ty, annoColor);
     }
@@ -309,6 +327,7 @@
       ctx.arc(SX[hover], SY[hover], 6, 0, TAU);
       ctx.stroke();
     }
+    if (trailAnimation) requestDraw();
   }
 
   function resize() {
@@ -427,22 +446,34 @@
     const edges = [];
     const linkPct = new Uint8Array(N);
     if (state.mode === "coauthors") {
-      const seen = new Set();
-      outer:
+      const sourcesByCoauthor = new Map();
       for (const s of a.hits) {
         for (const au of abstracts[s].authors) {
           if (au.name === a.name) continue;
-          for (const { abstract_id } of index.get(au.name)) {
-            const t = idToIdx.get(abstract_id);
-            if (a.mask[t] || !VIS[t]) continue;
-            const key = s * N + t;
-            if (seen.has(key)) continue;
-            seen.add(key);
-            edges.push(s, t, 55);
-            linkPct[t] = 55;
-            if (edges.length >= 3 * MAX_EDGES) break outer;
-          }
+          let sources = sourcesByCoauthor.get(au.name);
+          if (!sources) sourcesByCoauthor.set(au.name, sources = new Set());
+          sources.add(s);
         }
+      }
+      const seenTargets = new Set();
+      for (const [name, sources] of sourcesByCoauthor) {
+        let target = -1, targetDistance = Infinity;
+        for (const { abstract_id } of index.get(name)) {
+          const t = idToIdx.get(abstract_id);
+          if (a.mask[t] || !VIS[t]) continue;
+          const distance = (X[t] - a.cx) ** 2 + (Y[t] - a.cy) ** 2;
+          if (distance < targetDistance) { target = t; targetDistance = distance; }
+        }
+        if (target < 0 || seenTargets.has(target)) continue;
+        let source = -1, sourceDistance = Infinity;
+        for (const s of sources) {
+          const distance = (X[s] - X[target]) ** 2 + (Y[s] - Y[target]) ** 2;
+          if (distance < sourceDistance) { source = s; sourceDistance = distance; }
+        }
+        seenTargets.add(target);
+        edges.push(source, target, 55);
+        linkPct[target] = 55;
+        if (edges.length >= 3 * MAX_EDGES) break;
       }
     } else if (state.mode === "similar") {
       const best = new Map(); // undirected pair -> edge offset, so a mutual match is drawn once at its higher score
@@ -548,6 +579,7 @@
     const a = buildAuthor(name);
     if (!a) { $("ls-info").textContent = `${name} has no abstracts in the years shown.`; return; }
     state.author = a;
+    startTrailAnimation();
     addLabel(name);
     state.labels.find(l => l.name === name).show = { ...ALL_ON }; // selecting turns the author's annotations on
     renderLabels(); // the card shows them as on
@@ -565,6 +597,7 @@
     const a = buildAuthor(state.author.name);
     if (!a) { clearAuthor(); return; }
     state.author = a;
+    startTrailAnimation();
     updateCentroid(a);
     authorInfo(a);
   }
@@ -1067,25 +1100,59 @@
   // ---------------------------------------------------------------------------
   // Boot
   // ---------------------------------------------------------------------------
-  // Years: one toggle per year; at least one stays on
-  $("ls-years").append(...YEARS.map(y => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.dataset.value = String(y);
-    btn.textContent = String(y);
-    btn.setAttribute("aria-pressed", "true");
-    return btn;
+  const yearOptions = $("ls-year-options");
+  yearOptions.append(...YEARS.map(y => {
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.value = String(y);
+    input.checked = true;
+    label.append(input, ` ${y}`);
+    return label;
   }));
-  $("ls-years").addEventListener("click", e => {
-    const btn = e.target.closest("button");
-    if (!btn) return;
-    const y = Number(btn.dataset.value);
-    const on = !state.years.has(y);
-    if (!on && state.years.size === 1) return;
-    if (on) state.years.add(y); else state.years.delete(y);
-    btn.setAttribute("aria-pressed", String(on));
+  function updateYearControls() {
+    const all = state.years.size === YEARS.length;
+    $("ls-years-summary").textContent = all ? "All years" : [...state.years].sort((a, b) => a - b).join(", ");
+    const selectAll = $("ls-years-all");
+    selectAll.checked = all;
+    selectAll.indeterminate = !all && state.years.size > 0;
+    for (const input of yearOptions.querySelectorAll("input")) {
+      const year = Number(input.value);
+      input.checked = state.years.has(year);
+      input.disabled = input.checked && state.years.size === 1;
+    }
+  }
+  yearOptions.addEventListener("change", e => {
+    const input = e.target.closest("input");
+    if (!input) return;
+    const year = Number(input.value);
+    if (!input.checked && state.years.size === 1) {
+      input.checked = true;
+      return;
+    }
+    if (input.checked) state.years.add(year); else state.years.delete(year);
+    updateYearControls();
     applyYears();
   });
+  $("ls-years-all").addEventListener("change", e => {
+    state.years = new Set(e.target.checked ? YEARS : [YEARS[YEARS.length - 1]]);
+    updateYearControls();
+    applyYears();
+  });
+  function startTrailAnimation() {
+    if (!state.animate || !state.author || state.author.trail.length < 2) {
+      trailAnimation = null;
+      return;
+    }
+    trailAnimation = { name: state.author.name, start: performance.now() };
+    requestDraw();
+  }
+  $("ls-animate").addEventListener("change", e => {
+    state.animate = e.target.checked;
+    startTrailAnimation();
+    requestDraw();
+  });
+  updateYearControls();
   updateCount();
   new ResizeObserver(resize).observe(stage);
   resize();
