@@ -277,8 +277,10 @@ def author_institution_evidence(d, insts, aliases):
         senior = person_key(clean_name(row.senior_author)) if isinstance(row.senior_author, str) else ""
         if first:
             by_person.setdefault(first, set()).update(row.first_insts)
+            by_abstract.setdefault(aid, {}).setdefault(first, set()).update(row.first_insts)
         if senior:
             by_person.setdefault(senior, set()).update(row.senior_insts)
+            by_abstract.setdefault(aid, {}).setdefault(senior, set()).update(row.senior_insts)
     return by_person, by_abstract
 
 

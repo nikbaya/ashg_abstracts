@@ -98,3 +98,20 @@ def test_author_institutions_read_parenthetical_affiliations():
     aliases = [("University of Oxford", re.compile(r"University of Oxford", re.I))]
     found = author_institutions("Taylor Lee (University of Oxford), T. Lee (University of Pennsylvania)", aliases)
     assert found == {"taylor lee": {"University of Oxford"}, "t lee": set()}
+
+
+def test_initials_stay_separate_when_only_table_affiliation_conflicts():
+    # 2024 poster 1104F: "A. Price, ...; Univ. of Colorado" has no numbered affiliations, so the table's first-author
+    # institution is the only evidence for "A. Price"
+    listed = [
+        [("alkes price", "Alkes L. Price")],
+        [("a price", "A. Price")],
+    ]
+    institutions = {"alkes price": {"Harvard University"}}
+    resolved, _, conflicts = link_initials(
+        listed, institutions, ["harvard", "colorado"],
+        {"harvard": {"alkes price": {"Harvard University"}},
+         "colorado": {"a price": {"University of Colorado"}}},
+    )
+    assert resolved[1] == [("a price", "A. Price")]
+    assert conflicts == [(1, "a price", "A. Price", "alkes price")]
