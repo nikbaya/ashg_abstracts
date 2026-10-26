@@ -888,6 +888,8 @@
     if (!index.has(name) || !visibleEntries(name).length || state.labels.some(l => l.name === name)) return;
     state.labels.push({ name, mergedNames: [], color: pickLabelColor(), show: { marker: true, trail: false, firsts: false }, ...labelPos(name) });
     renderLabels();
+    // The new label is the last card; bring it into view in the side-scrolling row
+    $("ls-labels").lastElementChild?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "end" });
     requestDraw();
   }
 
@@ -1275,6 +1277,8 @@
     state.layers.push(layer);
     say("");
     renderLayers();
+    // The new paint is the last card; bring it into view in the side-scrolling row
+    $("ls-layers").lastElementChild?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "end" });
     requestDraw();
   }
 
