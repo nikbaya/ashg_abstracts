@@ -635,6 +635,7 @@
     $("ls-author").value = "";
     $("ls-info").textContent = INFO_DEFAULT;
     $("ls-author-clear").hidden = true;
+    renderLabels();
     $("ls-legend").hidden = true;
     requestDraw();
   }
@@ -671,8 +672,8 @@
   $("ls-author").addEventListener("input", () => { if (!$("ls-author").value.trim() && state.author) clearAuthor(); });
   $("ls-author-clear").addEventListener("click", clearAuthor);
 
-  $("ls-web").addEventListener("click", e => {
-    const btn = e.target.closest("button");
+  $("ls-labels").addEventListener("click", e => {
+    const btn = e.target.closest("#ls-web button");
     if (!btn) return;
     state.mode = btn.dataset.value;
     for (const b of $("ls-web").children) b.setAttribute("aria-pressed", String(b === btn));
@@ -760,6 +761,7 @@
     $("ls-label-clear").hidden = state.labels.length === 0;
     $("ls-labels").replaceChildren(...state.labels.map(l => {
       const li = document.createElement("li");
+      li.style.setProperty("--author-color", l.color);
 
       const name = document.createElement("span");
       name.className = "name";
@@ -771,7 +773,11 @@
       color.value = l.color;
       color.setAttribute("aria-label", `Annotation color for ${l.name}`);
       color.title = "Annotation color";
-      color.addEventListener("input", () => { l.color = color.value; requestDraw(); });
+      color.addEventListener("input", () => {
+        l.color = color.value;
+        li.style.setProperty("--author-color", l.color);
+        requestDraw();
+      });
 
       const n = document.createElement("span");
       n.className = "n";
@@ -788,7 +794,7 @@
       const anno = document.createElement("details");
       anno.className = "ls-anno";
       const sum = document.createElement("summary");
-      sum.setAttribute("aria-label", `Annotations for ${l.name}`);
+      sum.setAttribute("aria-label", `Options for ${l.name}`);
       const panel = document.createElement("div");
       panel.className = "ls-anno-panel";
       panel.setAttribute("popover", "manual");
@@ -824,6 +830,29 @@
           panel.hidePopover();
         }
       });
+
+      if (state.author?.name === l.name) {
+        const web = document.createElement("div");
+        web.className = "ls-card-web";
+        const heading = document.createElement("span");
+        heading.className = "ls-card-web-label";
+        heading.textContent = "Web";
+        const controls = document.createElement("span");
+        controls.id = "ls-web";
+        controls.className = "seg";
+        controls.setAttribute("role", "group");
+        controls.setAttribute("aria-label", `Web around ${l.name}`);
+        for (const [value, text] of [["coauthors", "Co-authors"], ["similar", "Similar text"], ["none", "Off"]]) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.dataset.value = value;
+          button.setAttribute("aria-pressed", String(state.mode === value));
+          button.textContent = text;
+          controls.append(button);
+        }
+        web.append(heading, controls);
+        panel.append(web);
+      }
 
       li.append(anno, color, name, n, rm);
       return li;
