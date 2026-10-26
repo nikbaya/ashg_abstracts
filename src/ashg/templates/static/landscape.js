@@ -6,6 +6,7 @@
   const root = document.getElementById("landscape");
   if (!root || typeof d3 === "undefined") return;
   const $ = id => document.getElementById(id);
+  const LINKEDIN_DEMO = new URLSearchParams(window.location.search).get("demo") === "linkedin";
 
   // ---------------------------------------------------------------------------
   // Data and the inverted index: author name -> [{abstract_id, weight}]
@@ -76,6 +77,10 @@
 
   const stage = $("ls-stage"), canvas = $("ls-canvas"), tip = $("ls-tip");
   const ctx = canvas.getContext("2d");
+  let demoClusterScanActive = false;
+  let demoPathStarted = false;
+  const demoVisitedClusterIds = new Set();
+  let demoActiveClusterId = null;
   let W = 0, H = 0, dpr = 1;
   let transform = d3.zoomIdentity;
   let hover = -1;
@@ -212,13 +217,23 @@
   }
 
   // The author's path through time: their weighted centroid for each year, joined in year order, labelled by year
+  function trailPointAt(trail, progress) {
+    const reached = progress * (trail.length - 1);
+    const segment = Math.min(trail.length - 2, Math.floor(reached));
+    const fraction = progress >= 1 ? 1 : reached - segment;
+    const from = trail[segment], to = trail[segment + 1];
+    return {
+      cx: from.cx + fraction * (to.cx - from.cx),
+      cy: from.cy + fraction * (to.cy - from.cy),
+    };
+  }
+
   function drawTrail(trail, k, tx, ty, color, progress = 1) {
     const reached = progress * (trail.length - 1);
     const fullSegments = Math.floor(reached);
     ctx.strokeStyle = color;
     ctx.fillStyle = color;
     ctx.lineWidth = 1.5;
-    ctx.setLineDash([5, 4]);
     ctx.beginPath();
     ctx.moveTo(k * trail[0].cx + tx, k * trail[0].cy + ty);
     for (let j = 1; j <= fullSegments; j++) {
@@ -231,9 +246,9 @@
         k * (from.cy + fraction * (to.cy - from.cy)) + ty);
     }
     ctx.stroke();
-    ctx.setLineDash([]);
     ctx.font = "600 11px system-ui, sans-serif";
     ctx.textBaseline = "middle";
+    const yearLabelBoxes = [];
     for (let j = 0; j <= fullSegments; j++) {
       const p = trail[j];
       const x = k * p.cx + tx, y = k * p.cy + ty;
@@ -251,12 +266,16 @@
       ctx.lineJoin = "round";
       ctx.lineWidth = 3;
       ctx.strokeStyle = "rgba(255, 255, 255, 0.92)";
-      ctx.strokeText(String(p.year), x + 6, y - 6);
+      const yearText = String(p.year);
+      ctx.strokeText(yearText, x + 6, y - 6);
       ctx.fillStyle = color;
-      ctx.fillText(String(p.year), x + 6, y - 6);
+      ctx.fillText(yearText, x + 6, y - 6);
+      const yearWidth = ctx.measureText(yearText).width;
+      yearLabelBoxes.push({ left: x + 4, right: x + 8 + yearWidth, top: y - 14, bottom: y + 2 });
       ctx.strokeStyle = color;
       ctx.lineWidth = 1.5;
     }
+    return yearLabelBoxes;
   }
 
   // Target on each abstract in idx (the abstracts someone leads)
@@ -315,14 +334,22 @@
     if (a) {
       if (a.edges.length) drawWeb(a, k, tx, ty);
       if (a.showCoauthorNodes) fillNodes(HIT_FILL, HIT_R, i => a.mask[i] === 1);
+      let selectedTrailProgress = null;
+      let trailYearLabelBoxes = [];
       if (show.trail && a.trail.length > 1) {
-        const progress = trailAnimation?.name === a.name
-          ? Math.min(1, (performance.now() - trailAnimation.start) / TRAIL_ANIMATION_MS)
+        const elapsed = trailAnimation?.name === a.name
+          ? Math.min(1, (performance.now() - trailAnimation.start) / trailAnimation.duration)
           : 1;
-        drawTrail(a.trail, k, tx, ty, annoColor, progress);
-        if (progress >= 1) trailAnimation = null;
+        const progress = LINKEDIN_DEMO ? 3 * elapsed ** 2 - 2 * elapsed ** 3 : elapsed;
+        selectedTrailProgress = progress;
+        trailYearLabelBoxes = drawTrail(a.trail, k, tx, ty, annoColor, progress);
+        if (elapsed >= 1) trailAnimation = null;
       }
       if (show.firsts) drawTargets(a.firstHits, annoColor);
+      a.demoTrailHead = LINKEDIN_DEMO && selectedTrailProgress !== null
+        ? trailPointAt(a.trail, selectedTrailProgress)
+        : null;
+      a.demoTrailYearLabelBoxes = trailYearLabelBoxes;
     }
 
     if (state.labels.length) {
@@ -330,9 +357,10 @@
       ctx.textBaseline = "middle";
       ctx.lineJoin = "round";
       for (const l of state.labels) {
-        const x = k * l.cx + tx, y = k * l.cy + ty;
         // The selected author's own annotations are drawn above in HIT_FILL, not twice
         const selected = a && a.name === l.name;
+        const labelPoint = selected && LINKEDIN_DEMO && a.demoTrailHead ? a.demoTrailHead : l;
+        const x = k * labelPoint.cx + tx, y = k * labelPoint.cy + ty;
         if (!selected && l.show.trail && l.trail.length > 1) drawTrail(l.trail, k, tx, ty, l.color);
         if (!selected && l.show.firsts && l.firstIdx.length) drawTargets(l.firstIdx, l.color);
         if (!l.show.marker) continue;
@@ -351,11 +379,42 @@
         ctx.strokeStyle = l.color;
         ctx.lineWidth = 2;
         ctx.stroke();
+        let nameX = x + 8, nameY = y;
+        if (selected && LINKEDIN_DEMO && a.demoTrailHead) {
+          ctx.font = "600 12px system-ui, sans-serif";
+          const nameWidth = ctx.measureText(l.name).width;
+          const candidates = [];
+          for (let offset = 18; offset <= H; offset += 12) {
+            candidates.push(
+              { x: x + 10, y: y + offset, align: "left" },
+              { x: x + 10, y: y - offset, align: "left" },
+              { x: x - 10, y: y + offset, align: "right" },
+              { x: x - 10, y: y - offset, align: "right" },
+            );
+          }
+          const placement = candidates.find(candidate => {
+            const left = candidate.align === "left" ? candidate.x : candidate.x - nameWidth;
+            const box = { left, right: left + nameWidth, top: candidate.y - 8, bottom: candidate.y + 8 };
+            return box.left >= 4 && box.right <= W - 4 && box.top >= 4 && box.bottom <= H - 4
+              && !a.demoTrailYearLabelBoxes.some(year => box.left < year.right && box.right > year.left
+                && box.top < year.bottom && box.bottom > year.top);
+          });
+          if (placement) {
+            nameX = placement.x;
+            nameY = placement.y;
+            ctx.textAlign = placement.align;
+          } else {
+            ctx.textAlign = "left";
+          }
+        } else {
+          ctx.textAlign = "left";
+        }
         ctx.lineWidth = 3.5;
         ctx.strokeStyle = "rgba(255, 255, 255, 0.92)";
-        ctx.strokeText(l.name, x + 8, y);
+        ctx.strokeText(l.name, nameX, nameY);
         ctx.fillStyle = HIT_FILL;
-        ctx.fillText(l.name, x + 8, y);
+        ctx.fillText(l.name, nameX, nameY);
+        ctx.textAlign = "start";
       }
     }
 
@@ -665,7 +724,7 @@
     $("ls-author").value = name;
     authorInfo(a);
     $("ls-author-clear").hidden = false;
-    flyTo(a.cx, a.cy, authorRadius(a));
+    if (!LINKEDIN_DEMO) flyTo(a.cx, a.cy, authorRadius(a));
     requestDraw();
   }
 
@@ -755,6 +814,11 @@
     state.mode = btn.dataset.value;
     for (const b of $("ls-web").children) b.setAttribute("aria-pressed", String(b === btn));
     if (state.author) {
+      if (state.mode === "coauthors") {
+        state.author.showCoauthorNodes = true;
+        const coauthorToggle = $("ls-labels").querySelector('input[aria-label="Show co-author abstracts"]');
+        if (coauthorToggle) coauthorToggle.checked = true;
+      }
       computeConnections(state.author);
       updateCentroid(state.author);
       flyTo(state.author.cx, state.author.cy, authorRadius(state.author));
@@ -878,6 +942,19 @@
         cb.addEventListener("change", () => { l.show[key] = cb.checked; requestDraw(); });
         lab.append(cb, `${text}${note}`);
         panel.append(lab);
+        if (key === "firsts" && state.author?.name === l.name) {
+          const coauthorNodes = document.createElement("label");
+          const coauthorNodesToggle = document.createElement("input");
+          coauthorNodesToggle.type = "checkbox";
+          coauthorNodesToggle.checked = state.author.showCoauthorNodes;
+          coauthorNodesToggle.setAttribute("aria-label", "Show co-author abstracts");
+          coauthorNodesToggle.addEventListener("change", () => {
+            state.author.showCoauthorNodes = coauthorNodesToggle.checked;
+            requestDraw();
+          });
+          coauthorNodes.append(coauthorNodesToggle, `Show co-author abstracts (${state.author.count})`);
+          panel.append(coauthorNodes);
+        }
       }
       anno.append(sum, panel);
 
@@ -902,18 +979,6 @@
         }
         web.append(heading, controls);
         panel.append(web);
-
-        const coauthorNodes = document.createElement("label");
-        const coauthorNodesToggle = document.createElement("input");
-        coauthorNodesToggle.type = "checkbox";
-        coauthorNodesToggle.checked = state.author.showCoauthorNodes;
-        coauthorNodesToggle.setAttribute("aria-label", "Show co-author abstract nodes");
-        coauthorNodesToggle.addEventListener("change", () => {
-          state.author.showCoauthorNodes = coauthorNodesToggle.checked;
-          requestDraw();
-        });
-        coauthorNodes.append(coauthorNodesToggle, "Show co-author abstracts");
-        panel.append(coauthorNodes);
       }
 
       li.append(anno, color, name, n, rm);
@@ -1348,6 +1413,12 @@
         }
         const geometry = { type: "Polygon", coordinates: [polygon.ring] };
         layer.contourPath = new Path2D(d3.geoPath(null)(geometry));
+        layer.contourBounds = polygon.ring.reduce((bounds, point) => ({
+          minX: Math.min(bounds.minX, GRID.x0 + point[0] * GRID.cell),
+          maxX: Math.max(bounds.maxX, GRID.x0 + point[0] * GRID.cell),
+          minY: Math.min(bounds.minY, GRID.y0 + point[1] * GRID.cell),
+          maxY: Math.max(bounds.maxY, GRID.y0 + point[1] * GRID.cell),
+        }), { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity });
         const labelIndex = interiorCenter(component, gx, gy, seed);
         layer.labelX = GRID.x0 + ((labelIndex % gx) + 0.5) * GRID.cell;
         layer.labelY = GRID.y0 + (Math.floor(labelIndex / gx) + 0.5) * GRID.cell;
@@ -1379,8 +1450,10 @@
     ctx.scale(k * GRID.cell, k * GRID.cell);
     for (const layer of state.clusterLayers) {
       if (!layer.contourPath || !isClusterVisible(layer)) continue;
-      const muted = activeClusterId ? activeClusterId !== layer.id
-        : activeClusterSection && activeClusterSection !== layer.section;
+      const demoMuted = LINKEDIN_DEMO && demoPathStarted
+        && demoVisitedClusterIds.has(layer.id) && demoActiveClusterId !== layer.id;
+      const muted = !demoClusterScanActive && (demoMuted || (activeClusterId ? activeClusterId !== layer.id
+        : activeClusterSection && activeClusterSection !== layer.section));
       const color = muted ? "#aeb4bd" : layer.color;
       ctx.fillStyle = d3.color(color).copy({ opacity: muted ? 0.15 : 0.24 }).formatRgb();
       ctx.fill(layer.contourPath);
@@ -1406,8 +1479,18 @@
     for (const layer of [...state.clusterLayers].sort((a, b) =>
       Number(b.id === activeClusterId) - Number(a.id === activeClusterId) || b.count - a.count)) {
       if (!layer.contourPath || !isClusterVisible(layer)) continue;
-      const x = k * layer.labelX + tx, y = k * layer.labelY + ty;
       const width = ctx.measureText(layer.term).width, height = 15;
+      let x = k * layer.labelX + tx, y = k * layer.labelY + ty;
+      if (LINKEDIN_DEMO && demoPathStarted && layer.contourBounds
+        && ["Statistical genetics", "Metabolic syndrome"].includes(layer.term)) {
+        const bounds = layer.contourBounds;
+        x = k * (bounds.minX + bounds.maxX) / 2 + tx;
+        y = layer.term === "Metabolic syndrome"
+          ? k * bounds.maxY + ty + 8 + height / 2
+          : k * bounds.minY + ty - 8 - height / 2;
+        x = Math.max(width / 2 + 4, Math.min(W - width / 2 - 4, x));
+        y = Math.max(height / 2 + 4, Math.min(H - height / 2 - 4, y));
+      }
       const box = { left: x - width / 2, right: x + width / 2, top: y - height / 2, bottom: y + height / 2 };
       if (box.right < 0 || box.left > W || box.bottom < 0 || box.top > H) continue;
       if (shown.some(other => box.left < other.right + 6 && box.right + 6 > other.left
@@ -1417,8 +1500,10 @@
       ctx.lineJoin = "round";
       ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
       ctx.strokeText(layer.term, x, y);
-      const muted = activeClusterId ? activeClusterId !== layer.id
-        : activeClusterSection && activeClusterSection !== layer.section;
+      const demoMuted = LINKEDIN_DEMO && demoPathStarted
+        && demoVisitedClusterIds.has(layer.id) && demoActiveClusterId !== layer.id;
+      const muted = !demoClusterScanActive && (demoMuted || (activeClusterId ? activeClusterId !== layer.id
+        : activeClusterSection && activeClusterSection !== layer.section));
       ctx.fillStyle = muted ? "#aeb4bd" : layer.color;
       ctx.fillText(layer.term, x, y);
     }
@@ -1426,6 +1511,9 @@
   }
 
   function isClusterVisible(layer) {
+    if (LINKEDIN_DEMO && (demoClusterScanActive || demoPathStarted)) {
+      return demoVisitedClusterIds.has(layer.id);
+    }
     return !state.hiddenClusterIds.has(layer.id)
       && (!state.isolatedClusterId || state.isolatedClusterId === layer.id)
       && (!state.isolatedClusterSection || state.isolatedClusterSection === layer.section);
@@ -1773,7 +1861,11 @@
       trailAnimation = null;
       return;
     }
-    trailAnimation = { name: state.author.name, start: performance.now() };
+    trailAnimation = {
+      name: state.author.name,
+      start: performance.now(),
+      duration: LINKEDIN_DEMO ? 9000 : TRAIL_ANIMATION_MS,
+    };
     requestDraw();
   }
   $("ls-animate").addEventListener("change", e => {
@@ -1786,4 +1878,161 @@
   updateCount();
   new ResizeObserver(resize).observe(stage);
   resize();
+
+  if (LINKEDIN_DEMO) {
+    const demoDelay = ms => new Promise(resolve => setTimeout(resolve, ms));
+    const demoSetChecked = (input, checked) => {
+      if (!input || input.checked === checked) return;
+      input.checked = checked;
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    };
+    const demoSelectAuthor = name => {
+      const input = $("ls-author");
+      input.value = name;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+      if (state.author?.name !== name) throw new Error(`Could not select author "${name}".`);
+    };
+    const titleCard = document.createElement("div");
+    titleCard.setAttribute("aria-label", "Landscape of ASHG abstracts, 2022 to 2026");
+    Object.assign(titleCard.style, {
+      position: "absolute",
+      inset: "0",
+      zIndex: "20",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "0.35em",
+      color: "#111827",
+      background: "rgba(240, 239, 236, 0.96)",
+      textAlign: "center",
+      fontSize: "clamp(2rem, 7vmin, 5.5rem)",
+      fontWeight: "700",
+      letterSpacing: "-0.035em",
+      lineHeight: "1.08",
+      textShadow: "0 2px 0 rgba(255, 255, 255, 0.8)",
+      opacity: "0",
+      pointerEvents: "none",
+      transition: "opacity 650ms ease",
+    });
+    const title = document.createElement("span");
+    title.textContent = "Landscape of ASHG abstracts";
+    const subtitle = document.createElement("span");
+    subtitle.textContent = "2022-26";
+    subtitle.style.fontSize = "0.58em";
+    subtitle.style.fontWeight = "500";
+    subtitle.style.letterSpacing = "0.08em";
+    titleCard.append(title, subtitle);
+    stage.appendChild(titleCard);
+    const demoFindCluster = label => {
+      const item = [...document.querySelectorAll("#ls-cluster-research li, #ls-cluster-diseases li")].find(li =>
+        li.querySelector(".ls-cluster-swatch")?.nextElementSibling?.textContent.trim().toLowerCase() === label.toLowerCase()
+      );
+      if (!item) throw new Error(`Could not find the "${label}" topic cluster.`);
+      return item;
+    };
+    const demoIsolateCluster = label => {
+      const item = demoFindCluster(label);
+      const layer = state.clusterLayers.find(candidate => candidate.listItem === item);
+      if (!layer) throw new Error(`Could not identify the "${label}" topic cluster.`);
+      demoVisitedClusterIds.add(layer.id);
+      demoActiveClusterId = layer.id;
+      item.dispatchEvent(new MouseEvent("contextmenu", {
+        bubbles: true,
+        cancelable: true,
+        button: 2,
+        clientX: 80,
+        clientY: 80,
+      }));
+      requestDraw();
+    };
+    const runLinkedInDemo = async () => {
+      stage.style.position = "relative";
+      const labelList = $("ls-labels");
+      labelList.style.display = "flex";
+      labelList.style.minHeight = "38px";
+
+      demoSelectAuthor("Nikolas Baya");
+      const authorLabel = state.labels.find(label => label.name === state.author.name);
+      if (!authorLabel) throw new Error("Could not find the selected author's label.");
+      authorLabel.color = "#000000";
+      authorLabel.show.marker = false;
+      authorLabel.show.trail = false;
+      trailAnimation = null;
+      renderLabels();
+      requestDraw();
+
+      titleCard.style.opacity = "1";
+      await demoDelay(2600);
+      titleCard.style.opacity = "0";
+      await demoDelay(700);
+
+      const clusterToggle = $("ls-clusters-toggle");
+      demoSetChecked($("ls-years-all"), true);
+      demoSetChecked($("ls-animate"), true);
+
+      demoSetChecked(clusterToggle, true);
+      const clusterEntries = [...document.querySelectorAll("#ls-cluster-research li, #ls-cluster-diseases li")]
+        .map(item => ({ item, layer: state.clusterLayers.find(candidate => candidate.listItem === item) }))
+        .filter(entry => entry.layer)
+        .sort((a, b) => {
+          const priority = name => name === "Rare disease" ? 0 : name === "Statistical genetics" ? 1 : 2;
+          return priority(a.layer.term) - priority(b.layer.term)
+            || b.layer.count - a.layer.count
+            || a.layer.labelX - b.layer.labelX;
+        });
+      if (!clusterEntries.length) throw new Error("No topic clusters are available for the demo.");
+      demoClusterScanActive = true;
+      for (let i = 0; i < clusterEntries.length; i++) {
+        const { item, layer } = clusterEntries[i];
+        demoVisitedClusterIds.add(layer.id);
+        demoActiveClusterId = layer.id;
+        item.style.transition = "background-color 300ms ease, transform 300ms ease";
+        item.style.fontSize = "clamp(16px, 4.5vw, 25px)";
+        item.style.padding = "0.45em 0.55em";
+        item.style.backgroundColor = "rgba(17, 24, 39, 0.08)";
+        item.style.transform = "translateX(5px) scale(1.02)";
+        item.dispatchEvent(new MouseEvent("mouseenter"));
+        requestDraw();
+        const delay = i < 2 ? 950 : Math.max(180, 700 - (i - 2) * 55);
+        await demoDelay(delay);
+      }
+      await demoDelay(1800);
+
+      authorLabel.show.trail = true;
+      authorLabel.show.marker = true;
+      startTrailAnimation();
+      renderLabels();
+      requestDraw();
+      for (const { item } of clusterEntries) {
+        item.style.backgroundColor = "";
+        item.style.transform = "";
+        item.style.fontSize = "";
+        item.style.padding = "";
+        item.style.transition = "";
+      }
+      demoClusterScanActive = false;
+      demoVisitedClusterIds.clear();
+      demoActiveClusterId = null;
+      clearClusterEmphasis();
+      demoPathStarted = true;
+      demoIsolateCluster("Statistical genetics");
+      await demoDelay(1100);
+      await demoDelay(1150);
+      demoIsolateCluster("Metabolic syndrome");
+      await demoDelay(2250);
+      demoIsolateCluster("Statistical genetics");
+      await demoDelay(2250);
+      demoIsolateCluster("Rare disease");
+      await demoDelay(2250);
+    };
+
+    window.setTimeout(() => {
+      runLinkedInDemo().catch(error => {
+        console.error("LinkedIn landscape demo failed.", error);
+        $("ls-info").textContent = "The LinkedIn landscape demo could not be completed.";
+      });
+    }, 500);
+  }
 })();
