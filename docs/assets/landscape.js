@@ -550,9 +550,10 @@
     let firstEdges = [];
     if (state.mode === "coauthors") {
       const sourcesByCoauthor = new Map();
+      const memberNames = new Set(a.names);
       for (const s of a.hits) {
         for (const au of abstracts[s].authors) {
-          if (au.name === a.name) continue;
+          if (memberNames.has(au.name)) continue;
           let sources = sourcesByCoauthor.get(au.name);
           if (!sources) sourcesByCoauthor.set(au.name, sources = new Set());
           sources.add(s);
@@ -625,15 +626,25 @@
   }
 
   // The author's abstracts in the years shown, as index entries
-  function visibleEntries(name) {
-    return index.get(name).filter(({ abstract_id }) => VIS[idToIdx.get(abstract_id)] === 1);
+  function visibleEntries(name, mergedNames = []) {
+    const names = Array.isArray(name) ? name : [name, ...mergedNames];
+    const byAbstract = new Map();
+    for (const authorName of names) {
+      for (const entry of index.get(authorName) || []) {
+        const previous = byAbstract.get(entry.abstract_id);
+        if (!previous || entry.weight > previous.weight) byAbstract.set(entry.abstract_id, entry);
+      }
+    }
+    return [...byAbstract.values()]
+      .filter(({ abstract_id }) => VIS[idToIdx.get(abstract_id)] === 1)
+      .sort((a, b) => idToIdx.get(a.abstract_id) - idToIdx.get(b.abstract_id));
   }
 
   // Centroid of the author's visible abstracts (by author-position weight) together with the abstracts linked in the
   // current mode, so it moves when the web is switched between co-authors and similar text.
   function updateCentroid(a) {
     let sw = 0, sx = 0, sy = 0;
-    for (const { abstract_id, weight } of visibleEntries(a.name)) {
+    for (const { abstract_id, weight } of visibleEntries(a.names)) {
       const i = idToIdx.get(abstract_id);
       sw += weight; sx += weight * X[i]; sy += weight * Y[i];
     }
@@ -643,7 +654,7 @@
     }
     a.cx = sx / sw; a.cy = sy / sw;
     const l = state.labels.find(l => l.name === a.name);
-    if (l) Object.assign(l, labelPos(a.name));
+    if (l) Object.assign(l, labelPos(a.name, a.names.slice(1)));
   }
 
   function authorRadius(a) {
@@ -654,9 +665,9 @@
   }
 
   // Per-year centers in year order: prefer first-author platform talks, then other first-author abstracts, then all abstracts
-  function trailOf(name) {
+  function trailOf(name, mergedNames = []) {
     const byYear = new Map();
-    for (const { abstract_id, weight } of visibleEntries(name)) {
+    for (const { abstract_id, weight } of visibleEntries(name, mergedNames)) {
       const i = idToIdx.get(abstract_id), y = abstracts[i].year;
       const p = byYear.get(y) || {
         year: y,
@@ -681,12 +692,13 @@
   }
 
   function computeTrail(a) {
-    a.trail = trailOf(a.name);
+    a.trail = trailOf(a.names);
   }
 
   // The selected author's state over the years shown, or null if none of their abstracts are shown
-  function buildAuthor(name) {
-    const entries = visibleEntries(name);
+  function buildAuthor(name, mergedNames = []) {
+    const names = [...new Set([name, ...mergedNames])];
+    const entries = visibleEntries(names);
     if (!entries.length) return null;
     const mask = new Uint8Array(N);
     const hits = [];
@@ -700,7 +712,7 @@
       if (weight === WEIGHTS.first) firstHits.push(i);
     }
     const a = {
-      name, mask, hits, firstHits, cx: sx / sw, cy: sy / sw, count: entries.length, firstCount: firstHits.length,
+      name, names, mask, hits, firstHits, cx: sx / sw, cy: sy / sw, count: entries.length, firstCount: firstHits.length,
       showCoauthorNodes: state.author?.name === name ? state.author.showCoauthorNodes : false,
     };
     computeTrail(a);
@@ -716,7 +728,8 @@
   function selectAuthor(name) {
     if (!index.has(name)) return;
     if (state.author?.name !== name) state.mode = "none";
-    const a = buildAuthor(name);
+    const mergedNames = state.labels.find(label => label.name === name)?.mergedNames ?? [];
+    const a = buildAuthor(name, mergedNames);
     if (!a) { $("ls-info").textContent = `${name} has no abstracts in the years shown.`; return; }
     state.author = a;
     startTrailAnimation();
@@ -734,7 +747,9 @@
   // Recomputes the selected author after the years shown change, without moving the view
   function refreshAuthor() {
     if (!state.author) return;
-    const a = buildAuthor(state.author.name);
+    const mergedNames = state.labels.find(label => label.name === state.author.name)?.mergedNames
+      ?? state.author.names.slice(1);
+    const a = buildAuthor(state.author.name, mergedNames);
     if (!a) { clearAuthor(); return; }
     state.author = a;
     startTrailAnimation();
@@ -745,9 +760,9 @@
   // Years toggled: hide or show their abstracts everywhere (dots, webs, centroids, labels, paint layers)
   function applyYears() {
     for (let i = 0; i < N; i++) VIS[i] = state.years.has(abstracts[i].year) ? 1 : 0;
-    state.labels = state.labels.filter(l => visibleEntries(l.name).length);
+    state.labels = state.labels.filter(l => visibleEntries(l.name, l.mergedNames).length);
     refreshAuthor();
-    for (const l of state.labels) Object.assign(l, labelPos(l.name));
+    for (const l of state.labels) Object.assign(l, labelPos(l.name, l.mergedNames));
     updatePresetClusters();
     for (const layer of state.layers) {
       const { mask, count } = matchAbstracts(layer.type, layer.term, layer.exact);
@@ -837,10 +852,10 @@
   // First-author abstracts if the person has any (the label sits on that node); otherwise the weighted centroid of all
   // their abstracts. The selected author's centroid also follows the web mode, see updateCentroid.
   // Also returns what the label's annotations draw: the per-year trail and the indices of the abstracts they lead.
-  function labelPos(name) {
-    const entries = visibleEntries(name);
+  function labelPos(name, mergedNames = []) {
+    const entries = visibleEntries(name, mergedNames);
     const firsts = entries.filter(e => e.weight === WEIGHTS.first);
-    const extras = { trail: trailOf(name), firstIdx: firsts.map(e => idToIdx.get(e.abstract_id)) };
+    const extras = { trail: trailOf(name, mergedNames), firstIdx: firsts.map(e => idToIdx.get(e.abstract_id)) };
     const au = state.author;
     if (!firsts.length && au && au.name === name) return { cx: au.cx, cy: au.cy, count: entries.length, ...extras };
     const use = firsts.length ? firsts : entries;
@@ -869,7 +884,7 @@
 
   function addLabel(name) {
     if (!index.has(name) || !visibleEntries(name).length || state.labels.some(l => l.name === name)) return;
-    state.labels.push({ name, color: pickLabelColor(), show: { marker: true, trail: false, firsts: false }, ...labelPos(name) });
+    state.labels.push({ name, mergedNames: [], color: pickLabelColor(), show: { marker: true, trail: false, firsts: false }, ...labelPos(name) });
     renderLabels();
     requestDraw();
   }
@@ -882,6 +897,17 @@
 
   function clearLabels() {
     state.labels = [];
+    renderLabels();
+    requestDraw();
+  }
+
+  function setMergedAuthors(name, mergedNames) {
+    const label = state.labels.find(item => item.name === name);
+    if (!label) return;
+    label.mergedNames = [...new Set(mergedNames.filter(authorName => authorName !== name && index.has(authorName)))];
+    Object.assign(label, labelPos(name, label.mergedNames));
+    if (state.author?.name === name) refreshAuthor();
+    else selectAuthor(name);
     renderLabels();
     requestDraw();
   }
@@ -981,6 +1007,61 @@
       web.append(heading, controls);
       panel.append(web);
 
+      const merge = document.createElement("div");
+      merge.className = "ls-card-merge";
+      const mergeHeading = document.createElement("span");
+      mergeHeading.className = "ls-card-web-label";
+      mergeHeading.textContent = "Merge paths";
+      const mergeSearch = document.createElement("input");
+      mergeSearch.type = "search";
+      mergeSearch.placeholder = "Search another author";
+      mergeSearch.autocomplete = "off";
+      mergeSearch.setAttribute("aria-label", `Search authors to merge with ${l.name}`);
+      const mergeList = document.createElement("ul");
+      mergeList.className = "ls-suggest";
+      mergeList.setAttribute("role", "listbox");
+      mergeList.hidden = true;
+      const mergeSearchWrap = document.createElement("span");
+      mergeSearchWrap.className = "ls-ac";
+      mergeSearchWrap.append(mergeSearch, mergeList);
+      merge.append(mergeHeading, mergeSearchWrap);
+      if (l.mergedNames.length) {
+        const mergedList = document.createElement("ul");
+        mergedList.className = "ls-merged-authors";
+        for (const mergedName of l.mergedNames) {
+          const item = document.createElement("li");
+          const text = document.createElement("span");
+          text.textContent = mergedName;
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "x";
+          remove.textContent = "×";
+          remove.setAttribute("aria-label", `Remove ${mergedName} from merged paths`);
+          remove.addEventListener("click", () => setMergedAuthors(l.name, l.mergedNames.filter(n => n !== mergedName)));
+          item.append(text, remove);
+          mergedList.append(item);
+        }
+        merge.append(mergedList);
+      }
+      makeAutocomplete({
+        input: mergeSearch, list: mergeList,
+        search(query) {
+          const q = key(query);
+          return ALL_NAMES.filter(authorName => authorName !== l.name && !l.mergedNames.includes(authorName)
+            && key(authorName).includes(q))
+            .slice(0, 20)
+            .map(authorName => ({ label: authorName, meta: `${index.get(authorName).length} abstracts`, value: authorName }));
+        },
+        onSelect: item => setMergedAuthors(l.name, [...l.mergedNames, item.value]),
+        onEnter: text => {
+          const match = ALL_NAMES.find(authorName => key(authorName) === key(text));
+          if (match && match !== l.name && !l.mergedNames.includes(match)) {
+            setMergedAuthors(l.name, [...l.mergedNames, match]);
+          }
+        },
+      });
+
+      panel.append(merge);
       li.append(anno, color, name, n, rm);
       return li;
     }));
@@ -994,6 +1075,20 @@
 
   // Annotation menus close on an outside click or Escape, like a menu
   const closeAnnoMenus = except => document.querySelectorAll(".ls-anno[open]").forEach(d => { if (d !== except) d.open = false; });
+
+  // The card rows scroll horizontally, which clips an absolutely positioned popover, so an open panel is fixed to its summary's viewport position instead
+  function placeAnnoPanel(d) {
+    const panel = d.querySelector(".ls-anno-panel");
+    if (!panel) return;
+    if (!d.open) { panel.style.position = ""; panel.style.top = ""; panel.style.left = ""; return; }
+    const r = d.querySelector("summary").getBoundingClientRect();
+    panel.style.position = "fixed";
+    panel.style.top = `${r.bottom + 8}px`;
+    panel.style.left = `${r.left - 8}px`;
+  }
+  document.addEventListener("toggle", e => { if (e.target.matches?.(".ls-anno")) placeAnnoPanel(e.target); }, true);
+  document.addEventListener("scroll", () => document.querySelectorAll(".ls-anno[open]").forEach(placeAnnoPanel), true);
+  window.addEventListener("resize", () => document.querySelectorAll(".ls-anno[open]").forEach(placeAnnoPanel));
   document.addEventListener("click", e => {
     let clickedMenu = e.target.closest(".ls-anno");
     if (clickedMenu && !clickedMenu.isConnected) {
