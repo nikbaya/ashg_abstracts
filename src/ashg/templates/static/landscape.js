@@ -460,6 +460,8 @@
     canvasSel.call(zoom.transform, d3.zoomIdentity.translate(W / 2 - k * cx, H / 2 - k * cy).scale(k));
   }
 
+  document.getElementById("ls-reset").addEventListener("click", fitAll);
+
   function flyTo(cx, cy, radius) {
     // Zoom so the spread fills roughly a third of the smaller side of the stage.
     const k = Math.min(40, Math.max(1.5, 0.35 * Math.min(W, H) / Math.max(radius, 3)));

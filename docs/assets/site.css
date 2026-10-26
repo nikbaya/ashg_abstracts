@@ -605,10 +605,16 @@ a.cal svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-
   .ls-cluster-control { padding: 7px 8px; }
   .ls-cluster-list { gap: 4px 9px; }
 }
+.ls-reset { position: absolute; right: 8px; bottom: 8px; z-index: 2; padding: 0; font-size: 12px; cursor: pointer;
+  background: none; border: none; color: #555; text-decoration: underline; }
+.ls-reset:hover { color: #222; }
 .ls-map-legend { position: absolute; left: 8px; bottom: 8px; z-index: 2; width: max-content; max-width: calc(100% - 32px); max-height: calc(100% - 24px); overflow: auto;
   padding: 5px 9px; background: var(--surface-1); border: 1px solid var(--rule); border-radius: 7px; box-shadow: 0 2px 8px rgb(0 0 0 / 0.12); font-size: 12px; }
 .ls-map-legend[open] { width: min(360px, calc(100% - 32px)); }
-.ls-map-legend summary { display: block; width: max-content; cursor: pointer; font-weight: 600; color: var(--text-primary); }
+.ls-map-legend summary { display: flex; align-items: center; gap: 6px; width: max-content; cursor: pointer; font-weight: 600; color: var(--text-primary); list-style: none; }
+.ls-map-legend summary::-webkit-details-marker { display: none; }
+.ls-map-legend summary::before { content: ""; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 6px solid currentColor; transition: transform 150ms ease; }
+.ls-map-legend[open] summary::before { transform: rotate(90deg); }
 .ls-map-legend ul { display: grid; gap: 7px; list-style: none; margin: 8px 0 2px; padding: 0; }
 .ls-map-legend li { display: grid; grid-template-columns: 18px 1fr; align-items: center; gap: 7px; line-height: 1.35; }
 .ls-legend-symbol { position: relative; display: inline-block; justify-self: center; color: #168f88; }
