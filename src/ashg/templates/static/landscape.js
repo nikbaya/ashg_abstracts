@@ -94,6 +94,7 @@
     focusedClusterSection: null,
     hiddenClusterIds: new Set(),
     isolatedClusterId: null,
+    isolatedClusterSection: null,
     years: new Set(YEARS), // years shown; the others are hidden everywhere
     animate: $("ls-animate").checked,
   };
@@ -1047,25 +1048,26 @@
       groups: [
         { name: "Genetic testing & precision medicine", terms: ["genetic testing", "variant interpretation", "variant classification", "american college of medical genetics", "variants of uncertain significance", "precision medicine", "genetic counselors", "clinical sequencing", "genetic screening", "carrier screening", "genomic screening", "germline genetic testing"] },
         { name: "Pharmacogenetics", terms: ["pharmacogen", "pharmacogenomics", "pharmacogenetic", "pharmacogenomic", "pharmacogenes"] },
-        { name: "Ancient DNA & human evolution", terms: ["ancient", "archaic", "neanderthal", "denisovan", "human evolution"] },
+        { name: "Ancient DNA & human evolution", terms: ["ancient", "archaic", "neanderthal", "denisovan", "human evolution"], color: "#9467bd" },
         { name: "GWAS & polygenic traits", terms: ["genome-wide association", "polygenic", "genome-wide significant", "summary statistics", "fine mapping", "genetic correlation", "credible set", "mendelian randomization"] },
-        { name: "Molecular & cellular genomics", terms: ["gene expression", "single cell", "differential expression", "regulatory element", "spatial transcriptomic", "transcriptome-wide association", "gene regulatory network", "epigenetic"] },
-        { name: "Machine learning & AI", terms: ["machine learning", "deep learning", "artificial intelligence", "language model", "neural network"] },
+        { name: "Molecular & cellular genomics", terms: ["gene expression", "single cell", "differential expression", "regulatory element", "spatial transcriptomic", "transcriptome-wide association", "gene regulatory network", "epigenetic"], color: "#ff7f0e" },
+        { name: "Machine learning & AI", terms: ["machine learning", "deep learning", "artificial intelligence", "language model", "neural network"], color: "#6a3d9a" },
       ],
     },
     {
       label: "Diseases",
       groups: [
         { name: "Coronary artery disease", terms: ["coronary artery disease"] },
+        { name: "Cardiomyopathy", terms: ["cardiomyopath"], color: "#8c564b" },
         { name: "Metabolic syndrome", terms: ["obesity", "body mass index", "insulin resistance", "metabolic syndrome", "blood pressure", "systolic blood pressure", "type 2 diabetes", "t2dm"], boundaryTerms: ["t2d"] },
-        { name: "Breast cancer", terms: ["breast cancer"] },
-        { name: "Alzheimer's disease", terms: ["alzheimer"] },
+        { name: "Cancer", terms: ["cancer", "neoplasm", "tumor", "tumour", "malignancy", "oncology"], color: "#00a6d6" },
+        { name: "Neurodegenerative disease", terms: ["alzheimer", "parkinson"] },
         { name: "Autism spectrum disorder", terms: ["autism spectrum disorder"] },
-        { name: "Schizophrenia", terms: ["schizophrenia", "schizophrenic"] },
-        { name: "Alcohol use", terms: ["alcohol use disorder", "problematic alcohol use", "alcohol consumption", "alcohol intake"] },
+        { name: "Schizophrenia", terms: ["schizophrenia", "schizophrenic"], color: "#33a02c" },
+        { name: "Immune & infectious disease", terms: ["immun", "infection", "infectious", "virus", "viral", "vaccine", "bacteria", "bacterial"], color: "#008000" },
         { name: "Eye disease", terms: ["glaucoma", "inherited retinal disease", "retinal disease", "retinal dystrophy", "diabetic retinopathy", "macular dystrophy", "macular degeneration"] },
-        { name: "Inflammatory bowel disease", terms: ["inflammatory bowel disease", "ulcerative colitis", "crohn disease", "crohn's disease"] },
-        { name: "Rare disease", terms: ["rare disease", "genetic testing", "diagnostic yield", "human phenotype ontology", "online mendelian inheritance in man"] },
+        { name: "Inflammatory bowel disease", terms: ["inflammatory bowel disease", "ulcerative colitis", "crohn disease", "crohn's disease"], color: "#ff7f0e" },
+        { name: "Rare disease", terms: ["rare disease", "genetic testing", "diagnostic yield", "human phenotype ontology", "online mendelian inheritance in man"], color: "#d62728" },
       ],
     },
   ];
@@ -1309,7 +1311,8 @@
     ctx.font = "600 11px system-ui, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    for (const layer of [...state.clusterLayers].sort((a, b) => b.count - a.count)) {
+    for (const layer of [...state.clusterLayers].sort((a, b) =>
+      Number(b.id === activeClusterId) - Number(a.id === activeClusterId) || b.count - a.count)) {
       if (!layer.contourPath || !isClusterVisible(layer)) continue;
       const x = k * layer.labelX + tx, y = k * layer.labelY + ty;
       const width = ctx.measureText(layer.term).width, height = 15;
@@ -1332,7 +1335,15 @@
 
   function isClusterVisible(layer) {
     return !state.hiddenClusterIds.has(layer.id)
-      && (!state.isolatedClusterId || state.isolatedClusterId === layer.id);
+      && (!state.isolatedClusterId || state.isolatedClusterId === layer.id)
+      && (!state.isolatedClusterSection || state.isolatedClusterSection === layer.section);
+  }
+
+  function clearClusterEmphasis() {
+    state.hoveredClusterId = null;
+    state.focusedClusterId = null;
+    state.hoveredClusterSection = null;
+    state.focusedClusterSection = null;
   }
 
   function syncClusterControls() {
@@ -1353,6 +1364,7 @@
         heading.setAttribute("aria-pressed", String(visible));
         heading.setAttribute("aria-label", `${visible ? "Hide" : "Show"} all ${section.label.toLowerCase()} clusters`);
         heading.classList.toggle("is-hidden", !visible);
+        heading.classList.toggle("is-isolated", state.isolatedClusterSection === section.label);
       }
     }
   }
@@ -1368,6 +1380,7 @@
       $("ls-cluster-diseases").replaceChildren();
       state.hiddenClusterIds.clear();
       state.isolatedClusterId = null;
+      state.isolatedClusterSection = null;
       requestDraw();
       return;
     }
@@ -1391,9 +1404,7 @@
         id: `cluster-${groupIndex}`,
         section: group.section,
         term: group.name,
-        color: group.name === "Rare disease"
-          ? "#00a6d6"
-          : CLUSTER_PALETTE[(groupIndex + 2) % CLUSTER_PALETTE.length],
+        color: group.color || CLUSTER_PALETTE[(groupIndex + 2) % CLUSTER_PALETTE.length],
         count: support.count,
         mask: support.mask,
       };
@@ -1420,8 +1431,18 @@
         li.setAttribute("role", "button");
         layer.listItem = li;
         const toggle = () => {
+          clearClusterEmphasis();
+          const wasVisible = isClusterVisible(layer);
+          const shownBeforeIsolation = state.clusterLayers.filter(isClusterVisible);
+          const hadIsolation = state.isolatedClusterId || state.isolatedClusterSection;
           state.isolatedClusterId = null;
-          if (state.hiddenClusterIds.has(layer.id)) state.hiddenClusterIds.delete(layer.id);
+          state.isolatedClusterSection = null;
+          if (hadIsolation && !wasVisible) {
+            state.hiddenClusterIds.clear();
+            for (const cluster of state.clusterLayers) {
+              if (!shownBeforeIsolation.includes(cluster) && cluster.id !== layer.id) state.hiddenClusterIds.add(cluster.id);
+            }
+          } else if (state.hiddenClusterIds.has(layer.id)) state.hiddenClusterIds.delete(layer.id);
           else state.hiddenClusterIds.add(layer.id);
           syncClusterControls();
           requestDraw();
@@ -1435,7 +1456,9 @@
         });
         li.addEventListener("contextmenu", e => {
           e.preventDefault();
+          clearClusterEmphasis();
           state.isolatedClusterId = state.isolatedClusterId === layer.id ? null : layer.id;
+          state.isolatedClusterSection = null;
           if (state.isolatedClusterId) state.hiddenClusterIds.delete(layer.id);
           syncClusterControls();
           requestDraw();
@@ -1459,10 +1482,26 @@
     heading.addEventListener("mouseleave", () => { state.hoveredClusterSection = null; requestDraw(); });
     heading.addEventListener("focus", () => { state.focusedClusterSection = name; requestDraw(); });
     heading.addEventListener("blur", () => { state.focusedClusterSection = null; requestDraw(); });
+    heading.addEventListener("contextmenu", e => {
+      e.preventDefault();
+      clearClusterEmphasis();
+      const isolating = state.isolatedClusterSection !== name;
+      state.isolatedClusterId = null;
+      state.isolatedClusterSection = isolating ? name : null;
+      if (isolating) {
+        for (const layer of state.clusterLayers) {
+          if (layer.section === name) state.hiddenClusterIds.delete(layer.id);
+        }
+      }
+      syncClusterControls();
+      requestDraw();
+    });
     heading.addEventListener("click", () => {
+      clearClusterEmphasis();
       const members = state.clusterLayers.filter(layer => layer.section === name);
       const hasVisible = members.some(isClusterVisible);
       state.isolatedClusterId = null;
+      state.isolatedClusterSection = null;
       for (const layer of members) {
         if (hasVisible) state.hiddenClusterIds.add(layer.id);
         else state.hiddenClusterIds.delete(layer.id);
