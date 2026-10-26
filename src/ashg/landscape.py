@@ -71,13 +71,19 @@ def tidy(name):
 def person_key(name):
     """First name + surname, lowercased, with apostrophes, hyphens and spaces dropped from the surname and initials left out, so
     "Anne O'Donnell-Luria", "Anne O’Donnell Luria" and "Anne ODonnell-Luria" are one person. Middle names are dropped too
-    when they are initials ("Yash K. Pershad"), but a spelled-out middle name is kept ("Mary Ann Lee" != "Mary Lee")."""
+    when they are initials ("Yash K. Pershad"), but a spelled-out middle name is kept ("Mary Ann Lee" != "Mary Lee").
+    When the first name is only an initial, later given names are treated as middle names ("F. Kyle Satterstrom")."""
     sq = lambda s: re.sub(r"['’‘\-‐‑]", "", s).lower()  # ASCII and Unicode hyphens (U+2010, U+2011)
     parts = name.split()
     if len(parts) < 2:
         return sq(name)
-    tail = [t for t in parts[1:] if not re.fullmatch(r"[A-Za-z]\.?", t)] or parts[-1:]
-    return f"{sq(parts[0])} {re.sub(r' ', '', sq(' '.join(tail)))}"
+    first = sq(parts[0]).rstrip(".")
+    if len(first) == 1:
+        surname = parts[-1]
+    else:
+        tail = [t for t in parts[1:] if not re.fullmatch(r"[A-Za-z]\.?", t)] or parts[-1:]
+        surname = " ".join(tail)
+    return f"{first} {re.sub(r' ', '', sq(surname))}"
 
 
 def people(fulls):

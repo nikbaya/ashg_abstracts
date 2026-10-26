@@ -130,9 +130,12 @@ def clean_name(name):
 
 
 def author_key(name):
-    """First + last name, lowercased, so "Yash K. Pershad" and "Yash Pershad" match (people.py only resolves senior authors)."""
+    """First + last name, lowercased, so middle names and initial periods do not split identities."""
     parts = clean_name(name).lower().split()
-    return f"{parts[0]} {parts[-1]}" if len(parts) > 1 else " ".join(parts)
+    if len(parts) > 1:
+        first = parts[0].rstrip(".")
+        return f"{first} {parts[-1]}"
+    return " ".join(parts)
 
 
 def bm25_vectors(texts):
