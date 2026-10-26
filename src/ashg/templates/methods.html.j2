@@ -82,17 +82,37 @@ dots read alike, but the gaps between distant clusters and the clusters' sizes a
 text are published; the data file has each abstract's year, authors, institutions, keywords and nearest matches. Nearest matches
 and keywords still use the word weighting of Find talks (BM25 on title and abstract), so the match percentages are on the same
 scale as Find talks.</p>
+<p>The preloaded topic control shows research-area and disease clusters together in separate sections. Hovering over or focusing
+a topic highlights its contour; hovering over or focusing a section heading highlights all topics in that section and dims the
+other section. Click a topic in the list to hide or show its contour and map label. Research areas include genetic testing and precision medicine, pharmacogenetics, ancient DNA and human evolution,
+GWAS, molecular and cellular genomics, and machine learning. Disease clusters include coronary artery disease, metabolic syndrome,
+breast cancer, Alzheimer's disease, autism, schizophrenia, alcohol use, eye disease, inflammatory bowel disease, and rare disease.
+Obesity/BMI and type 2 diabetes are combined as “Metabolic syndrome” to show their shared cardiometabolic neighborhood.
+Pharmacogenetics is a separate research-area cluster from genetic testing and precision medicine.
+A group starts with abstracts
+that have at least five other matching abstracts within 8 map units. Its paint is then limited to one connected contour around
+the highest-density region, at 40% of that region's peak density; sparse fringes and distant outliers are left unpainted. To
+reduce overlap, when candidate contours compete for a map cell, it is assigned to the topic with the strongest relative local
+density. Clusters reflect keyword groups and map density, not expert-validated diagnostic categories. To find additional
+candidates, keyword groups can be screened for adequate support and spatial concentration: for example, require at least 40
+matching abstracts and at least 70% of them to have five same-group neighbors within 8 map units. Related keyword variants can
+then be curated into a coherent theme, as with ancient, archaic, Neanderthal and Denisovan terms. These thresholds are a discovery
+screen, not proof that a cluster is scientifically meaningful. Clicking a section heading hides or shows all its topics; right-clicking a topic isolates its contour (right-click it again to restore the others). In-map labels are always shown when clusters are enabled, except
+when they would overlap another topic label. The calculation applies to the currently selected years, and clusters remain hidden
+until enabled.</p>
 <p>Seven related chitinase posters from 2023–2025 (including those by Tomoki Kanaizumi, Ken Suzuki, and K. Takahashi) form a
 tight outlier cluster. To keep it from stretching the map, UMAP is fit without those seven and then projects them into the
 fitted map. They remain searchable and are included in the Landscape data; only their coordinates use this projection.</p>
 <ul>
-<li><strong>Author search.</strong> The diamond is the center of an author's abstracts, weighting each by their position on the
+<li><strong>Author search.</strong> The map flies to an author's weighted center, weighting each abstract by their position on the
 author list: first author 1.5, last 1.0, middle 0.5. A target marks the abstracts they lead. Authors are matched by first + last
 name, so two people with one name merge and a different spelling of a name is missed; degrees and titles that the author-block
 parsing leaves in names (“PhD”, “MD”, “Dr.”) are stripped.</li>
-<li><strong>Web.</strong> “Co-authors” joins each of their abstracts to one nearby abstract by each direct co-author
-(at most 6,000 lines). “Similar text” joins each to its 15 closest abstracts by the text match on Find talks, shaded by that
-percentage; matches under 10% are not drawn.</li>
+<li><strong>Web.</strong> The web is off when an author is first searched; the author's path through years is shown instead.
+“Co-authors” joins each of their abstracts to one nearby abstract by each direct co-author (at most 6,000 lines); linked
+the searched author's abstracts are highlighted only when “Show co-author abstracts” is checked; in co-authors mode
+the same option also highlights linked co-author abstract nodes. “Similar text”
+joins each to its 15 closest abstracts by the text match on Find talks, shaded by that percentage; matches under 10% are not drawn.</li>
 <li><strong>Keywords.</strong> An abstract's keywords are its 25 highest-weighted terms, with spellings that mean the same thing
 grouped under one label. Terms are grouped by the method behind the <a href="phrases.html">phrase</a> rows (terms that share a word
 and appear in mostly the same abstracts, Jaccard at least 0.45, or one the acronym of the other) and by the abbreviations authors
@@ -102,7 +122,7 @@ group is broader than abstracts that say GWAS.</li>
 <li><strong>Institutions.</strong> Only those found for the first and senior author, so about two thirds of abstracts have any.</li>
 <li><strong>Density.</strong> Each painted layer is a Gaussian kernel density of its abstracts (bandwidth about 2% of the map's
 width), scaled to that layer's own peak. Brightness shows where a layer concentrates, not how many abstracts it has; the count
-is on the layer. “Dots” shows each matching abstract instead.</li>
+is on the layer. Each paint layer's options let you switch independently to “Dots” to show each matching abstract.</li>
 </ul>
 
 <h2 id="built">How it's built</h2>

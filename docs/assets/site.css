@@ -535,7 +535,7 @@ a.cal svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-
 .ls-suggest li.group { cursor: default; padding: 6px 8px 2px; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--text-secondary); }
 .ls-legend { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); }
 .ls-legend i { display: block; width: 90px; height: 6px; border-radius: 3px; }
-.ls-layers { list-style: none; margin: 8px 0 0; padding: 0 0 4px; display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; }
+.ls-layers { list-style: none; margin: 8px 0 0; padding: 0 0 4px; display: flex; flex-wrap: wrap; gap: 6px; overflow: visible; }
 .ls-layers li { flex: none; }
 .ls-layers:empty { display: none; }
 .ls-layers li { display: inline-flex; align-items: center; gap: 6px; padding: 2px 4px 2px 8px; font-size: 13px; background: var(--surface-1);
@@ -553,6 +553,7 @@ a.cal svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-
 .ls-anno summary::-webkit-details-marker { display: none; }
 .ls-anno summary::before { content: "\25B8"; display: inline-block; }
 .ls-anno[open] summary::before { content: "\25BE"; }
+.ls-anno[open] { z-index: 11; }
 .ls-anno summary:hover, .ls-anno summary:focus-visible { color: var(--text-primary); }
 .ls-anno-panel { position: absolute; top: calc(100% + 8px); left: -8px; z-index: 10; display: grid; gap: 6px; min-width: 15em; padding: 10px 12px;
   background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; box-shadow: 0 6px 18px rgb(0 0 0 / 0.12);
@@ -569,6 +570,29 @@ a.cal svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-
 .ls-stage { height: clamp(420px, 72vh, 760px); }
 .ls-stage canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
 .ls-stage canvas:active { cursor: grabbing; }
+.ls-cluster-control { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; margin: 8px 0 4px; padding: 8px 10px;
+  background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; }
+.ls-cluster-heading { display: flex; align-items: baseline; gap: 8px; font-size: 13px; }
+.ls-cluster-toggle { display: inline-flex; align-items: center; gap: 7px; font-weight: 600; color: var(--text-primary); cursor: pointer; }
+.ls-cluster-toggle input { margin: 0; }
+.ls-cluster-settings { grid-column: 1 / -1; display: grid; gap: 10px; }
+.ls-cluster-settings[hidden] { display: none; }
+.ls-cluster-section-title { display: inline-block; font: inherit; font-size: 13px; font-weight: 650; color: var(--text-primary); background: none; border: 0; padding: 0; cursor: pointer; }
+.ls-cluster-section-title:hover, .ls-cluster-section-title:focus-visible { color: var(--talk); }
+.ls-cluster-section-title:focus-visible { outline: 2px solid var(--talk); outline-offset: 2px; border-radius: 3px; }
+.ls-cluster-list { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 5px 12px; list-style: none; margin: 3px 0 0; padding: 0; }
+.ls-cluster-list:empty { display: none; }
+.ls-cluster-list li { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-primary); }
+.ls-cluster-list li[tabindex] { cursor: pointer; }
+.ls-cluster-list li:focus-visible { outline: 2px solid var(--talk); outline-offset: 2px; border-radius: 3px; }
+.ls-cluster-list li.is-hidden { opacity: 0.48; text-decoration: line-through; }
+.ls-cluster-swatch { width: 9px; height: 9px; flex: none; border-radius: 50%; }
+.ls-cluster-list .n { color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.ls-cluster-info { grid-column: 1 / -1; margin: 0; font-size: 11px; line-height: 1.4; color: var(--text-secondary); }
+@media (max-width: 600px) {
+  .ls-cluster-control { padding: 7px 8px; }
+  .ls-cluster-list { gap: 4px 9px; }
+}
 .ls-map-legend { position: absolute; left: 8px; bottom: 8px; z-index: 2; width: max-content; max-width: calc(100% - 32px); max-height: calc(100% - 24px); overflow: auto;
   padding: 5px 9px; background: var(--surface-1); border: 1px solid var(--rule); border-radius: 7px; box-shadow: 0 2px 8px rgb(0 0 0 / 0.12); font-size: 12px; }
 .ls-map-legend[open] { width: min(360px, calc(100% - 32px)); }
@@ -576,8 +600,10 @@ a.cal svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-
 .ls-map-legend ul { display: grid; gap: 7px; list-style: none; margin: 8px 0 2px; padding: 0; }
 .ls-map-legend li { display: grid; grid-template-columns: 18px 1fr; align-items: center; gap: 7px; line-height: 1.35; }
 .ls-legend-symbol { position: relative; display: inline-block; justify-self: center; color: #168f88; }
-.ls-legend-label { width: 10px; height: 10px; border: 2px solid white; border-radius: 50%; background: #76b7b2; box-shadow: 0 0 0 1px #76b7b2; }
-.ls-legend-diamond { width: 11px; height: 11px; border: 2px solid #76b7b2; transform: rotate(45deg); background: rgb(255 255 255 / 0.85); }
+.ls-legend-label { width: 12px; height: 12px; }
+.ls-legend-label::before, .ls-legend-label::after { position: absolute; content: ""; background: #76b7b2; }
+.ls-legend-label::before { left: 5px; top: 0; width: 2px; height: 12px; }
+.ls-legend-label::after { left: 0; top: 5px; width: 12px; height: 2px; }
 .ls-legend-coauthor { width: 8px; height: 8px; border-radius: 50%; background: #737a84; }
 .ls-legend-target { width: 13px; height: 13px; border: 1.5px solid #76b7b2; border-radius: 50%; }
 .ls-legend-target::before, .ls-legend-target::after { position: absolute; content: ""; background: #76b7b2; }

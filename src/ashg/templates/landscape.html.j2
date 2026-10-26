@@ -2,8 +2,7 @@
 {% block content %}
 <h1>{{ page.title }} <a class="sim-methods" href="methods.html#landscape">how is the map made? ›</a></h1>
 <p class="lede sim-help">Every ASHG abstract from {{ years[0].year }} to {{ years[-1].year }} as a dot, placed so that abstracts with similar wording sit close together, on one map for all the years.</p>
-<p class="sim-help">Search an author to highlight their abstracts and label them on the map (search more people to label several; the tooltip's button labels a clicked dot's first author) (a target marks the ones they lead; the diamond is the weighted center of all of them, counting first authorship most; a dashed line joins their yearly centers in order when they published in more than one year) and draw a web
-to one nearby abstract per co-author or to the abstracts that read most like theirs, shaded by text match. Choose co-authors, similar text, or off in the author's card dropdown. Toggle years to show only some of them. Paint a keyword or an institution to see where it sits on the map. Keywords group spellings that mean
+<p class="sim-help">Search an author to show their + label and path through the years. The web and abstract-node highlights start off; choose co-authors or similar text in the author's card options to draw a web. Turn on “Show co-author abstracts” there to highlight the searched author's abstracts and, in co-authors mode, linked co-author abstracts. The card also lets you show a target on abstracts they lead. Search more people to label several; the tooltip's button labels a clicked dot's first author. Toggle years to show only some of them. Paint a keyword or an institution to see where it sits on the map. Keywords group spellings that mean
 the same thing (PPI and protein-protein interaction). Hover a dot for details; drag to pan and scroll or pinch to zoom. Titles and abstract text are not shown here.</p>
 <div id="landscape" class="landscape" data-src="{{ landscape_src }}" data-syn="{{ landscape_syn_src or '' }}">
 <div class="ls-bar">
@@ -25,7 +24,7 @@ the same thing (PPI and protein-protein interaction). Hover a dot for details; d
     </div>
   </details>
   <span id="ls-legend" class="ls-legend" hidden><span>10%</span><i id="ls-legend-bar"></i><span>100% text match</span></span>
-  <span id="ls-info" class="ls-info">Highlights their abstracts and flies to their weighted centroid.</span>
+  <span id="ls-info" class="ls-info">Search an author to highlight their abstracts and trace their path through the years.</span>
 </div>
 <form class="ls-bar" id="ls-paint-form" autocomplete="off">
   <span class="lbl">Paint</span>
@@ -35,10 +34,6 @@ the same thing (PPI and protein-protein interaction). Hover a dot for details; d
     <ul id="ls-paint-list" class="ls-suggest" role="listbox" hidden></ul>
   </span>
   <button type="submit">Add layer</button>
-  <span class="seg" id="ls-style" role="group" aria-label="Paint style">
-    <button type="button" data-value="density" aria-pressed="true">Density</button>
-    <button type="button" data-value="dots" aria-pressed="false">Dots</button>
-  </span>
   <button type="button" id="ls-paint-clear" class="ls-link" hidden>Clear all paint</button>
   <span id="ls-paint-msg" class="ls-info"></span>
 </form>
@@ -49,8 +44,7 @@ the same thing (PPI and protein-protein interaction). Hover a dot for details; d
   <details id="ls-map-legend" class="ls-map-legend">
     <summary>Map legend</summary>
     <ul>
-      <li><span class="ls-legend-symbol ls-legend-label"></span><span><strong>Label location</strong> — center of first-author abstracts; if none, center of all their abstracts.</span></li>
-      <li><span class="ls-legend-symbol ls-legend-diamond"></span><span><strong>Weighted centroid</strong> — center of their abstracts, weighted by author position; for the selected author, the current web also contributes.</span></li>
+      <li><span class="ls-legend-symbol ls-legend-label"></span><span><strong>Label marker (+)</strong> — first-author abstract location; if none, center of all their abstracts.</span></li>
       <li><span class="ls-legend-symbol ls-legend-coauthor"></span><span><strong>Co-author abstract</strong> — a nearby abstract by one of their co-authors.</span></li>
       <li><span class="ls-legend-symbol ls-legend-target"></span><span><strong>First-author abstracts</strong> — each abstract they lead.</span></li>
       <li><span class="ls-legend-symbol ls-legend-path"></span><span><strong>Yearly centers</strong> — centers for each year, joined by a dashed path.</span></li>
@@ -58,6 +52,22 @@ the same thing (PPI and protein-protein interaction). Hover a dot for details; d
   </details>
   <div id="ls-tip" class="sim-tip ls-tip" hidden></div>
 </div>
+<section class="ls-cluster-control" aria-labelledby="ls-cluster-title">
+  <div class="ls-cluster-heading">
+    <label id="ls-cluster-title" class="ls-cluster-toggle"><input id="ls-clusters-toggle" type="checkbox"> Show preloaded topic clusters</label>
+  </div>
+  <div id="ls-cluster-settings" class="ls-cluster-settings" hidden>
+    <section class="ls-cluster-section" data-cluster-section="Research areas">
+      <button type="button" class="ls-cluster-section-title">Research areas</button>
+      <ul id="ls-cluster-research" class="ls-cluster-list" aria-label="Research area clusters"></ul>
+    </section>
+    <section class="ls-cluster-section" data-cluster-section="Diseases">
+      <button type="button" class="ls-cluster-section-title">Diseases</button>
+      <ul id="ls-cluster-diseases" class="ls-cluster-list" aria-label="Disease clusters"></ul>
+    </section>
+    <p id="ls-cluster-info" class="ls-cluster-info">Click a section heading to hide or show all its topics. Click a topic to toggle it; right-click a topic to show only that contour. Each topic is a compact contour around its highest-density region; sparse topics and overlapping labels are omitted.</p>
+  </div>
+</section>
 <p class="ls-count"><span id="ls-count"></span></p>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>

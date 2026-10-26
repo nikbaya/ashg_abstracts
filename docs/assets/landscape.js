@@ -64,9 +64,10 @@
   const BASE_FILL = "rgba(55, 62, 74, 0.30)";
   const DIM_FILL = "rgba(55, 62, 74, 0.09)";
   const HIT_FILL = "#111827";
-  const ALL_ON = { marker: true, centroid: false, trail: true, firsts: true }; // a selected author's annotations
+  const AUTHOR_SEARCH_SHOW = { marker: true, trail: true, firsts: false };
   const BASE_R = 1.6, HIT_R = 3.6, LINK_R = 2.6, PAINT_R = 3.4;
   const PALETTE = d3.schemeTableau10.filter(c => !["#bab0ab", "#edc949", "#ff9da7"].includes(c)); // too faint on a light page
+  const CLUSTER_PALETTE = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#e377c2", "#17becf", "#e31a1c", "#6a3d9a", "#33a02c", "#ff1493", "#00a6d6"];
   const MAX_EDGES = 6000;
   const N_SHADES = 6;
   const KDE_SIGMA = 4;   // Gaussian bandwidth in map units (the map spans about 200)
@@ -82,10 +83,17 @@
 
   const state = {
     author: null,      // { name, mask, hits, firstHits, cx, cy, count, firstCount, trail, edges, linkPct }
-    mode: "coauthors", // web around the author: "coauthors" | "similar" | "none"
-    style: "density",  // how paint layers are drawn: "density" | "dots"
+    mode: "none",      // web around the author: "coauthors" | "similar" | "none"
     labels: [],        // { name, cx, cy, count } people marked on the map by name
-    layers: [],        // { id, type, term, exact, color, count, mask, density, peak, img }
+    layers: [],        // { id, type, term, exact, color, count, mask, style, density, peak, img }
+    clusterLayers: [], // locally dense cores of the selected preloaded topic groups
+    clustersEnabled: false,
+    hoveredClusterId: null,
+    focusedClusterId: null,
+    hoveredClusterSection: null,
+    focusedClusterSection: null,
+    hiddenClusterIds: new Set(),
+    isolatedClusterId: null,
     years: new Set(YEARS), // years shown; the others are hidden everywhere
     animate: $("ls-animate").checked,
   };
@@ -162,8 +170,10 @@
       ctx.stroke();
     }
     const lp = a.linkPct;
-    for (let b = 0; b < N_SHADES; b++) {
-      fillNodes(shadeColor(shadeT(b)), LINK_R, i => lp[i] > 0 && shadeOf(lp[i]) === b);
+    if (state.mode !== "coauthors" || a.showCoauthorNodes) {
+      for (let b = 0; b < N_SHADES; b++) {
+        fillNodes(shadeColor(shadeT(b)), LINK_R, i => lp[i] > 0 && shadeOf(lp[i]) === b);
+      }
     }
   }
 
@@ -227,19 +237,6 @@
     ctx.stroke();
   }
 
-  // Weighted centroid: a hollow diamond
-  function drawDiamond(cx, cy, color) {
-    const d = 7;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy - d); ctx.lineTo(cx + d, cy); ctx.lineTo(cx, cy + d); ctx.lineTo(cx - d, cy);
-    ctx.closePath();
-    ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-    ctx.fill();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-  }
-
   function draw() {
     const k = transform.k, tx = transform.x, ty = transform.y;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -253,7 +250,7 @@
     const a = state.author;
     // A selected author's annotations are the ones on their label card, so unchecking one removes it from the map
     const selLabel = a ? state.labels.find(l => l.name === a.name) : null;
-    const show = a ? (selLabel?.show ?? ALL_ON) : null;
+    const show = a ? (selLabel?.show ?? AUTHOR_SEARCH_SHOW) : null;
     const annoColor = selLabel?.color ?? HIT_FILL; // the selected author's annotations use their label color
     if (a) {
       const am = a.mask;
@@ -262,14 +259,14 @@
       fillNodes(BASE_FILL, BASE_R, i => VIS[i] === 1);
     }
 
-    if (state.style === "density") {
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
-      for (const layer of state.layers) {
+    if (state.clusterLayers.length) drawClusterContours(k, tx, ty);
+
+    for (const layer of state.layers) {
+      if (layer.style === "density") {
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
         ctx.drawImage(layer.img, k * GRID.x0 + tx, k * GRID.y0 + ty, k * GRID.w, k * GRID.h);
-      }
-    } else {
-      for (const layer of state.layers) {
+      } else {
         const m = layer.mask;
         fillNodes(layer.color, PAINT_R, i => m[i] === 1);
       }
@@ -277,7 +274,7 @@
 
     if (a) {
       if (a.edges.length) drawWeb(a, k, tx, ty);
-      fillNodes(HIT_FILL, HIT_R, i => a.mask[i] === 1);
+      if (a.showCoauthorNodes) fillNodes(HIT_FILL, HIT_R, i => a.mask[i] === 1);
       if (show.trail && a.trail.length > 1) {
         const progress = trailAnimation?.name === a.name
           ? Math.min(1, (performance.now() - trailAnimation.start) / TRAIL_ANIMATION_MS)
@@ -286,7 +283,6 @@
         if (progress >= 1) trailAnimation = null;
       }
       if (show.firsts) drawTargets(a.firstHits, annoColor);
-      if (show.centroid) drawDiamond(k * a.cx + tx, k * a.cy + ty, annoColor);
     }
 
     if (state.labels.length) {
@@ -299,18 +295,21 @@
         const selected = a && a.name === l.name;
         if (!selected && l.show.trail && l.trail.length > 1) drawTrail(l.trail, k, tx, ty, l.color);
         if (!selected && l.show.firsts && l.firstIdx.length) drawTargets(l.firstIdx, l.color);
-        if (!selected && l.show.centroid) drawDiamond(x, y, l.color);
         if (!l.show.marker) continue;
         if (x < -200 || x > W + 200 || y < -20 || y > H + 20) continue;
         ctx.font = "600 12px system-ui, sans-serif";
         ctx.textBaseline = "middle";
         ctx.lineJoin = "round";
         ctx.beginPath();
-        ctx.arc(x, y, 4, 0, TAU);
-        ctx.fillStyle = l.color;
-        ctx.fill();
+        ctx.moveTo(x - 4, y);
+        ctx.lineTo(x + 4, y);
+        ctx.moveTo(x, y - 4);
+        ctx.lineTo(x, y + 4);
         ctx.strokeStyle = "#fff";
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        ctx.strokeStyle = l.color;
+        ctx.lineWidth = 2;
         ctx.stroke();
         ctx.lineWidth = 3.5;
         ctx.strokeStyle = "rgba(255, 255, 255, 0.92)";
@@ -439,7 +438,7 @@
   // ---------------------------------------------------------------------------
   // Author search: highlight, weighted centroid, web of connections, camera
   // ---------------------------------------------------------------------------
-  const INFO_DEFAULT = "Highlights their abstracts and flies to their weighted centroid.";
+  const INFO_DEFAULT = "Search an author to highlight their abstracts and trace their path through the years.";
 
   // Edges are flat triples [from, to, match %] over node indices; linkPct is the best match reaching each node.
   function computeConnections(a) {
@@ -563,7 +562,10 @@
       sw += weight; sx += weight * X[i]; sy += weight * Y[i];
       if (weight === WEIGHTS.first) firstHits.push(i);
     }
-    const a = { name, mask, hits, firstHits, cx: sx / sw, cy: sy / sw, count: entries.length, firstCount: firstHits.length };
+    const a = {
+      name, mask, hits, firstHits, cx: sx / sw, cy: sy / sw, count: entries.length, firstCount: firstHits.length,
+      showCoauthorNodes: state.author?.name === name ? state.author.showCoauthorNodes : false,
+    };
     computeTrail(a);
     computeConnections(a);
     return a;
@@ -576,12 +578,13 @@
 
   function selectAuthor(name) {
     if (!index.has(name)) return;
+    if (state.author?.name !== name) state.mode = "none";
     const a = buildAuthor(name);
     if (!a) { $("ls-info").textContent = `${name} has no abstracts in the years shown.`; return; }
     state.author = a;
     startTrailAnimation();
     addLabel(name);
-    state.labels.find(l => l.name === name).show = { ...ALL_ON }; // selecting turns the author's annotations on
+    state.labels.find(l => l.name === name).show = { ...AUTHOR_SEARCH_SHOW };
     renderLabels(); // the card shows them as on
     updateCentroid(a);
     $("ls-author").value = name;
@@ -608,6 +611,7 @@
     state.labels = state.labels.filter(l => visibleEntries(l.name).length);
     refreshAuthor();
     for (const l of state.labels) Object.assign(l, labelPos(l.name));
+    updatePresetClusters();
     for (const layer of state.layers) {
       const { mask, count } = matchAbstracts(layer.type, layer.term, layer.exact);
       layer.mask = mask;
@@ -710,7 +714,6 @@
   // Annotations a label can show, with the card's checkbox text. The marker is on by default; the rest are opt-in.
   const ANNOTATIONS = [
     { key: "marker", text: "Label marker" },
-    { key: "centroid", text: "Centroid" },
     { key: "trail", text: "Path across years" },
     { key: "firsts", text: "First-author abstracts" },
   ];
@@ -725,7 +728,7 @@
 
   function addLabel(name) {
     if (!index.has(name) || !visibleEntries(name).length || state.labels.some(l => l.name === name)) return;
-    state.labels.push({ name, color: pickLabelColor(), show: { marker: true, centroid: false, trail: false, firsts: false }, ...labelPos(name) });
+    state.labels.push({ name, color: pickLabelColor(), show: { marker: true, trail: false, firsts: false }, ...labelPos(name) });
     renderLabels();
     requestDraw();
   }
@@ -784,7 +787,6 @@
       panel.className = "ls-anno-panel";
       const available = {
         marker: [true, ""],
-        centroid: [true, ""],
         trail: [l.trail.length > 1, l.trail.length > 1 ? "" : " (one year shown)"],
         firsts: [l.firstIdx.length > 0, l.firstIdx.length ? ` (${l.firstIdx.length})` : " (none)"],
       };
@@ -822,6 +824,18 @@
         }
         web.append(heading, controls);
         panel.append(web);
+
+        const coauthorNodes = document.createElement("label");
+        const coauthorNodesToggle = document.createElement("input");
+        coauthorNodesToggle.type = "checkbox";
+        coauthorNodesToggle.checked = state.author.showCoauthorNodes;
+        coauthorNodesToggle.setAttribute("aria-label", "Show co-author abstract nodes");
+        coauthorNodesToggle.addEventListener("change", () => {
+          state.author.showCoauthorNodes = coauthorNodesToggle.checked;
+          requestDraw();
+        });
+        coauthorNodes.append(coauthorNodesToggle, "Show co-author abstracts");
+        panel.append(coauthorNodes);
       }
 
       li.append(anno, color, name, n, rm);
@@ -1002,7 +1016,7 @@
     if (dup) { say(`"${term}" is already painted.`); return; }
     const { mask, count } = matchAbstracts(type, term, exact);
     if (count === 0) { say(`No abstracts match "${term}".`); return; }
-    const layer = { id: nextLayerId++, type, term, exact, color: pickColor(), count, mask };
+    const layer = { id: nextLayerId++, type, term, exact, color: pickColor(), count, mask, style: "density" };
     buildDensity(layer);
     state.layers.push(layer);
     say("");
@@ -1023,6 +1037,451 @@
     requestDraw();
   }
 
+  const CLUSTER_RADIUS = 8;
+  const CLUSTER_NEIGHBORS = 5;
+  const CLUSTER_MIN_CORE = 30;
+  const CLUSTER_CONTOUR_FRACTION = 0.4;
+  const CLUSTER_THEMES = [
+    {
+      label: "Research areas",
+      groups: [
+        { name: "Genetic testing & precision medicine", terms: ["genetic testing", "variant interpretation", "variant classification", "american college of medical genetics", "variants of uncertain significance", "precision medicine", "genetic counselors", "clinical sequencing", "genetic screening", "carrier screening", "genomic screening", "germline genetic testing"] },
+        { name: "Pharmacogenetics", terms: ["pharmacogen", "pharmacogenomics", "pharmacogenetic", "pharmacogenomic", "pharmacogenes"] },
+        { name: "Ancient DNA & human evolution", terms: ["ancient", "archaic", "neanderthal", "denisovan", "human evolution"] },
+        { name: "GWAS & polygenic traits", terms: ["genome-wide association", "polygenic", "genome-wide significant", "summary statistics", "fine mapping", "genetic correlation", "credible set", "mendelian randomization"] },
+        { name: "Molecular & cellular genomics", terms: ["gene expression", "single cell", "differential expression", "regulatory element", "spatial transcriptomic", "transcriptome-wide association", "gene regulatory network", "epigenetic"] },
+        { name: "Machine learning & AI", terms: ["machine learning", "deep learning", "artificial intelligence", "language model", "neural network"] },
+      ],
+    },
+    {
+      label: "Diseases",
+      groups: [
+        { name: "Coronary artery disease", terms: ["coronary artery disease"] },
+        { name: "Metabolic syndrome", terms: ["obesity", "body mass index", "insulin resistance", "metabolic syndrome", "blood pressure", "systolic blood pressure", "type 2 diabetes", "t2dm"], boundaryTerms: ["t2d"] },
+        { name: "Breast cancer", terms: ["breast cancer"] },
+        { name: "Alzheimer's disease", terms: ["alzheimer"] },
+        { name: "Autism spectrum disorder", terms: ["autism spectrum disorder"] },
+        { name: "Schizophrenia", terms: ["schizophrenia", "schizophrenic"] },
+        { name: "Alcohol use", terms: ["alcohol use disorder", "problematic alcohol use", "alcohol consumption", "alcohol intake"] },
+        { name: "Eye disease", terms: ["glaucoma", "inherited retinal disease", "retinal disease", "retinal dystrophy", "diabetic retinopathy", "macular dystrophy", "macular degeneration"] },
+        { name: "Inflammatory bowel disease", terms: ["inflammatory bowel disease", "ulcerative colitis", "crohn disease", "crohn's disease"] },
+        { name: "Rare disease", terms: ["rare disease", "genetic testing", "diagnostic yield", "human phenotype ontology", "online mendelian inheritance in man"] },
+      ],
+    },
+  ];
+
+  function denseCore(mask) {
+    const cell = CLUSTER_RADIUS;
+    const buckets = new Map();
+    const keyOf = (x, y) => `${Math.floor(x / cell)},${Math.floor(y / cell)}`;
+    for (let i = 0; i < N; i++) {
+      if (!mask[i]) continue;
+      const key = keyOf(X[i], Y[i]);
+      let bucket = buckets.get(key);
+      if (!bucket) buckets.set(key, bucket = []);
+      bucket.push(i);
+    }
+    const core = new Uint8Array(N);
+    let count = 0;
+    for (let i = 0; i < N; i++) {
+      if (!mask[i]) continue;
+      const gx = Math.floor(X[i] / cell), gy = Math.floor(Y[i] / cell);
+      let neighbors = 0;
+      for (let y = gy - 1; y <= gy + 1 && neighbors < CLUSTER_NEIGHBORS; y++) {
+        for (let x = gx - 1; x <= gx + 1 && neighbors < CLUSTER_NEIGHBORS; x++) {
+          for (const j of buckets.get(`${x},${y}`) || []) {
+            if (i !== j && (X[i] - X[j]) ** 2 + (Y[i] - Y[j]) ** 2 <= cell ** 2) neighbors++;
+            if (neighbors >= CLUSTER_NEIGHBORS) break;
+          }
+        }
+      }
+      if (neighbors >= CLUSTER_NEIGHBORS) { core[i] = 1; count++; }
+    }
+    return { mask: core, count };
+  }
+
+  function peakComponent(density) {
+    const { gx, gy } = GRID;
+    let peakIndex = 0;
+    for (let i = 1; i < density.length; i++) if (density[i] > density[peakIndex]) peakIndex = i;
+    const peak = density[peakIndex];
+    const minimum = peak * CLUSTER_CONTOUR_FRACTION;
+    if (!peak) return new Uint8Array(density.length);
+
+    const region = new Uint8Array(density.length);
+    const queue = new Int32Array(density.length);
+    let head = 0, tail = 0;
+    queue[tail++] = peakIndex;
+    region[peakIndex] = 1;
+    while (head < tail) {
+      const index = queue[head++];
+      const x = index % gx, y = Math.floor(index / gx);
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (Math.abs(dx) + Math.abs(dy) !== 1) continue;
+          const nx = x + dx, ny = y + dy;
+          if (nx < 0 || nx >= gx || ny < 0 || ny >= gy) continue;
+          const next = ny * gx + nx;
+          if (!region[next] && density[next] >= minimum) {
+            region[next] = 1;
+            queue[tail++] = next;
+          }
+        }
+      }
+    }
+    return region;
+  }
+
+  function interiorCenter(component, gx, gy, fallback) {
+    const size = component.length;
+    const distance = new Uint16Array(size).fill(65535);
+    const queue = new Int32Array(size);
+    let head = 0, tail = 0, sumX = 0, sumY = 0, count = 0;
+    for (let index = 0; index < size; index++) {
+      if (!component[index]) continue;
+      const x = index % gx, y = Math.floor(index / gx);
+      sumX += x;
+      sumY += y;
+      count++;
+      const boundary = x === 0 || x === gx - 1 || y === 0 || y === gy - 1
+        || !component[index - 1] || !component[index + 1]
+        || !component[index - gx] || !component[index + gx];
+      if (boundary) {
+        distance[index] = 0;
+        queue[tail++] = index;
+      }
+    }
+    if (!count || !tail) return fallback;
+    while (head < tail) {
+      const index = queue[head++];
+      const x = index % gx, y = Math.floor(index / gx);
+      for (const next of [x > 0 ? index - 1 : -1, x + 1 < gx ? index + 1 : -1,
+        y > 0 ? index - gx : -1, y + 1 < gy ? index + gx : -1]) {
+        if (next < 0 || !component[next] || distance[next] <= distance[index] + 1) continue;
+        distance[next] = distance[index] + 1;
+        queue[tail++] = next;
+      }
+    }
+    const centerX = sumX / count, centerY = sumY / count;
+    let best = fallback, bestDistance = -1, bestCentroidDistance = Infinity;
+    for (let index = 0; index < size; index++) {
+      if (!component[index]) continue;
+      const x = index % gx, y = Math.floor(index / gx);
+      const centroidDistance = (x - centerX) ** 2 + (y - centerY) ** 2;
+      if (distance[index] > bestDistance
+        || (distance[index] === bestDistance && centroidDistance < bestCentroidDistance)) {
+        best = index;
+        bestDistance = distance[index];
+        bestCentroidDistance = centroidDistance;
+      }
+    }
+    return best;
+  }
+
+  function makeNonOverlappingContours(layers) {
+    const { gx, gy } = GRID;
+    const candidates = layers.map(layer => peakComponent(layer.density));
+    let active = layers.map((_, i) => i);
+    const contour = d3.contours().size([gx, gy]).thresholds([0.5]);
+    for (let attempt = 0; active.length && attempt <= layers.length; attempt++) {
+      const owner = new Int16Array(gx * gy).fill(-1);
+      const strength = new Float32Array(gx * gy);
+      for (const i of active) {
+        const { density, peak } = layers[i];
+        for (let j = 0; j < owner.length; j++) {
+          if (!candidates[i][j]) continue;
+          const relativeDensity = density[j] / peak;
+          if (relativeDensity > strength[j]) {
+            strength[j] = relativeDensity;
+            owner[j] = i;
+          }
+        }
+      }
+
+      for (const i of active) {
+        const layer = layers[i];
+        let seed = -1, bestDensity = 0;
+        for (let j = 0; j < owner.length; j++) {
+          if (owner[j] !== i) continue;
+          const relativeDensity = layer.density[j] / layer.peak;
+          if (relativeDensity > bestDensity) { bestDensity = relativeDensity; seed = j; }
+        }
+        if (seed < 0) {
+          layer.contourPath = null;
+          layer.count = 0;
+          continue;
+        }
+
+        const component = new Uint8Array(owner.length);
+        const queue = new Int32Array(owner.length);
+        let head = 0, tail = 0;
+        queue[tail++] = seed;
+        component[seed] = 1;
+        while (head < tail) {
+          const index = queue[head++];
+          const x = index % gx, y = Math.floor(index / gx);
+          for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+              if (Math.abs(dx) + Math.abs(dy) !== 1) continue;
+              const nx = x + dx, ny = y + dy;
+              if (nx < 0 || nx >= gx || ny < 0 || ny >= gy) continue;
+              const next = ny * gx + nx;
+              if (!component[next] && owner[next] === i) {
+                component[next] = 1;
+                queue[tail++] = next;
+              }
+            }
+          }
+        }
+        const owned = new Float32Array(owner.length);
+        for (let j = 0; j < owner.length; j++) if (component[j]) owned[j] = 1;
+
+        const shape = contour(owned).find(feature => feature.coordinates.length);
+        if (!shape) {
+          layer.contourPath = null;
+          layer.count = 0;
+          continue;
+        }
+        const polygon = shape.coordinates.reduce((best, coords) => {
+          const ring = coords[0];
+          const area = Math.abs(d3.polygonArea(ring));
+          return !best || area > best.area ? { ring, area } : best;
+        }, null);
+        if (!polygon) {
+          layer.contourPath = null;
+          layer.count = 0;
+          continue;
+        }
+        const geometry = { type: "Polygon", coordinates: [polygon.ring] };
+        layer.contourPath = new Path2D(d3.geoPath(null)(geometry));
+        const labelIndex = interiorCenter(component, gx, gy, seed);
+        layer.labelX = GRID.x0 + ((labelIndex % gx) + 0.5) * GRID.cell;
+        layer.labelY = GRID.y0 + (Math.floor(labelIndex / gx) + 0.5) * GRID.cell;
+        layer.count = 0;
+        for (let j = 0; j < N; j++) {
+          if (!layer.mask[j]) continue;
+          const x = Math.round((X[j] - GRID.x0) / GRID.cell - 0.5);
+          const y = Math.round((Y[j] - GRID.y0) / GRID.cell - 0.5);
+          if (x >= 0 && x < gx && y >= 0 && y < gy && component[y * gx + x]) layer.count++;
+        }
+      }
+      const survivors = active.filter(i => layers[i].contourPath && layers[i].count >= CLUSTER_MIN_CORE);
+      if (survivors.length === active.length) break;
+      for (const i of active) if (!survivors.includes(i)) {
+        layers[i].contourPath = null;
+        layers[i].count = 0;
+      }
+      active = survivors;
+    }
+  }
+
+  function drawClusterContours(k, tx, ty) {
+    const hoveredId = state.hoveredClusterId && !state.hiddenClusterIds.has(state.hoveredClusterId) ? state.hoveredClusterId : null;
+    const focusedId = state.focusedClusterId && !state.hiddenClusterIds.has(state.focusedClusterId) ? state.focusedClusterId : null;
+    const activeClusterId = hoveredId || focusedId;
+    const activeClusterSection = state.hoveredClusterSection || state.focusedClusterSection;
+    ctx.save();
+    ctx.translate(k * GRID.x0 + tx, k * GRID.y0 + ty);
+    ctx.scale(k * GRID.cell, k * GRID.cell);
+    for (const layer of state.clusterLayers) {
+      if (!layer.contourPath || !isClusterVisible(layer)) continue;
+      const muted = activeClusterId ? activeClusterId !== layer.id
+        : activeClusterSection && activeClusterSection !== layer.section;
+      const color = muted ? "#aeb4bd" : layer.color;
+      ctx.fillStyle = d3.color(color).copy({ opacity: muted ? 0.15 : 0.24 }).formatRgb();
+      ctx.fill(layer.contourPath);
+      ctx.strokeStyle = d3.color(color).copy({ opacity: muted ? 0.45 : 0.9 }).formatRgb();
+      ctx.lineWidth = 0.8 / (k * GRID.cell);
+      ctx.stroke(layer.contourPath);
+    }
+    ctx.restore();
+    drawClusterLabels(k, tx, ty);
+  }
+
+  function drawClusterLabels(k, tx, ty) {
+    const hoveredId = state.hoveredClusterId && !state.hiddenClusterIds.has(state.hoveredClusterId) ? state.hoveredClusterId : null;
+    const focusedId = state.focusedClusterId && !state.hiddenClusterIds.has(state.focusedClusterId) ? state.focusedClusterId : null;
+    const activeClusterId = hoveredId || focusedId;
+    const activeClusterSection = state.hoveredClusterSection || state.focusedClusterSection;
+    const shown = [];
+    ctx.save();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.font = "600 11px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    for (const layer of [...state.clusterLayers].sort((a, b) => b.count - a.count)) {
+      if (!layer.contourPath || !isClusterVisible(layer)) continue;
+      const x = k * layer.labelX + tx, y = k * layer.labelY + ty;
+      const width = ctx.measureText(layer.term).width, height = 15;
+      const box = { left: x - width / 2, right: x + width / 2, top: y - height / 2, bottom: y + height / 2 };
+      if (box.right < 0 || box.left > W || box.bottom < 0 || box.top > H) continue;
+      if (shown.some(other => box.left < other.right + 6 && box.right + 6 > other.left
+        && box.top < other.bottom + 3 && box.bottom + 3 > other.top)) continue;
+      shown.push(box);
+      ctx.lineWidth = 3;
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+      ctx.strokeText(layer.term, x, y);
+      const muted = activeClusterId ? activeClusterId !== layer.id
+        : activeClusterSection && activeClusterSection !== layer.section;
+      ctx.fillStyle = muted ? "#aeb4bd" : layer.color;
+      ctx.fillText(layer.term, x, y);
+    }
+    ctx.restore();
+  }
+
+  function isClusterVisible(layer) {
+    return !state.hiddenClusterIds.has(layer.id)
+      && (!state.isolatedClusterId || state.isolatedClusterId === layer.id);
+  }
+
+  function syncClusterControls() {
+    for (const layer of state.clusterLayers) {
+      const li = layer.listItem;
+      if (!li) continue;
+      const visible = isClusterVisible(layer);
+      li.setAttribute("aria-pressed", String(visible));
+      li.setAttribute("aria-label", `${visible ? "Hide" : "Show"} ${layer.term} cluster, ${layer.count.toLocaleString()} abstracts`);
+      li.classList.toggle("is-hidden", !visible);
+      li.classList.toggle("is-isolated", state.isolatedClusterId === layer.id);
+    }
+    for (const section of CLUSTER_THEMES) {
+      const members = state.clusterLayers.filter(layer => layer.section === section.label);
+      const visible = members.some(isClusterVisible);
+      const heading = document.querySelector(`.ls-cluster-section[data-cluster-section="${section.label}"] .ls-cluster-section-title`);
+      if (heading) {
+        heading.setAttribute("aria-pressed", String(visible));
+        heading.setAttribute("aria-label", `${visible ? "Hide" : "Show"} all ${section.label.toLowerCase()} clusters`);
+        heading.classList.toggle("is-hidden", !visible);
+      }
+    }
+  }
+
+  function updatePresetClusters() {
+    state.hoveredClusterId = null;
+    state.focusedClusterId = null;
+    state.hoveredClusterSection = null;
+    state.focusedClusterSection = null;
+    if (!state.clustersEnabled) {
+      state.clusterLayers = [];
+      $("ls-cluster-research").replaceChildren();
+      $("ls-cluster-diseases").replaceChildren();
+      state.hiddenClusterIds.clear();
+      state.isolatedClusterId = null;
+      requestDraw();
+      return;
+    }
+    const groups = CLUSTER_THEMES.flatMap(section =>
+      section.groups.map(group => ({ ...group, section: section.label })));
+    const layers = [];
+    for (const [groupIndex, group] of groups.entries()) {
+      const mask = new Uint8Array(N);
+      const terms = group.terms;
+      const boundaryTerms = group.boundaryTerms || [];
+      for (let i = 0; i < N; i++) {
+        if (VIS[i] && abstracts[i].keywords.some(k => {
+          const keyword = k.toLowerCase();
+          return terms.some(term => keyword.includes(term))
+            || boundaryTerms.some(term => new RegExp(`(^|[^a-z0-9])${term}($|[^a-z0-9])`).test(keyword));
+        })) mask[i] = 1;
+      }
+      const support = denseCore(mask);
+      if (support.count < CLUSTER_MIN_CORE) continue;
+      const layer = {
+        id: `cluster-${groupIndex}`,
+        section: group.section,
+        term: group.name,
+        color: group.name === "Rare disease"
+          ? "#00a6d6"
+          : CLUSTER_PALETTE[(groupIndex + 2) % CLUSTER_PALETTE.length],
+        count: support.count,
+        mask: support.mask,
+      };
+      buildDensity(layer);
+      layers.push(layer);
+    }
+    makeNonOverlappingContours(layers);
+    state.clusterLayers = layers;
+    const visibleLayers = layers.filter(layer => layer.contourPath && layer.count >= CLUSTER_MIN_CORE);
+    state.clusterLayers = visibleLayers;
+    for (const section of CLUSTER_THEMES) {
+      const list = $(section.label === "Research areas" ? "ls-cluster-research" : "ls-cluster-diseases");
+      list.replaceChildren(...visibleLayers.filter(layer => layer.section === section.label).map(layer => {
+        const li = document.createElement("li");
+        const swatch = document.createElement("span");
+        swatch.className = "ls-cluster-swatch";
+        swatch.style.backgroundColor = layer.color;
+        const name = document.createElement("span");
+        name.textContent = layer.term;
+        const count = document.createElement("span");
+        count.className = "n";
+        count.textContent = layer.count.toLocaleString();
+        li.tabIndex = 0;
+        li.setAttribute("role", "button");
+        layer.listItem = li;
+        const toggle = () => {
+          state.isolatedClusterId = null;
+          if (state.hiddenClusterIds.has(layer.id)) state.hiddenClusterIds.delete(layer.id);
+          else state.hiddenClusterIds.add(layer.id);
+          syncClusterControls();
+          requestDraw();
+        };
+        li.addEventListener("click", toggle);
+        li.addEventListener("keydown", e => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            toggle();
+          }
+        });
+        li.addEventListener("contextmenu", e => {
+          e.preventDefault();
+          state.isolatedClusterId = state.isolatedClusterId === layer.id ? null : layer.id;
+          if (state.isolatedClusterId) state.hiddenClusterIds.delete(layer.id);
+          syncClusterControls();
+          requestDraw();
+        });
+        li.addEventListener("mouseenter", () => { state.hoveredClusterId = layer.id; requestDraw(); });
+        li.addEventListener("mouseleave", () => { state.hoveredClusterId = null; requestDraw(); });
+        li.addEventListener("focus", () => { state.focusedClusterId = layer.id; requestDraw(); });
+        li.addEventListener("blur", () => { state.focusedClusterId = null; requestDraw(); });
+        li.append(swatch, name, count);
+        return li;
+      }));
+    }
+    syncClusterControls();
+    requestDraw();
+  }
+
+  for (const section of document.querySelectorAll(".ls-cluster-section")) {
+    const name = section.dataset.clusterSection;
+    const heading = section.querySelector(".ls-cluster-section-title");
+    heading.addEventListener("mouseenter", () => { state.hoveredClusterSection = name; requestDraw(); });
+    heading.addEventListener("mouseleave", () => { state.hoveredClusterSection = null; requestDraw(); });
+    heading.addEventListener("focus", () => { state.focusedClusterSection = name; requestDraw(); });
+    heading.addEventListener("blur", () => { state.focusedClusterSection = null; requestDraw(); });
+    heading.addEventListener("click", () => {
+      const members = state.clusterLayers.filter(layer => layer.section === name);
+      const hasVisible = members.some(isClusterVisible);
+      state.isolatedClusterId = null;
+      for (const layer of members) {
+        if (hasVisible) state.hiddenClusterIds.add(layer.id);
+        else state.hiddenClusterIds.delete(layer.id);
+      }
+      syncClusterControls();
+      requestDraw();
+    });
+  }
+  for (const [selector, id] of [["#ls-cluster-research", "Research areas"], ["#ls-cluster-diseases", "Diseases"]]) {
+    const list = document.querySelector(selector);
+    list.addEventListener("mouseenter", () => { state.hoveredClusterSection = id; requestDraw(); });
+    list.addEventListener("mouseleave", () => { state.hoveredClusterSection = null; requestDraw(); });
+  }
+  $("ls-clusters-toggle").addEventListener("change", e => {
+    state.clustersEnabled = e.target.checked;
+    $("ls-cluster-settings").hidden = !state.clustersEnabled;
+    updatePresetClusters();
+  });
+
   function renderLayers() {
     $("ls-paint-clear").hidden = state.layers.length === 0;
     $("ls-layers").replaceChildren(...state.layers.map(layer => {
@@ -1033,6 +1492,36 @@
       color.value = layer.color;
       color.setAttribute("aria-label", `Color for ${layer.term}`);
       color.addEventListener("input", () => { layer.color = color.value; tintDensity(layer); requestDraw(); });
+
+      const options = document.createElement("details");
+      options.className = "ls-anno ls-paint-options";
+      const summary = document.createElement("summary");
+      summary.setAttribute("aria-label", `Display options for ${layer.term}`);
+      summary.title = "Display options";
+      const panel = document.createElement("div");
+      panel.className = "ls-anno-panel";
+      const styleLabel = document.createElement("span");
+      styleLabel.className = "ls-card-web-label";
+      styleLabel.textContent = "Display as";
+      const styles = document.createElement("span");
+      styles.className = "seg";
+      styles.setAttribute("role", "group");
+      styles.setAttribute("aria-label", `Display style for ${layer.term}`);
+      for (const [value, text] of [["density", "Density"], ["dots", "Dots"]]) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.dataset.value = value;
+        button.setAttribute("aria-pressed", String(layer.style === value));
+        button.textContent = text;
+        button.addEventListener("click", () => {
+          layer.style = value;
+          for (const sibling of styles.children) sibling.setAttribute("aria-pressed", String(sibling === button));
+          requestDraw();
+        });
+        styles.append(button);
+      }
+      panel.append(styleLabel, styles);
+      options.append(summary, panel);
 
       const name = document.createElement("span");
       name.className = "name";
@@ -1050,7 +1539,7 @@
       rm.setAttribute("aria-label", `Remove ${layer.term}`);
       rm.addEventListener("click", () => removeLayer(layer.id));
 
-      li.append(color, name, n, rm);
+      li.append(color, options, name, n, rm);
       return li;
     }));
   }
@@ -1089,13 +1578,6 @@
     $("ls-paint").value = "";
   });
   $("ls-paint-clear").addEventListener("click", clearAllPaint);
-  $("ls-style").addEventListener("click", e => {
-    const btn = e.target.closest("button");
-    if (!btn) return;
-    state.style = btn.dataset.value;
-    for (const b of $("ls-style").children) b.setAttribute("aria-pressed", String(b === btn));
-    requestDraw();
-  });
 
   // ---------------------------------------------------------------------------
   // Boot
@@ -1153,6 +1635,7 @@
     requestDraw();
   });
   updateYearControls();
+  updatePresetClusters();
   updateCount();
   new ResizeObserver(resize).observe(stage);
   resize();
