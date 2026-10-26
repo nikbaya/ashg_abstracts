@@ -72,7 +72,7 @@
   const N_SHADES = 6;
   const KDE_SIGMA = 4;   // Gaussian bandwidth in map units (the map spans about 200)
   const KDE_CELLS = 256; // density grid resolution along the longer side
-  const shadeColor = d3.interpolateRgb("#cfd3d9", "#4b5563"); // text match 10% .. 100%
+  const shadeColor = d3.interpolateRgb("#cfd3d9", "#4b5563");
 
   const stage = $("ls-stage"), canvas = $("ls-canvas"), tip = $("ls-tip");
   const ctx = canvas.getContext("2d");
@@ -80,7 +80,6 @@
   let transform = d3.zoomIdentity;
   let hover = -1;
   let pinned = false; // a clicked dot keeps its tooltip (with the Label button) until the map is panned or clicked elsewhere
-  let clusterLabelBoxes = [];
 
   const state = {
     author: null,      // { name, mask, hits, firstHits, cx, cy, count, firstCount, trail, edges, linkPct }
@@ -219,7 +218,7 @@
     ctx.strokeStyle = color;
     ctx.fillStyle = color;
     ctx.lineWidth = 1.5;
-    ctx.setLineDash([]);
+    ctx.setLineDash([5, 4]);
     ctx.beginPath();
     ctx.moveTo(k * trail[0].cx + tx, k * trail[0].cy + ty);
     for (let j = 1; j <= fullSegments; j++) {
@@ -235,53 +234,29 @@
     ctx.setLineDash([]);
     ctx.font = "600 11px system-ui, sans-serif";
     ctx.textBaseline = "middle";
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = color;
-    const yearLabelBoxes = [];
     for (let j = 0; j <= fullSegments; j++) {
       const p = trail[j];
       const x = k * p.cx + tx, y = k * p.cy + ty;
       ctx.beginPath();
-      ctx.arc(x, y, 5, 0, TAU);
+      ctx.arc(x, y, 4, 0, TAU);
       ctx.fillStyle = "#fff";
       ctx.fill();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
       ctx.beginPath();
-      ctx.arc(x, y, 3.3, 0, TAU);
+      ctx.arc(x, y, 2.5, 0, TAU);
       ctx.fillStyle = p.firstAuthor ? color : "#fff";
       ctx.fill();
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 1.2;
-      ctx.stroke();
       ctx.lineJoin = "round";
       ctx.lineWidth = 3;
       ctx.strokeStyle = "rgba(255, 255, 255, 0.92)";
-      const text = String(p.year);
-      const width = ctx.measureText(text).width;
-      const candidates = [
-        { x: x + 6, y: y - 6, align: "left" },
-        { x: x + 6, y: y + 10, align: "left" },
-        { x: x - 6, y: y - 6, align: "right" },
-        { x: x - 6, y: y + 10, align: "right" },
-      ];
-      const placement = candidates.find(candidate => {
-        const left = candidate.align === "left" ? candidate.x : candidate.x - width;
-        const box = { left: left - 2, right: left + width + 2, top: candidate.y - 8, bottom: candidate.y + 8 };
-        return !clusterLabelBoxes.some(other => box.left < other.right + 2 && box.right + 2 > other.left
-          && box.top < other.bottom + 2 && box.bottom + 2 > other.top)
-          && !yearLabelBoxes.some(other => box.left < other.right + 2 && box.right + 2 > other.left
-          && box.top < other.bottom + 2 && box.bottom + 2 > other.top);
-      });
-      if (!placement) continue;
-      const left = placement.align === "left" ? placement.x : placement.x - width;
-      yearLabelBoxes.push({ left: left - 2, right: left + width + 2, top: placement.y - 8, bottom: placement.y + 8 });
-      ctx.textAlign = placement.align;
-      ctx.strokeText(text, placement.x, placement.y);
+      ctx.strokeText(String(p.year), x + 6, y - 6);
       ctx.fillStyle = color;
-      ctx.fillText(text, placement.x, placement.y);
+      ctx.fillText(String(p.year), x + 6, y - 6);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
     }
-    ctx.textAlign = "start";
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.5;
   }
 
   // Target on each abstract in idx (the abstracts someone leads)
@@ -307,7 +282,6 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.fillStyle = BG;
     ctx.fillRect(0, 0, W, H);
-    clusterLabelBoxes = [];
     for (let i = 0; i < N; i++) {
       SX[i] = k * X[i] + tx;
       SY[i] = k * Y[i] + ty;
@@ -593,33 +567,6 @@
     return index.get(name).filter(({ abstract_id }) => VIS[idToIdx.get(abstract_id)] === 1);
   }
 
-  function countCoauthorAbstracts(name) {
-    const entries = visibleEntries(name);
-    const own = new Set();
-    const coauthors = new Set();
-    let sw = 0, sx = 0, sy = 0;
-    for (const { abstract_id, weight } of entries) {
-      const i = idToIdx.get(abstract_id);
-      own.add(i);
-      sw += weight; sx += weight * X[i]; sy += weight * Y[i];
-      for (const author of abstracts[i].authors) if (author.name !== name) coauthors.add(author.name);
-    }
-    if (!sw) return 0;
-    const cx = sx / sw, cy = sy / sw;
-    const targets = new Set();
-    for (const coauthor of coauthors) {
-      let target = -1, targetDistance = Infinity;
-      for (const { abstract_id } of index.get(coauthor) || []) {
-        const i = idToIdx.get(abstract_id);
-        if (own.has(i) || !VIS[i]) continue;
-        const distance = (X[i] - cx) ** 2 + (Y[i] - cy) ** 2;
-        if (distance < targetDistance) { target = i; targetDistance = distance; }
-      }
-      if (target >= 0) targets.add(target);
-    }
-    return targets.size;
-  }
-
   // Centroid of the author's visible abstracts (by author-position weight) together with the abstracts linked in the
   // current mode, so it moves when the web is switched between co-authors and similar text.
   function updateCentroid(a) {
@@ -692,8 +639,7 @@
     }
     const a = {
       name, mask, hits, firstHits, cx: sx / sw, cy: sy / sw, count: entries.length, firstCount: firstHits.length,
-      showCoauthorNodes: state.labels.find(label => label.name === name)?.showCoauthorNodes
-        ?? (state.author?.name === name ? state.author.showCoauthorNodes : false),
+      showCoauthorNodes: state.author?.name === name ? state.author.showCoauthorNodes : false,
     };
     computeTrail(a);
     computeConnections(a);
@@ -804,23 +750,14 @@
   $("ls-author-clear").addEventListener("click", clearAuthor);
 
   $("ls-labels").addEventListener("click", e => {
-    const btn = e.target.closest(".ls-web button");
+    const btn = e.target.closest("#ls-web button");
     if (!btn) return;
-    const label = btn.closest("li");
-    const name = label?.querySelector(".name")?.textContent;
-    if (!name) return;
-    if (state.author?.name !== name) selectAuthor(name);
     state.mode = btn.dataset.value;
-    if (state.mode === "coauthors") {
-      state.author.showCoauthorNodes = true;
-      const selectedLabel = state.labels.find(label => label.name === name);
-      if (selectedLabel) selectedLabel.showCoauthorNodes = true;
-    }
+    for (const b of $("ls-web").children) b.setAttribute("aria-pressed", String(b === btn));
     if (state.author) {
       computeConnections(state.author);
       updateCentroid(state.author);
       flyTo(state.author.cx, state.author.cy, authorRadius(state.author));
-      renderLabels();
       requestDraw();
     }
   });
@@ -866,7 +803,7 @@
 
   function addLabel(name) {
     if (!index.has(name) || !visibleEntries(name).length || state.labels.some(l => l.name === name)) return;
-    state.labels.push({ name, color: pickLabelColor(), show: { marker: true, trail: false, firsts: false }, showCoauthorNodes: false, ...labelPos(name) });
+    state.labels.push({ name, color: pickLabelColor(), show: { marker: true, trail: false, firsts: false }, ...labelPos(name) });
     renderLabels();
     requestDraw();
   }
@@ -926,7 +863,6 @@
       sum.setAttribute("aria-label", `Options for ${l.name}`);
       const panel = document.createElement("div");
       panel.className = "ls-anno-panel";
-      const activeAuthor = state.author?.name === l.name;
       const available = {
         marker: [true, ""],
         trail: [l.trail.length > 1, l.trail.length > 1 ? "" : " (one year shown)"],
@@ -942,46 +878,43 @@
         cb.addEventListener("change", () => { l.show[key] = cb.checked; requestDraw(); });
         lab.append(cb, `${text}${note}`);
         panel.append(lab);
-        if (key === "firsts" && activeAuthor) {
-          const coauthorNodes = document.createElement("label");
-          const coauthorNodesToggle = document.createElement("input");
-          coauthorNodesToggle.type = "checkbox";
-          coauthorNodesToggle.checked = state.author.showCoauthorNodes;
-          coauthorNodesToggle.setAttribute("aria-label", "Show co-author abstract nodes");
-          const coauthorCount = state.mode === "coauthors"
-            ? state.author.linkPct.reduce((count, value) => count + Number(value > 0), 0)
-            : countCoauthorAbstracts(l.name);
-          coauthorNodesToggle.addEventListener("change", () => {
-            state.author.showCoauthorNodes = coauthorNodesToggle.checked;
-            l.showCoauthorNodes = coauthorNodesToggle.checked;
-            renderLabels();
-            requestDraw();
-          });
-          coauthorNodes.append(coauthorNodesToggle, `Show co-author abstracts (${coauthorCount})`);
-          panel.append(coauthorNodes);
-        }
       }
       anno.append(sum, panel);
 
-      const web = document.createElement("div");
-      web.className = "ls-card-web";
-      const heading = document.createElement("span");
-      heading.className = "ls-card-web-label";
-      heading.textContent = "Web";
-      const controls = document.createElement("span");
-      controls.className = "seg ls-web";
-      controls.setAttribute("role", "group");
-      controls.setAttribute("aria-label", `Web around ${l.name}`);
-      for (const [value, text] of [["coauthors", "Co-authors"], ["similar", "Similar text"], ["none", "Off"]]) {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.dataset.value = value;
-        button.setAttribute("aria-pressed", String(activeAuthor && state.mode === value));
-        button.textContent = text;
-        controls.append(button);
+      if (state.author?.name === l.name) {
+        const web = document.createElement("div");
+        web.className = "ls-card-web";
+        const heading = document.createElement("span");
+        heading.className = "ls-card-web-label";
+        heading.textContent = "Web";
+        const controls = document.createElement("span");
+        controls.id = "ls-web";
+        controls.className = "seg";
+        controls.setAttribute("role", "group");
+        controls.setAttribute("aria-label", `Web around ${l.name}`);
+        for (const [value, text] of [["coauthors", "Co-authors"], ["similar", "Similar text"], ["none", "Off"]]) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.dataset.value = value;
+          button.setAttribute("aria-pressed", String(state.mode === value));
+          button.textContent = text;
+          controls.append(button);
+        }
+        web.append(heading, controls);
+        panel.append(web);
+
+        const coauthorNodes = document.createElement("label");
+        const coauthorNodesToggle = document.createElement("input");
+        coauthorNodesToggle.type = "checkbox";
+        coauthorNodesToggle.checked = state.author.showCoauthorNodes;
+        coauthorNodesToggle.setAttribute("aria-label", "Show co-author abstract nodes");
+        coauthorNodesToggle.addEventListener("change", () => {
+          state.author.showCoauthorNodes = coauthorNodesToggle.checked;
+          requestDraw();
+        });
+        coauthorNodes.append(coauthorNodesToggle, "Show co-author abstracts");
+        panel.append(coauthorNodes);
       }
-      web.append(heading, controls);
-      panel.append(web);
 
       li.append(anno, color, name, n, rm);
       return li;
@@ -1204,10 +1137,11 @@
     {
       label: "Research areas",
       groups: [
-        { name: "Genetic testing & precision medicine", terms: ["genetic testing", "variant interpretation", "variant classification", "american college of medical genetics", "variants of uncertain significance", "precision medicine", "genetic counselors", "clinical sequencing", "genetic screening", "carrier screening", "genomic screening", "germline genetic testing"] },
-        { name: "Pharmacogenetics", terms: ["pharmacogen", "pharmacogenomics", "pharmacogenetic", "pharmacogenomic", "pharmacogenes"] },
+        { name: "ELSI", terms: ["ethical, legal, and social implications", "ethic", "bioethic", "consent", "privacy", "genetic counseling", "genetic counselors", "return of results", "incidental findings", "disclosure", "discrimination", "equity", "community engagement", "research participation"] },
+        { name: "Reproductive health", terms: ["endometriosis", "preeclampsia", "pre-eclampsia", "pcos", "polycystic ovary syndrome", "reproductive health", "uterine fibroid", "primary ovarian insufficiency", "premature ovarian", "menopause", "adenomyosis", "leiomyoma", "female infertility", "pregnancy loss", "hypertensive disorders of pregnancy", "intrahepatic cholestasis of pregnancy", "reproductive disorder", "gynecologic", "gynecological"], color: "#8c564b" },
+        { name: "Pharmacogenetics", terms: ["pharmacogen", "pharmacogenomics", "pharmacogenetic", "pharmacogenomic", "pharmacogenes"], color: "#e377c2" },
         { name: "Ancient DNA & human evolution", terms: ["ancient", "archaic", "neanderthal", "denisovan", "human evolution"], color: "#9467bd" },
-        { name: "GWAS & polygenic traits", terms: ["genome-wide association", "polygenic", "genome-wide significant", "summary statistics", "fine mapping", "genetic correlation", "credible set", "mendelian randomization"] },
+        { name: "Statistical genetics", terms: ["genome-wide association", "polygenic", "genome-wide significant", "summary statistics", "fine mapping", "genetic correlation", "credible set", "mendelian randomization", "allele frequency", "quantitative trait", "linkage disequilibrium", "heritability", "genetic risk score", "genetic architecture", "population stratification", "genotype imputation", "association meta-analysis", "pleiotrop", "genetic variance"] },
         { name: "Molecular & cellular genomics", terms: ["gene expression", "single cell", "differential expression", "regulatory element", "spatial transcriptomic", "transcriptome-wide association", "gene regulatory network", "epigenetic"], color: "#ff7f0e" },
         { name: "Machine learning & AI", terms: ["machine learning", "deep learning", "artificial intelligence", "language model", "neural network"], color: "#6a3d9a" },
       ],
@@ -1216,14 +1150,14 @@
       label: "Diseases",
       groups: [
         { name: "Coronary artery disease", terms: ["coronary artery disease"] },
-        { name: "Cardiomyopathy", terms: ["cardiomyopath"], color: "#8c564b" },
+        { name: "Cardiomyopathy", terms: ["cardiomyopath"], color: "#e377c2" },
         { name: "Metabolic syndrome", terms: ["obesity", "body mass index", "insulin resistance", "metabolic syndrome", "blood pressure", "systolic blood pressure", "type 2 diabetes", "t2dm"], boundaryTerms: ["t2d"] },
         { name: "Cancer", terms: ["cancer", "neoplasm", "tumor", "tumour", "malignancy", "oncology"], color: "#00a6d6" },
         { name: "Neurodegenerative disease", terms: ["alzheimer", "parkinson"] },
         { name: "Autism spectrum disorder", terms: ["autism spectrum disorder"] },
-        { name: "Schizophrenia", terms: ["schizophrenia", "schizophrenic"], color: "#33a02c" },
+        { name: "Schizophrenia", terms: ["schizophrenia", "schizophrenic"], color: "#7b3294" },
         { name: "Immune & infectious disease", terms: ["immun", "infection", "infectious", "virus", "viral", "vaccine", "bacteria", "bacterial"], color: "#008000" },
-        { name: "Eye disease", terms: ["glaucoma", "inherited retinal disease", "retinal disease", "retinal dystrophy", "diabetic retinopathy", "macular dystrophy", "macular degeneration"] },
+        { name: "Eye disease", terms: ["glaucoma", "inherited retinal disease", "retinal disease", "retinal dystrophy", "diabetic retinopathy", "macular dystrophy", "macular degeneration"], color: "#8ecae6" },
         { name: "Inflammatory bowel disease", terms: ["inflammatory bowel disease", "ulcerative colitis", "crohn disease", "crohn's disease"], color: "#ff7f0e" },
         { name: "Rare disease", terms: ["rare disease", "genetic testing", "diagnostic yield", "human phenotype ontology", "online mendelian inheritance in man"], color: "#d62728" },
       ],
@@ -1479,7 +1413,6 @@
       if (shown.some(other => box.left < other.right + 6 && box.right + 6 > other.left
         && box.top < other.bottom + 3 && box.bottom + 3 > other.top)) continue;
       shown.push(box);
-      clusterLabelBoxes.push(box);
       ctx.lineWidth = 3;
       ctx.lineJoin = "round";
       ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
