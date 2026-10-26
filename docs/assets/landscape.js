@@ -247,8 +247,11 @@
       ctx.fill();
       ctx.beginPath();
       ctx.arc(x, y, 3.3, 0, TAU);
-      ctx.fillStyle = color;
+      ctx.fillStyle = p.firstAuthor ? color : "#fff";
       ctx.fill();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
       ctx.lineJoin = "round";
       ctx.lineWidth = 3;
       ctx.strokeStyle = "rgba(255, 255, 255, 0.92)";
@@ -653,8 +656,9 @@
       byYear.set(y, p);
     }
     return [...byYear.values()].sort((u, v) => u.year - v.year).map(p => {
-      const g = p.first.sw > 0 ? p.first : p.all;
-      return { year: p.year, cx: g.sx / g.sw, cy: g.sy / g.sw };
+      const firstAuthor = p.first.sw > 0;
+      const g = firstAuthor ? p.first : p.all;
+      return { year: p.year, cx: g.sx / g.sw, cy: g.sy / g.sw, firstAuthor };
     });
   }
 

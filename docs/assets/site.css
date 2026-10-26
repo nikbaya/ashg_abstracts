@@ -614,7 +614,9 @@ a.cal svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-
 .ls-legend-target::before { left: 5px; top: -3px; width: 1.5px; height: 17px; }
 .ls-legend-target::after { left: -3px; top: 5px; width: 17px; height: 1.5px; }
 .ls-legend-path { width: 16px; height: 12px; border-top: 1.5px dashed #76b7b2; transform: rotate(-25deg); }
-.ls-legend-path::before { position: absolute; content: ""; left: 0; top: -4px; width: 5px; height: 5px; border: 1.5px solid #76b7b2; border-radius: 50%; background: white; }
+.ls-legend-path::before, .ls-legend-path::after { position: absolute; content: ""; top: -4px; width: 5px; height: 5px; border: 1.5px solid #76b7b2; border-radius: 50%; }
+.ls-legend-path::before { left: 0; background: white; }
+.ls-legend-path::after { right: 0; background: #76b7b2; }
 .ls-tip .who { font-weight: 600; }
 .ls-tip .who span { display: inline; width: auto; font-weight: 400; color: var(--text-secondary); }
 .ls-tip div + div { margin-top: 3px; }
