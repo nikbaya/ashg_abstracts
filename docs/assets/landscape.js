@@ -47,6 +47,9 @@
   const ALL_NAMES = [...index.keys()].sort((a, b) => a.localeCompare(b));
   const idToIdx = new Map(abstracts.map((a, i) => [a.id, i]));
   const YEARS = [...new Set(abstracts.map(a => a.year))].sort((a, b) => a - b);
+  const fullPathAuthorCount = [...index.values()].filter(entries =>
+    new Set(entries.map(({ abstract_id }) => abstracts[idToIdx.get(abstract_id)].year)).size === YEARS.length
+  ).length;
   const VIS = new Uint8Array(N).fill(1); // 1 if the abstract's year is toggled on; everything below reads this
   const alts = new Map(Object.entries(synonyms).map(([label, s]) => [label.toLowerCase(), s.toLowerCase().split("; ")]));
   for (const a of abstracts) {  // every spelling grouped under a keyword, so free text finds an abstract by any of them
@@ -761,9 +764,10 @@
 
   function updateCount() {
     const shown = VIS.reduce((s, v) => s + v, 0);
+    const authors = `${index.size.toLocaleString()} unique authors (${fullPathAuthorCount.toLocaleString()} with paths in all ${YEARS.length} years)`;
     $("ls-count").textContent = shown === N
-      ? `${N.toLocaleString()} abstracts, ${index.size.toLocaleString()} unique authors`
-      : `${shown.toLocaleString()} of ${N.toLocaleString()} abstracts shown, ${index.size.toLocaleString()} unique authors`;
+      ? `${N.toLocaleString()} abstracts, ${authors}`
+      : `${shown.toLocaleString()} of ${N.toLocaleString()} abstracts shown, ${authors}`;
   }
 
   function clearAuthor() {
