@@ -57,6 +57,24 @@ def test_unique_initial_match_is_preserved_without_affiliation_evidence():
     assert not conflicts
 
 
+def test_curated_author_alias_overrides_affiliation_conflict():
+    listed = [
+        [("emilie wigdor", "Emilie M. Wigdor")],
+        [("e wigdor", "E. Wigdor")],
+    ]
+    institutions = {
+        "emilie wigdor": {"University of Oxford"},
+        "e wigdor": {"Wellcome Sanger Institute"},
+    }
+    resolved, _, conflicts = link_initials(
+        listed, institutions, ["full", "initial"],
+        {"full": {"emilie wigdor": {"University of Oxford"}},
+         "initial": {"e wigdor": {"Wellcome Sanger Institute"}}},
+    )
+    assert resolved[1] == [("emilie wigdor", "E. Wigdor")]
+    assert not conflicts
+
+
 def test_author_institutions_follow_numbered_affiliation_references():
     aliases = [
         ("University of Oxford", re.compile(r"University of Oxford", re.I)),

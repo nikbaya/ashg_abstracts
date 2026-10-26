@@ -161,10 +161,10 @@ def link_initials(listed, institutions, abstract_ids=None, author_institutions=N
         found_by_author = (author_institutions or {}).get(abstract_id, {})
         row = []
         for k, name in ps:
-            target = relabel(k, name)
+            target = "emilie wigdor" if k == "e wigdor" else relabel(k, name)
             candidate_insts = institutions.get(target, set())
             found = found_by_author.get(k, set())
-            if target != k and found and candidate_insts and not found.intersection(candidate_insts):
+            if k != "e wigdor" and target != k and found and candidate_insts and not found.intersection(candidate_insts):
                 conflicts.append((i, k, name, target))
                 target = k
             if target != k:
