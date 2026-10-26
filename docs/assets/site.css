@@ -522,6 +522,8 @@ a.cal svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-
   background: var(--surface-1); border: 1px solid var(--rule); border-radius: 8px; box-shadow: 0 6px 16px rgb(0 0 0 / 0.12); }
 .ls-years-menu > label { padding-bottom: 6px; border-bottom: 1px solid var(--rule); color: var(--text-primary); }
 #ls-year-options { display: grid; gap: 6px; }
+.ls-year-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.ls-year-only { flex: none; }
 .ls-link { font: inherit; font-size: 13px; color: var(--text-secondary); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
 .ls-link:hover { color: #b91c1c; }
 .ls-info { font-size: 13px; color: var(--text-secondary); }
@@ -605,6 +607,8 @@ a.cal svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-
 .ls-legend-label::before { left: 5px; top: 0; width: 2px; height: 12px; }
 .ls-legend-label::after { left: 0; top: 5px; width: 12px; height: 2px; }
 .ls-legend-coauthor { width: 8px; height: 8px; border-radius: 50%; background: #737a84; }
+.ls-legend-similar { width: 16px; height: 0; border-top: 2px solid #737a84; transform: rotate(-25deg); }
+.ls-legend-similar::after { position: absolute; content: ""; right: 2px; top: -4px; width: 5px; height: 5px; border: 1px solid white; border-radius: 50%; background: #737a84; }
 .ls-legend-target { width: 13px; height: 13px; border: 1.5px solid #76b7b2; border-radius: 50%; }
 .ls-legend-target::before, .ls-legend-target::after { position: absolute; content: ""; background: #76b7b2; }
 .ls-legend-target::before { left: 5px; top: -3px; width: 1.5px; height: 17px; }

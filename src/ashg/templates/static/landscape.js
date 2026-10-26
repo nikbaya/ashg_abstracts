@@ -72,7 +72,7 @@
   const N_SHADES = 6;
   const KDE_SIGMA = 4;   // Gaussian bandwidth in map units (the map spans about 200)
   const KDE_CELLS = 256; // density grid resolution along the longer side
-  const shadeColor = d3.interpolateRgb("#cfd3d9", "#4b5563"); // text match 10% .. 100%
+  const shadeColor = d3.interpolateRgb("#cfd3d9", "#4b5563");
 
   const stage = $("ls-stage"), canvas = $("ls-canvas"), tip = $("ls-tip");
   const ctx = canvas.getContext("2d");
@@ -156,24 +156,57 @@
 
   const shadeOf = pct => Math.min(N_SHADES - 1, Math.max(0, Math.floor((pct - SIM_FLOOR) / (100 - SIM_FLOOR) * N_SHADES)));
   const shadeT = b => b / (N_SHADES - 1);
+  const COAUTHOR_EDGE_SHADE = shadeT(shadeOf(55));
+  const SIMILAR_FIRST_EDGE_COLOR = shadeColor(COAUTHOR_EDGE_SHADE);
+  const SIMILAR_FIRST_EDGE_OPACITY = 0.18 + 0.5 * COAUTHOR_EDGE_SHADE;
+  const SIMILAR_COAUTHOR_COLOR = "#cfd3d9";
 
   function drawWeb(a, k, tx, ty) {
     const e = a.edges;
+    const similar = state.mode === "similar";
+    const firstEdges = similar ? a.firstEdges : [];
+    const firstEdgeKeys = new Set();
+    for (let j = 0; j < firstEdges.length; j += 3) {
+      firstEdgeKeys.add(Math.min(firstEdges[j], firstEdges[j + 1]) * N + Math.max(firstEdges[j], firstEdges[j + 1]));
+    }
     for (let b = 0; b < N_SHADES; b++) {
-      ctx.strokeStyle = d3.color(shadeColor(shadeT(b))).copy({ opacity: 0.18 + 0.5 * shadeT(b) }).formatRgb();
-      ctx.lineWidth = 0.6 + 0.9 * shadeT(b);
+      const strength = shadeT(b);
+      ctx.strokeStyle = d3.color(similar ? SIMILAR_COAUTHOR_COLOR : shadeColor(strength)).copy({
+        opacity: similar ? 0.58 + 0.36 * strength : 0.18 + 0.5 * strength,
+      }).formatRgb();
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      for (let j = 0; j < e.length; j += 3) {
-        if (shadeOf(e[j + 2]) !== b) continue;
-        ctx.moveTo(k * X[e[j]] + tx, k * Y[e[j]] + ty);
-        ctx.lineTo(k * X[e[j + 1]] + tx, k * Y[e[j + 1]] + ty);
+      if (!similar || a.showCoauthorNodes) {
+        for (let j = 0; j < e.length; j += 3) {
+          if (shadeOf(e[j + 2]) !== b) continue;
+          if (similar && firstEdgeKeys.has(Math.min(e[j], e[j + 1]) * N + Math.max(e[j], e[j + 1]))) continue;
+          ctx.moveTo(k * X[e[j]] + tx, k * Y[e[j]] + ty);
+          ctx.lineTo(k * X[e[j + 1]] + tx, k * Y[e[j + 1]] + ty);
+        }
+      }
+      ctx.stroke();
+    }
+    if (similar) {
+      ctx.strokeStyle = d3.color(SIMILAR_FIRST_EDGE_COLOR).copy({ opacity: SIMILAR_FIRST_EDGE_OPACITY }).formatRgb();
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (let j = 0; j < firstEdges.length; j += 3) {
+        ctx.moveTo(k * X[firstEdges[j]] + tx, k * Y[firstEdges[j]] + ty);
+        ctx.lineTo(k * X[firstEdges[j + 1]] + tx, k * Y[firstEdges[j + 1]] + ty);
       }
       ctx.stroke();
     }
     const lp = a.linkPct;
-    if (state.mode !== "coauthors" || a.showCoauthorNodes) {
+    if (similar ? a.showCoauthorNodes : state.mode !== "coauthors" || a.showCoauthorNodes) {
       for (let b = 0; b < N_SHADES; b++) {
-        fillNodes(shadeColor(shadeT(b)), LINK_R, i => lp[i] > 0 && shadeOf(lp[i]) === b);
+        fillNodes(similar ? SIMILAR_COAUTHOR_COLOR : shadeColor(shadeT(b)), LINK_R,
+          i => lp[i] > 0 && shadeOf(lp[i]) === b && (!similar || !a.firstLinkPct[i]));
+      }
+    }
+    if (similar) {
+      const firstLinkPct = a.firstLinkPct;
+      for (let b = 0; b < N_SHADES; b++) {
+        fillNodes(shadeColor(shadeT(b)), LINK_R, i => firstLinkPct[i] > 0 && shadeOf(firstLinkPct[i]) === b);
       }
     }
   }
@@ -441,10 +474,12 @@
   // ---------------------------------------------------------------------------
   const INFO_DEFAULT = "Search an author to highlight their abstracts and trace their path through the years.";
 
-  // Edges are flat triples [from, to, match %] over node indices; linkPct is the best match reaching each node.
+  // Edges are flat triples [from, to, match %]; firstEdges marks matches originating from a first-author abstract.
   function computeConnections(a) {
     const edges = [];
     const linkPct = new Uint8Array(N);
+    const firstLinkPct = new Uint8Array(N);
+    let firstEdges = [];
     if (state.mode === "coauthors") {
       const sourcesByCoauthor = new Map();
       for (const s of a.hits) {
@@ -477,6 +512,8 @@
       }
     } else if (state.mode === "similar") {
       const best = new Map(); // undirected pair -> edge offset, so a mutual match is drawn once at its higher score
+      const firstBest = new Map();
+      const firstHits = new Set(a.firstHits);
       for (const s of a.hits) {
         for (const [id, pct] of abstracts[s].similar || []) {
           if (pct < SIM_FLOOR) continue;
@@ -488,13 +525,34 @@
           edges.push(s, t, pct);
         }
       }
+      for (const s of firstHits) {
+        for (const [id, pct] of abstracts[s].similar || []) {
+          if (pct < SIM_FLOOR) continue;
+          const t = idToIdx.get(id);
+          if (!VIS[t]) continue;
+          const key = Math.min(s, t) * N + Math.max(s, t);
+          const offset = firstBest.get(key);
+          if (offset === undefined) {
+            firstBest.set(key, firstEdges.length);
+            firstEdges.push(s, t, pct);
+          } else {
+            firstEdges[offset + 2] = Math.max(firstEdges[offset + 2], pct);
+          }
+        }
+      }
       for (let j = 0; j < edges.length; j += 3) {
         const t = edges[j + 1];
         linkPct[t] = Math.max(linkPct[t], edges[j + 2]);
       }
+      for (let j = 0; j < firstEdges.length; j += 3) {
+        const t = firstEdges[j + 1];
+        firstLinkPct[t] = Math.max(firstLinkPct[t], firstEdges[j + 2]);
+      }
     }
     a.edges = Int32Array.from(edges);
     a.linkPct = linkPct;
+    a.firstEdges = Int32Array.from(firstEdges);
+    a.firstLinkPct = firstLinkPct;
     $("ls-legend").hidden = state.mode !== "similar";
   }
 
@@ -748,6 +806,9 @@
 
   function renderLabels() {
     $("ls-label-clear").hidden = state.labels.length === 0;
+    const openMenus = new Set([...$("ls-labels").querySelectorAll(".ls-anno[open]")]
+      .map(menu => menu.closest("li")?.querySelector(".name")?.textContent)
+      .filter(Boolean));
     $("ls-labels").replaceChildren(...state.labels.map(l => {
       const li = document.createElement("li");
       li.style.setProperty("--author-color", l.color);
@@ -842,13 +903,27 @@
       li.append(anno, color, name, n, rm);
       return li;
     }));
+    for (const li of $("ls-labels").children) {
+      const name = li.querySelector(".name")?.textContent;
+      if (name && openMenus.has(name)) li.querySelector(".ls-anno").open = true;
+    }
   }
 
   $("ls-label-clear").addEventListener("click", clearLabels);
 
   // Annotation menus close on an outside click or Escape, like a menu
   const closeAnnoMenus = except => document.querySelectorAll(".ls-anno[open]").forEach(d => { if (d !== except) d.open = false; });
-  document.addEventListener("click", e => closeAnnoMenus(e.target.closest(".ls-anno")));
+  document.addEventListener("click", e => {
+    let clickedMenu = e.target.closest(".ls-anno");
+    if (clickedMenu && !clickedMenu.isConnected) {
+      const name = clickedMenu.closest("li")?.querySelector(".name")?.textContent;
+      clickedMenu = [...$("ls-labels").querySelectorAll(".ls-anno")].find(menu =>
+        menu.closest("li")?.querySelector(".name")?.textContent === name) ?? null;
+    }
+    closeAnnoMenus(clickedMenu);
+    const years = $("ls-years");
+    if (years.open && !years.contains(e.target)) years.open = false;
+  });
   document.addEventListener("keydown", e => { if (e.key === "Escape") closeAnnoMenus(null); });
 
   // ---------------------------------------------------------------------------
@@ -1623,13 +1698,22 @@
   // ---------------------------------------------------------------------------
   const yearOptions = $("ls-year-options");
   yearOptions.append(...YEARS.map(y => {
+    const row = document.createElement("div");
+    row.className = "ls-year-row";
     const label = document.createElement("label");
     const input = document.createElement("input");
     input.type = "checkbox";
     input.value = String(y);
     input.checked = true;
     label.append(input, ` ${y}`);
-    return label;
+    const only = document.createElement("button");
+    only.type = "button";
+    only.className = "ls-link ls-year-only";
+    only.textContent = "Only";
+    only.setAttribute("aria-label", `Show only ${y}`);
+    only.dataset.year = String(y);
+    row.append(label, only);
+    return row;
   }));
   function updateYearControls() {
     const all = state.years.size === YEARS.length;
@@ -1643,6 +1727,13 @@
       input.disabled = input.checked && state.years.size === 1;
     }
   }
+  yearOptions.addEventListener("click", e => {
+    const only = e.target.closest(".ls-year-only");
+    if (!only) return;
+    state.years = new Set([Number(only.dataset.year)]);
+    updateYearControls();
+    applyYears();
+  });
   yearOptions.addEventListener("change", e => {
     const input = e.target.closest("input");
     if (!input) return;
