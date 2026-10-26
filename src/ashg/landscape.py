@@ -13,9 +13,9 @@ keywords from the terms.
 
 Authors are merged on person_key (first name + surname, lowercased, with apostrophes and hyphens dropped and initials
 left out of the surname) across all years and shown under the longest spelling seen, so one person's abstracts end up
-under a single autocomplete entry. Initial-only names from the older author blocks ("E. Kun") are linked by surname and
-initials; when author-specific affiliation evidence conflicts with a candidate full name, that occurrence stays separate
-(link_initials).
+under a single autocomplete entry. Initial-only names from the older author blocks ("E. Kun", "P-R. Loh") are linked by
+surname and initials, including initials for each part of a hyphenated given name; when author-specific affiliation
+evidence conflicts with a candidate full name, that occurrence stays separate (link_initials).
 
 Usage: python src/ashg/landscape.py outputs/tsne_landscape.json
 """
@@ -99,33 +99,41 @@ def people(fulls):
 
 
 def given_initials(name):
-    """The initial of each given name, in order: "Benjamin M. Neale" and "B. M. Neale" are both "bm", "Ben Neale" is "b"."""
-    return "".join(t[0].lower() for t in name.split()[:-1])
+    """The initials of each given-name part, including hyphenated names: "P-R. Loh" and "Po-Ru Loh" are both "pr"."""
+    return "".join(part[0].lower() for token in name.split()[:-1] for part in re.split(r"[-‐‑]", token) if part)
+
+
+def initial_only(name):
+    """Whether the first given-name token contains only initials, optionally hyphenated ("P-R. Loh")."""
+    parts = re.split(r"[-‐‑]", name.split()[0].rstrip("."))
+    return all(len(part) == 1 and part.isalpha() for part in parts)
 
 
 def link_initials(listed, institutions, abstract_ids=None, author_institutions=None):
     """Merge initial-only keys ("m. daly", from 2022-2024 author blocks) into the full-name key with the same surname and
-    initials ("mark daly"; "b. m. neale" into "benjamin m. neale"). A full name matches when its given-name initials agree
-    with the initial-only name's, and the full name has at least as many: a match on every initial beats a match on the
-    first only ("Ben Neale" does not take "B. M. Neale" when "Benjamin M. Neale" exists). A unique match is taken as is;
+    initials ("mark daly"; "b. m. neale" into "benjamin m. neale"; "P-R. Loh" into "Po-Ru Loh"). Hyphen-separated
+    given-name parts each contribute an initial. A full name matches when its given-name initials agree with the
+    initial-only name's, and the full name has at least as many: a match on every initial beats a match on the first only
+    ("Ben Neale" does not take "B. M. Neale" when "Benjamin M. Neale" exists). A unique match is taken as is;
     when several share the surname and initials, the one whose abstracts share an institution with the initial-only
     name's abstracts is taken, if exactly one does. If an abstract's own listed affiliations conflict with the candidate's,
     that occurrence stays under the initials instead of being merged. When author-specific affiliation evidence is absent,
     the existing unique-match heuristic is retained."""
-    keys = {k for ps in listed for k, _ in ps}
     seqs = {}  # person_key -> the given-name initials of each spelling seen under it
     for ps in listed:
         for k, name in ps:
             seqs.setdefault(k, set()).add(given_initials(name))
     full = {}  # surname -> full-name keys
-    for k in keys:
-        first, _, sur = k.partition(" ")
-        if sur and len(first.rstrip(".")) > 1:
-            full.setdefault(sur, set()).add(k)
+    for ps in listed:
+        for k, name in ps:
+            _, _, sur = k.partition(" ")
+            if sur and not initial_only(name):
+                full.setdefault(sur, set()).add(k)
     canon, by_institution = {}, 0
-    for k, want in {(k, given_initials(n)) for ps in listed for k, n in ps}:
-        first, _, sur = k.partition(" ")
-        if sur and len(first.rstrip(".")) == 1:  # keyed on the spelling's own initials, so "M. Hill" and "M. S. Hill" can differ
+    initials = {(k, given_initials(name)) for ps in listed for k, name in ps if initial_only(name)}
+    for k, want in initials:
+        _, _, sur = k.partition(" ")
+        if sur:
             agree = lambda s, n: s[:n] == want[:n]
             cands = [j for j in full.get(sur, ()) if any(agree(s, min(len(s), len(want))) for s in seqs[j])]
             strong = [j for j in cands if any(len(s) >= len(want) and agree(s, len(want)) for s in seqs[j])]
@@ -137,9 +145,9 @@ def link_initials(listed, institutions, abstract_ids=None, author_institutions=N
             if len(cands) == 1:
                 canon[(k, want)] = cands[0]
     # an unmatched initial-only spelling joins a longer one that matched ("B. Neale" -> "B. M. Neale")
-    for k, want in {(k, given_initials(n)) for ps in listed for k, n in ps}:
-        first, _, sur = k.partition(" ")
-        if (k, want) in canon or not (sur and len(first.rstrip(".")) == 1):
+    for k, want in initials:
+        _, _, sur = k.partition(" ")
+        if (k, want) in canon or not sur:
             continue
         sibs = {canon[(k2, w)] for (k2, w) in canon if k2 == k and len(w) > len(want) and w.startswith(want)}
         if len(sibs) == 1 and institutions.get(sibs.copy().pop(), set()) & institutions.get(k, set()):
@@ -149,8 +157,8 @@ def link_initials(listed, institutions, abstract_ids=None, author_institutions=N
         seq = given_initials(name)
         if (k, seq) in canon:
             return canon[(k, seq)]
-        first, _, sur = k.partition(" ")
-        if sur and len(first.rstrip(".")) == 1 and len(seq) > 1:  # unmatched: "B. M. Neale" must not share a key with "B. N. Neale"
+        _, _, sur = k.partition(" ")
+        if sur and initial_only(name) and len(seq) > 1:  # unmatched: "B. M. Neale" must not share a key with "B. N. Neale"
             return " ".join(f"{c}." for c in seq) + f" {sur}"
         return k
     linked = 0

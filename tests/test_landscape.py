@@ -57,6 +57,15 @@ def test_unique_initial_match_is_preserved_without_affiliation_evidence():
     assert not conflicts
 
 
+def test_hyphenated_initials_match_hyphenated_given_name():
+    listed = [[(person_key("Po-Ru Loh"), "Po-Ru Loh")],
+              [(person_key("P-R. Loh"), "P-R. Loh")]]
+    resolved, linked, conflicts = link_initials(listed, {}, ["full", "initial"], {})
+    assert resolved[1] == [("poru loh", "P-R. Loh")]
+    assert linked == 1
+    assert not conflicts
+
+
 def test_curated_author_alias_overrides_affiliation_conflict():
     listed = [
         [("emilie wigdor", "Emilie M. Wigdor")],
