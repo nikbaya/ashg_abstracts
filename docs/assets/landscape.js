@@ -809,21 +809,19 @@
   $("ls-author-clear").addEventListener("click", clearAuthor);
 
   $("ls-labels").addEventListener("click", e => {
-    const btn = e.target.closest("#ls-web button");
+    const btn = e.target.closest(".ls-card-web button");
     if (!btn) return;
+    const name = btn.closest("li")?.querySelector(".name")?.textContent;
+    if (!name) return;
+    if (state.author?.name !== name) selectAuthor(name);
+    if (state.author?.name !== name) return;
     state.mode = btn.dataset.value;
-    for (const b of $("ls-web").children) b.setAttribute("aria-pressed", String(b === btn));
-    if (state.author) {
-      if (state.mode === "coauthors") {
-        state.author.showCoauthorNodes = true;
-        const coauthorToggle = $("ls-labels").querySelector('input[aria-label="Show co-author abstracts"]');
-        if (coauthorToggle) coauthorToggle.checked = true;
-      }
-      computeConnections(state.author);
-      updateCentroid(state.author);
-      flyTo(state.author.cx, state.author.cy, authorRadius(state.author));
-      requestDraw();
-    }
+    if (state.mode === "coauthors") state.author.showCoauthorNodes = true;
+    computeConnections(state.author);
+    updateCentroid(state.author);
+    flyTo(state.author.cx, state.author.cy, authorRadius(state.author));
+    renderLabels();
+    requestDraw();
   });
   $("ls-legend-bar").style.background =
     `linear-gradient(to right, ${d3.range(N_SHADES).map(b => shadeColor(shadeT(b))).join(",")})`;
@@ -958,28 +956,26 @@
       }
       anno.append(sum, panel);
 
-      if (state.author?.name === l.name) {
-        const web = document.createElement("div");
-        web.className = "ls-card-web";
-        const heading = document.createElement("span");
-        heading.className = "ls-card-web-label";
-        heading.textContent = "Web";
-        const controls = document.createElement("span");
-        controls.id = "ls-web";
-        controls.className = "seg";
-        controls.setAttribute("role", "group");
-        controls.setAttribute("aria-label", `Web around ${l.name}`);
-        for (const [value, text] of [["coauthors", "Co-authors"], ["similar", "Similar text"], ["none", "Off"]]) {
-          const button = document.createElement("button");
-          button.type = "button";
-          button.dataset.value = value;
-          button.setAttribute("aria-pressed", String(state.mode === value));
-          button.textContent = text;
-          controls.append(button);
-        }
-        web.append(heading, controls);
-        panel.append(web);
+      const web = document.createElement("div");
+      web.className = "ls-card-web";
+      const heading = document.createElement("span");
+      heading.className = "ls-card-web-label";
+      heading.textContent = "Web";
+      const controls = document.createElement("span");
+      controls.className = "seg";
+      controls.setAttribute("role", "group");
+      controls.setAttribute("aria-label", `Web around ${l.name}`);
+      const activeMode = state.author?.name === l.name ? state.mode : "none";
+      for (const [value, text] of [["coauthors", "Co-authors"], ["similar", "Similar text"], ["none", "Off"]]) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.dataset.value = value;
+        button.setAttribute("aria-pressed", String(activeMode === value));
+        button.textContent = text;
+        controls.append(button);
       }
+      web.append(heading, controls);
+      panel.append(web);
 
       li.append(anno, color, name, n, rm);
       return li;
