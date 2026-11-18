@@ -1299,33 +1299,59 @@
   const CLUSTER_NEIGHBORS = 5;
   const CLUSTER_MIN_CORE = 30;
   const CLUSTER_CONTOUR_FRACTION = 0.4;
+  // Topic clusters. Colors are the poster's atlas colors (a hue family per domain, shaded so that touching regions
+  // differ); labelAt: "centroid" puts the label at the centroid of the region's area instead of its interior centre.
   const CLUSTER_THEMES = [
     {
       label: "Research areas",
       groups: [
-        { name: "ELSI", terms: ["ethical, legal, and social implications", "ethic", "bioethic", "consent", "privacy", "genetic counseling", "genetic counselors", "return of results", "incidental findings", "disclosure", "discrimination", "equity", "community engagement", "research participation"] },
-        { name: "Reproductive health", terms: ["endometriosis", "preeclampsia", "pre-eclampsia", "pcos", "polycystic ovary syndrome", "reproductive health", "uterine fibroid", "primary ovarian insufficiency", "premature ovarian", "menopause", "adenomyosis", "leiomyoma", "female infertility", "pregnancy loss", "hypertensive disorders of pregnancy", "intrahepatic cholestasis of pregnancy", "reproductive disorder", "gynecologic", "gynecological"], color: "#8c564b" },
-        { name: "Pharmacogenetics", terms: ["pharmacogen", "pharmacogenomics", "pharmacogenetic", "pharmacogenomic", "pharmacogenes"], color: "#e377c2" },
-        { name: "Ancient DNA & human evolution", terms: ["ancient", "archaic", "neanderthal", "denisovan", "human evolution"], color: "#9467bd" },
-        { name: "Statistical genetics", terms: ["genome-wide association", "polygenic", "genome-wide significant", "summary statistics", "fine mapping", "genetic correlation", "credible set", "mendelian randomization", "allele frequency", "quantitative trait", "linkage disequilibrium", "heritability", "genetic risk score", "genetic architecture", "population stratification", "genotype imputation", "association meta-analysis", "pleiotrop", "genetic variance"] },
-        { name: "Molecular & cellular genomics", terms: ["gene expression", "single cell", "differential expression", "regulatory element", "spatial transcriptomic", "transcriptome-wide association", "gene regulatory network", "epigenetic"], color: "#ff7f0e" },
-        { name: "Machine learning & AI", terms: ["machine learning", "deep learning", "artificial intelligence", "language model", "neural network"], color: "#6a3d9a" },
+        { name: "ELSI", terms: ["ethical, legal, and social implications", "ethic", "bioethic", "consent", "privacy", "genetic counseling", "genetic counselors", "return of results", "incidental findings", "disclosure", "discrimination", "equity", "community engagement", "research participation"], color: "#794e1a" },
+        { name: "Reproductive health", terms: ["endometriosis", "preeclampsia", "pre-eclampsia", "pcos", "polycystic ovary syndrome", "reproductive health", "uterine fibroid", "primary ovarian insufficiency", "premature ovarian", "menopause", "adenomyosis", "leiomyoma", "female infertility", "pregnancy loss", "hypertensive disorders of pregnancy", "intrahepatic cholestasis of pregnancy", "reproductive disorder", "gynecologic", "gynecological"], color: "#ffac73" },
+        { name: "Pharmacogenetics", terms: ["pharmacogen", "pharmacogenomics", "pharmacogenetic", "pharmacogenomic", "pharmacogenes"], color: "#8c6d31" },
+        { name: "Ancient DNA & human evolution", terms: ["ancient", "archaic", "neanderthal", "denisovan", "human evolution"], color: "#033b83" },
+        { name: "Statistical genetics", terms: ["genome-wide association", "polygenic", "genome-wide significant", "summary statistics", "fine mapping", "genetic correlation", "credible set", "mendelian randomization", "allele frequency", "quantitative trait", "linkage disequilibrium", "heritability", "genetic risk score", "genetic architecture", "population stratification", "genotype imputation", "association meta-analysis", "pleiotrop", "genetic variance"], color: "#3f4fa0" },
+        { name: "Molecular & cellular genomics", terms: ["gene expression", "single cell", "differential expression", "regulatory element", "spatial transcriptomic", "transcriptome-wide association", "gene regulatory network", "epigenetic"], color: "#567800", labelAt: "centroid" },
+        { name: "Machine learning & AI", terms: ["machine learning", "deep learning", "artificial intelligence", "language model", "neural network"], color: "#067e5f" },
+        { name: "Long reads, SVs & tandem repeats", terms: ["long-read", "structural variant", "nanopore", "pacbio", "pangenome", "tandem repeat", "repeat expansion"], color: "#39b5b6" },
+        { name: "Protein structure & language models", terms: ["protein language model", "alphafold", "protein structure", "protein data bank"], boundaryTerms: ["esm"], color: "#e07a5f", labelAt: "centroid" },
+        { name: "Variant interpretation", terms: ["variant classification", "variant interpretation", "variants of uncertain significance", "american college of medical"], color: "#9d8d4c" },
+        { name: "Population genetics & ancestry", terms: ["local ancestry", "admixture", "population structure", "genetic ancestry", "founder"], color: "#6c63ba", labelAt: "centroid" },
+        { name: "Proteomics", terms: ["pqtl", "plasma protein", "proteom", "olink", "somascan"], color: "#4ba54e" },
+        { name: "Metabolomics", terms: ["metabolite", "metabolom"], color: "#42bb72" },
+        { name: "Mitochondrial DNA", terms: ["mitochondrial dna", "heteroplasm", "mtdna"], color: "#5689d6" },
+        { name: "Epigenetic aging", terms: ["epigenetic clock", "biological age", "epigenetic age", "longevity"], color: "#528f23" },
+        { name: "Prenatal & embryo testing", terms: ["preimplantation", "prenatal testing", "prenatal screening", "nipt", "fetal fraction", "embryo"], color: "#d36a66" },
+        { name: "Newborn & NICU genomics", terms: ["nicu", "neonatal intensive", "newborn screening", "newborn sequencing", "critically ill"], color: "#00669b" },
+        { name: "Gut microbiome", terms: ["gut microbio", "microbiome", "microbiota", "metagenom"], color: "#efb62b" },
       ],
     },
     {
       label: "Diseases",
       groups: [
-        { name: "Coronary artery disease", terms: ["coronary artery disease"] },
-        { name: "Cardiomyopathy", terms: ["cardiomyopath"], color: "#e377c2" },
-        { name: "Metabolic syndrome", terms: ["obesity", "body mass index", "insulin resistance", "metabolic syndrome", "blood pressure", "systolic blood pressure", "type 2 diabetes", "t2dm"], boundaryTerms: ["t2d"] },
-        { name: "Cancer", terms: ["cancer", "neoplasm", "tumor", "tumour", "malignancy", "oncology"], color: "#00a6d6" },
-        { name: "Neurodegenerative disease", terms: ["alzheimer", "parkinson"] },
-        { name: "Autism spectrum disorder", terms: ["autism spectrum disorder"] },
-        { name: "Schizophrenia", terms: ["schizophrenia", "schizophrenic"], color: "#7b3294" },
-        { name: "Immune & infectious disease", terms: ["immun", "infection", "infectious", "virus", "viral", "vaccine", "bacteria", "bacterial"], color: "#008000" },
-        { name: "Eye disease", terms: ["glaucoma", "inherited retinal disease", "retinal disease", "retinal dystrophy", "diabetic retinopathy", "macular dystrophy", "macular degeneration"], color: "#8ecae6" },
-        { name: "Inflammatory bowel disease", terms: ["inflammatory bowel disease", "ulcerative colitis", "crohn disease", "crohn's disease"], color: "#ff7f0e" },
-        { name: "Rare disease", terms: ["rare disease", "genetic testing", "diagnostic yield", "human phenotype ontology", "online mendelian inheritance in man"], color: "#d62728" },
+        { name: "Coronary artery disease", terms: ["coronary artery disease"], color: "#fc6f0d" },
+        { name: "Cardiomyopathy", terms: ["cardiomyopath"], color: "#c01e3c" },
+        { name: "Metabolic syndrome", terms: ["obesity", "body mass index", "insulin resistance", "metabolic syndrome", "blood pressure", "systolic blood pressure", "type 2 diabetes", "t2dm"], boundaryTerms: ["t2d"], color: "#d03436" },
+        { name: "Cancer", terms: ["cancer", "neoplasm", "tumor", "tumour", "malignancy", "oncology"], color: "#a82a7e" },
+        { name: "Neurodegenerative disease", terms: ["alzheimer", "parkinson"], color: "#5f45a1" },
+        { name: "Autism spectrum disorder", terms: ["autism spectrum disorder"], color: "#6d4ba8" },
+        { name: "Schizophrenia", terms: ["schizophrenia", "schizophrenic"], color: "#8959b4" },
+        { name: "Immune & infectious disease", terms: ["immun", "infection", "infectious", "virus", "viral", "vaccine", "bacteria", "bacterial"], color: "#e8a317" },
+        { name: "Eye disease", terms: ["glaucoma", "inherited retinal disease", "retinal disease", "retinal dystrophy", "diabetic retinopathy", "macular dystrophy", "macular degeneration"], color: "#6890e0" },
+        { name: "Inflammatory bowel disease", terms: ["inflammatory bowel disease", "ulcerative colitis", "crohn disease", "crohn's disease"], color: "#e09001" },
+        { name: "Rare disease", terms: ["rare disease", "genetic testing", "diagnostic yield", "human phenotype ontology", "online mendelian inheritance in man"], color: "#2f7bbf", labelAt: "centroid" },
+        { name: "Hearing loss", terms: ["hearing", "deafness"], color: "#1174b3" },
+        { name: "Kidney disease", terms: ["kidney", "glomerular filtration"], color: "#e0482d" },
+        { name: "Lung disease", terms: ["copd", "chronic obstructive pulmonary", "asthma", "lung function", "pulmonary fibrosis", "forced vital capacity"], color: "#f4ca40" },
+        { name: "Liver disease", terms: ["masld", "nafld", "steatotic", "steatosis", "fatty liver"], color: "#ee5c21" },
+        { name: "Blood & sickle cell", terms: ["sickle cell", "thalassemia", "hemoglobin", "red blood cell"], color: "#d77d00" },
+        { name: "Clonal hematopoiesis", terms: ["clonal hematopoiesis"], color: "#f6627c" },
+        { name: "Epilepsy", terms: ["epilep"], color: "#513e9a" },
+        { name: "Sleep & circadian rhythm", terms: ["sleep", "circadian", "chronotype", "insomnia"], color: "#9860b9" },
+        { name: "Substance use", terms: ["alcohol use", "substance use", "opioid use", "alcohol consumption", "smoking", "nicotine", "cannabis"], color: "#7b52ae" },
+        { name: "Mood disorders", terms: ["major depressive", "depression", "bipolar", "post-traumatic stress"], color: "#a667be" },
+        { name: "Craniofacial development", terms: ["cleft", "craniofacial"], color: "#4482cb" },
+        { name: "Bone & connective tissue", terms: ["ehlers-danlos", "scoliosis", "osteogenesis imperfecta", "bone mineral density", "osteoarthritis", "skeletal dysplasia"], color: "#006da7", labelAt: "centroid" },
+        { name: "Neurodevelopmental disorders", terms: ["developmental delay", "intellectual disability", "neurodevelopmental disorder"], color: "#d9a23a" },
       ],
     },
   ];
@@ -1520,9 +1546,21 @@
           minY: Math.min(bounds.minY, GRID.y0 + point[1] * GRID.cell),
           maxY: Math.max(bounds.maxY, GRID.y0 + point[1] * GRID.cell),
         }), { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity });
-        const labelIndex = interiorCenter(component, gx, gy, seed);
-        layer.labelX = GRID.x0 + ((labelIndex % gx) + 0.5) * GRID.cell;
-        layer.labelY = GRID.y0 + (Math.floor(labelIndex / gx) + 0.5) * GRID.cell;
+        if (layer.labelAt === "centroid") {
+          let sumX = 0, sumY = 0, cells = 0;
+          for (let j = 0; j < component.length; j++) {
+            if (!component[j]) continue;
+            sumX += j % gx;
+            sumY += Math.floor(j / gx);
+            cells++;
+          }
+          layer.labelX = GRID.x0 + (sumX / cells + 0.5) * GRID.cell;
+          layer.labelY = GRID.y0 + (sumY / cells + 0.5) * GRID.cell;
+        } else {
+          const labelIndex = interiorCenter(component, gx, gy, seed);
+          layer.labelX = GRID.x0 + ((labelIndex % gx) + 0.5) * GRID.cell;
+          layer.labelY = GRID.y0 + (Math.floor(labelIndex / gx) + 0.5) * GRID.cell;
+        }
         layer.count = 0;
         for (let j = 0; j < N; j++) {
           if (!layer.mask[j]) continue;
@@ -1566,21 +1604,60 @@
     drawClusterLabels(k, tx, ty);
   }
 
+  // A cluster title in caps, split into two balanced lines when it is long (as the poster's labels are)
+  function clusterTitleLines(name) {
+    const text = name.toUpperCase();
+    const words = text.split(" ");
+    if (text.length <= 16 || words.length < 2) return [text];
+    let best = [text], bestDiff = Infinity;
+    for (let i = 1; i < words.length; i++) {
+      const a = words.slice(0, i).join(" "), b = words.slice(i).join(" ");
+      const diff = Math.abs(a.length - b.length);
+      if (diff < bestDiff) { best = [a, b]; bestDiff = diff; }
+    }
+    return best;
+  }
+
+  // The cluster color darkened toward black until it has 4.5:1 contrast with white (WCAG), so light hues stay readable
+  const clusterInkCache = new Map();
+  function clusterInk(color) {
+    if (clusterInkCache.has(color)) return clusterInkCache.get(color);
+    const base = d3.rgb(color);
+    const luminance = c => {
+      const lin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+      return 0.2126 * lin(c.r) + 0.7152 * lin(c.g) + 0.0722 * lin(c.b);
+    };
+    let ink = base;
+    for (let t = 0; t <= 1; t += 0.01) {
+      ink = d3.rgb(base.r * (1 - t), base.g * (1 - t), base.b * (1 - t));
+      if (1.05 / (luminance(ink) + 0.05) >= 4.5) break;
+    }
+    const out = ink.formatHex();
+    clusterInkCache.set(color, out);
+    return out;
+  }
+
   function drawClusterLabels(k, tx, ty) {
     const hoveredId = state.hoveredClusterId && !state.hiddenClusterIds.has(state.hoveredClusterId) ? state.hoveredClusterId : null;
     const focusedId = state.focusedClusterId && !state.hiddenClusterIds.has(state.focusedClusterId) ? state.focusedClusterId : null;
     const activeClusterId = hoveredId || focusedId;
     const activeClusterSection = state.hoveredClusterSection || state.focusedClusterSection;
     const shown = [];
+    const maxCount = Math.max(1, ...state.clusterLayers.map(layer => layer.count));
     ctx.save();
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.font = "600 11px system-ui, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     for (const layer of [...state.clusterLayers].sort((a, b) =>
       Number(b.id === activeClusterId) - Number(a.id === activeClusterId) || b.count - a.count)) {
       if (!layer.contourPath || !isClusterVisible(layer)) continue;
-      const width = ctx.measureText(layer.term).width, height = 15;
+      // Atlas-style titles, as on the poster: caps, letter-spaced, sized by the region's abstracts (constant on screen)
+      const size = Math.round(9.5 + 5.5 * (layer.count / maxCount) ** 0.6);
+      ctx.font = `700 ${size}px system-ui, sans-serif`;
+      ctx.letterSpacing = `${(0.06 * size).toFixed(1)}px`;
+      const lines = clusterTitleLines(layer.term);
+      const lineHeight = Math.round(size * 1.2);
+      const width = Math.max(...lines.map(line => ctx.measureText(line).width)), height = lineHeight * lines.length;
       let x = k * layer.labelX + tx, y = k * layer.labelY + ty;
       if (LINKEDIN_DEMO && demoPathStarted && layer.contourBounds
         && ["Statistical genetics", "Metabolic syndrome"].includes(layer.term)) {
@@ -1597,16 +1674,19 @@
       if (shown.some(other => box.left < other.right + 6 && box.right + 6 > other.left
         && box.top < other.bottom + 3 && box.bottom + 3 > other.top)) continue;
       shown.push(box);
-      ctx.lineWidth = 3;
-      ctx.lineJoin = "round";
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
-      ctx.strokeText(layer.term, x, y);
       const demoMuted = LINKEDIN_DEMO && demoPathStarted
         && demoVisitedClusterIds.has(layer.id) && demoActiveClusterId !== layer.id;
       const muted = !demoClusterScanActive && (demoMuted || (activeClusterId ? activeClusterId !== layer.id
         : activeClusterSection && activeClusterSection !== layer.section));
-      ctx.fillStyle = muted ? "#aeb4bd" : layer.color;
-      ctx.fillText(layer.term, x, y);
+      ctx.lineWidth = 3;
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+      ctx.fillStyle = muted ? "#aeb4bd" : clusterInk(layer.color);
+      lines.forEach((line, i) => {
+        const ly = y + (i - (lines.length - 1) / 2) * lineHeight;
+        ctx.strokeText(line, x, ly);
+        ctx.fillText(line, x, ly);
+      });
     }
     ctx.restore();
   }
@@ -1650,6 +1730,27 @@
     }
   }
 
+  // A group's members: abstracts with a keyword containing one of its terms, or one of its boundaryTerms as a whole word.
+  // Each abstract's keywords are joined into one newline-separated string and tested with one regex per group (a term
+  // can't span two keywords, since none contains a newline); memberships don't depend on the year filter, so they are
+  // computed once per group.
+  let clusterKeywordText = null;
+  const clusterMemberCache = new Map();
+  function clusterMembers(group) {
+    if (clusterMemberCache.has(group.name)) return clusterMemberCache.get(group.name);
+    clusterKeywordText ||= abstracts.map(a => a.keywords.join("\n").toLowerCase());
+    const escape = term => term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const alternatives = group.terms.map(escape);
+    if (group.boundaryTerms?.length) {
+      alternatives.push(`(?:^|[^a-z0-9])(?:${group.boundaryTerms.map(escape).join("|")})(?:$|[^a-z0-9])`);
+    }
+    const pattern = new RegExp(alternatives.join("|"), "m");
+    const members = new Uint8Array(N);
+    for (let i = 0; i < N; i++) if (pattern.test(clusterKeywordText[i])) members[i] = 1;
+    clusterMemberCache.set(group.name, members);
+    return members;
+  }
+
   function updatePresetClusters() {
     state.hoveredClusterId = null;
     state.focusedClusterId = null;
@@ -1669,16 +1770,9 @@
       section.groups.map(group => ({ ...group, section: section.label })));
     const layers = [];
     for (const [groupIndex, group] of groups.entries()) {
+      const members = clusterMembers(group);
       const mask = new Uint8Array(N);
-      const terms = group.terms;
-      const boundaryTerms = group.boundaryTerms || [];
-      for (let i = 0; i < N; i++) {
-        if (VIS[i] && abstracts[i].keywords.some(k => {
-          const keyword = k.toLowerCase();
-          return terms.some(term => keyword.includes(term))
-            || boundaryTerms.some(term => new RegExp(`(^|[^a-z0-9])${term}($|[^a-z0-9])`).test(keyword));
-        })) mask[i] = 1;
-      }
+      for (let i = 0; i < N; i++) if (VIS[i] && members[i]) mask[i] = 1;
       const support = denseCore(mask);
       if (support.count < CLUSTER_MIN_CORE) continue;
       const layer = {
@@ -1686,6 +1780,7 @@
         section: group.section,
         term: group.name,
         color: group.color || CLUSTER_PALETTE[(groupIndex + 2) % CLUSTER_PALETTE.length],
+        labelAt: group.labelAt,
         count: support.count,
         mask: support.mask,
       };

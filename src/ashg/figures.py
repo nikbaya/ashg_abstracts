@@ -198,7 +198,7 @@ def institutions_figure(inst, summary, year, n_inst, path, basis="first"):
         f"Institutions with the highest talk rate, ASHG {year}",
         f"Top {len(rows)} by talk rate among the {len(pool)} institutions with the most abstracts.\n"
         f"Institutions of the {ROLE[basis]}; an abstract counts for each of them.\n{CAVEAT}",
-        f"Source: ASHG {year} abstracts. Institutions resolved with a hand-curated alias list; "
+        f"Source: ASHG {year} abstracts. Institutions resolved with an alias list; "
         "schools fold into their university (except HMS).", path, left=0.44)
 
 

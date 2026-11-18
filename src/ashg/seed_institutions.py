@@ -1,6 +1,6 @@
 """List the most frequent first/senior-author affiliation segments.
 
-Used to seed the hand-curated aliases.csv. Department/division segments are
+Used to seed aliases.csv. Department/division segments are
 skipped, since they never name an institution on their own.
 
 Usage: python src/ashg/seed_institutions.py ABSTRACTS.parquet [...] [--top 250]

@@ -85,11 +85,13 @@ scale as Find talks.</p>
 <p>The preloaded topic control shows research-area and disease clusters together in separate sections. Hovering over or focusing
 a topic highlights its contour; hovering over or focusing a section heading highlights all topics in that section and dims the
 other section. Click a topic in the list to hide or show its contour and map label. Research areas include ELSI (ethical, legal, and social implications; ethics, consent, privacy, genetic counseling, return of results, and related keywords), reproductive health (including endometriosis, preeclampsia, PCOS, and related conditions), pharmacogenetics, ancient DNA and human evolution,
-statistical genetics (including GWAS, polygenic traits, allele frequencies, heritability, and related methods), molecular and cellular genomics, and machine learning. Disease clusters include coronary artery disease, cardiomyopathy, metabolic syndrome,
+statistical genetics (including GWAS, polygenic traits, allele frequencies, heritability, and related methods), molecular and cellular genomics, machine learning, long reads and structural variants (with tandem repeats), protein structure and language models, variant interpretation, population genetics and ancestry, proteomics, metabolomics, mitochondrial DNA, epigenetic aging, prenatal and embryo testing, newborn and NICU genomics, and the gut microbiome. Disease clusters include coronary artery disease, cardiomyopathy, metabolic syndrome,
 cancer, neurodegenerative disease, autism, schizophrenia, immune and infectious disease, eye disease,
-inflammatory bowel disease, and rare disease.
+inflammatory bowel disease, rare disease, hearing loss, kidney, lung and liver disease, blood disorders and sickle cell disease, clonal hematopoiesis, epilepsy, sleep and circadian rhythm, substance use, mood disorders, craniofacial development, bone and connective tissue, and neurodevelopmental disorders.
 Obesity/BMI and type 2 diabetes are combined as “Metabolic syndrome” to show their shared cardiometabolic neighborhood.
-Pharmacogenetics is a separate research-area cluster from ELSI.
+Pharmacogenetics is a separate research-area cluster from ELSI. The smaller clusters were found by density-based clustering
+(HDBSCAN) of the map coordinates and kept where a pocket's keywords were strongly enriched. Colors follow domain families
+(for example, neurological and psychiatric topics are purples), with shades varied so that touching regions differ.
 A group starts with abstracts
 that have at least five other matching abstracts within 8 map units. Its paint is then limited to one connected contour around
 the highest-density region, at 40% of that region's peak density; sparse fringes and distant outliers are left unpainted. To
@@ -132,7 +134,7 @@ is on the layer. Each paint layer's options let you switch independently to “D
 (session headers, titles, author blocks, “Abstract:” labels). Every parsed abstract is checked against the booklet's
 table of contents, and a hand-checked sample is used as a test set. Abstracts cut off mid-text in a booklet count
 toward totals and first-author credit, but not senior-author credit or the text analyses.</li>
-<li><strong>Institutions.</strong> A hand-curated list of {{ n_institutes }} institutions and their spelling variants.
+<li><strong>Institutions.</strong> A list of {{ n_institutes }} institutions and their spelling variants.
 Schools fold into their university (except Harvard Medical School); NIH institutes fold into NIH; hospitals and
 independent institutes stay separate.</li>
 <li><strong>Countries and regions.</strong> Each author's country comes from the location at the end of their
